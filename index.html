@@ -252,15 +252,72 @@ body {
             });
         }
 
-        function calcolaEnergia(t) {
-            const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
-            const perc = Math.min((trascorsi / t.freq) * 100, 100);
-            // Colore: più è alto il trascorso, più va verso il rosso (energia scarica)
-            let col = '#48bb78'; // Verde (Appena fatto)
-            if (perc > 60) col = '#ecc94b'; // Giallo
-            if (perc > 90) col = '#f56565'; // Rosso (Da fare!)
-            return { perc, col };
-        }
+       function calcolaEnergia(t) {
+    const oggi = new Date();
+    const ultimaFatta = new Date(t.ultima);
+    
+    // Calcoliamo la differenza in giorni
+    const millisecondiAlGiorno = 86400000;
+    const trascorsi = Math.floor((oggi - ultimaFatta) / millisecondiAlGiorno);
+    
+    const rimanenti = t.freq - trascorsi;
+    
+    // Colore barra: Verde se manca molto, Giallo metà, Rosso se mancano 1 o meno giorni
+    let col = '#48bb78'; // Verde
+    if (rimanenti <= t.freq / 2) col = '#ecc94b'; // Giallo
+    if (rimanenti <= 1) col = '#f56565'; // Rosso
+
+    return { 
+        rimanenti: rimanenti, 
+        colore: col,
+        percentuale: Math.max(0, Math.min(100, (rimanenti / t.freq) * 100))
+    };
+}
+
+function render() {
+    const planner = document.getElementById("planner-container");
+    const tbody = document.getElementById("list-tbody");
+    const stanze = [...new Set(tasks.map(t => t.stanza))];
+
+    planner.innerHTML = stanze.map(s => `
+        <div class="stanza-section">
+            <h3 style="margin-top:0"><i class="fas fa-door-open"></i> ${s}</h3>
+            ${tasks.filter(t => t.stanza === s).map((t) => {
+                const stats = calcolaEnergia(t);
+                const testoScadenza = stats.rimanenti <= 0 
+                    ? `<span style="color:#e53e3e; font-weight:bold;">SCADUTO</span>` 
+                    : `Scade tra: <strong>${stats.rimanenti} giorni</strong>`;
+                
+                return `
+                <div class="card">
+                    <strong style="font-size:1.1rem">${t.nome}</strong>
+                    <p style="margin: 5px 0; font-size: 0.9rem;">${testoScadenza}</p>
+                    <div class="energy-container">
+                        <div class="energy-bar" style="width:${stats.percentuale}%; background:${stats.colore}"></div>
+                    </div>
+                    <button class="btn-primary" style="width:100%; padding:10px; margin-top:5px" onclick="segnaFatto(${tasks.indexOf(t)})">
+                        <i class="fas fa-check"></i> Fatto
+                    </button>
+                </div>`;
+            }).join('')}
+        </div>
+    `).join('');
+
+    // Aggiorna anche la tabella nella vista Lista
+    if(tbody) {
+        tbody.innerHTML = tasks.map((t, i) => {
+            const stats = calcolaEnergia(t);
+            return `
+                <tr>
+                    <td>${t.nome}</td>
+                    <td>${t.stanza}</td>
+                    <td>${stats.rimanenti} gg</td>
+                    <td><button class="btn-primary" onclick="segnaFatto(${i})">Fatto</button></td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
 
         const n = document.getElementById("quick-notes");
         n.value = localStorage.getItem("cleanNotes") || "";
