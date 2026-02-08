@@ -1,46 +1,51 @@
 const FREQUENZE = {
     "Ogni 3 giorni": 3, "Settimanale": 7, "2 settimane": 14,
-    "Mensile": 30, "Bimestrale": 60, "Trimestrale": 90,
-    "Semestrale": 180, "Annuale": 365
+    "Mensile": 30, "Bimestrale": 60, "Trimestrale": 90, "Annuale": 365
 };
 
 let tasks = JSON.parse(localStorage.getItem("cleanTasks")) || [];
 
-// Funzioni Utility
-const oggi = () => new Date().toISOString().split("T")[0];
-const aggiungiGiorni = (data, gg) => {
-    const d = new Date(data);
-    d.setDate(d.getDate() + gg);
-    return d.toISOString().split("T")[0];
-};
+// --- LOGICA OROLOGIO ---
+function updateClock() {
+    const oraEl = document.getElementById("clock");
+    const dataEl = document.getElementById("date");
+    if (!oraEl || !dataEl) return;
 
-function calcolaInfoEnergia(task) {
-    const totGiorno = FREQUENZE[task.frequenza];
+    const adesso = new Date();
+    oraEl.innerText = adesso.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    dataEl.innerText = adesso.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+setInterval(updateClock, 1000);
+
+// --- LOGICA ENERGIA ---
+function getEnergyStats(task) {
+    const giorniTot = FREQUENZE[task.frequenza];
     const ultima = new Date(task.ultimaVolta);
-    const oggiData = new Date();
-    const trascorsi = Math.floor((oggiData - ultima) / 86400000);
+    const oggi = new Date();
+    const trascorsi = Math.floor((oggi - ultima) / (1000 * 60 * 60 * 24));
     
-    let percentuale = Math.min(Math.max((trascorsi / totGiorno) * 100, 0), 100);
-    let colore = "#2ecc71"; // Verde
-    if (percentuale > 60) colore = "#f1c40f"; // Giallo
-    if (percentuale > 90) colore = "#e74c3c"; // Rosso
+    let percentuale = Math.min(Math.max((trascorsi / giorniTot) * 100, 0), 100);
+    let colore = "#48bb78"; // Verde
+    if (percentuale > 60) colore = "#ecc94b"; // Giallo
+    if (percentuale > 90) colore = "#f56565"; // Rosso
     
     return { percentuale, colore };
 }
 
-// Navigazione
+// --- NAVIGAZIONE ---
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
     document.getElementById(`view-${viewId}`).style.display = 'block';
     render();
 }
 
-// Modale
+// --- GESTIONE TASK ---
 function apriModale() {
-    const select = document.getElementById("task-frequenza");
-    select.innerHTML = Object.keys(FREQUENZE).map(f => `<option value="${f}">${f}</option>`).join('');
+    const fSelect = document.getElementById("task-frequenza");
+    fSelect.innerHTML = Object.keys(FREQUENZE).map(f => `<option value="${f}">${f}</option>`).join('');
     document.getElementById("modal-task").style.display = 'flex';
 }
+
 function chiudiModale() { document.getElementById("modal-task").style.display = 'none'; }
 
 function salvaNuovaTask() {
@@ -48,12 +53,11 @@ function salvaNuovaTask() {
     const stanza = document.getElementById("task-stanza").value;
     const frequenza = document.getElementById("task-frequenza").value;
 
-    if(!nome) return alert("Inserisci un nome!");
+    if (!nome) return alert("Inserisci un nome!");
 
     tasks.push({
         nome, stanza, frequenza,
-        ultimaVolta: oggi(),
-        prossimaVolta: aggiungiGiorni(oggi(), FREQUENZE[frequenza])
+        ultimaVolta: new Date().toISOString().split("T")[0]
     });
     
     localStorage.setItem("cleanTasks", JSON.stringify(tasks));
@@ -62,55 +66,58 @@ function salvaNuovaTask() {
 }
 
 function segnaFatto(index) {
-    tasks[index].ultimaVolta = oggi();
-    tasks[index].prossimaVolta = aggiungiGiorni(oggi(), FREQUENZE[tasks[index].frequenza]);
+    tasks[index].ultimaVolta = new Date().toISOString().split("T")[0];
     localStorage.setItem("cleanTasks", JSON.stringify(tasks));
     render();
 }
 
-// Rendering
+// --- RENDERING ---
 function render() {
-    // Render Lista Classica
+    // Render Tabella
     const tbody = document.getElementById("task-table-body");
-    tbody.innerHTML = tasks.map((t, i) => {
-        const info = calcolaInfoEnergia(t);
-        return `<tr>
-            <td>${t.nome}</td><td>${t.stanza}</td>
-            <td><div class="energy-container"><div class="energy-bar" style="width:${info.percentuale}%; background:${info.colore}"></div></div></td>
-            <td>${t.prossimaVolta}</td>
-            <td><button onclick="segnaFatto(${i})">Fatto</button></td>
-        </tr>`;
-    }).join('');
+    if (tbody) {
+        tbody.innerHTML = tasks.map((t, i) => {
+            const energy = getEnergyStats(t);
+            return `<tr>
+                <td>${t.nome}</td><td>${t.stanza}</td>
+                <td><div class="energy-container"><div class="energy-bar" style="width:${energy.percentuale}%; background:${energy.colore}"></div></div></td>
+                <td>${t.ultimaVolta}</td>
+                <td><button onclick="segnaFatto(${i})">Fatto</button></td>
+            </tr>`;
+        }).join('');
+    }
 
-    // Render Planner (Cards)
+    // Render Planner Cards
     const planner = document.getElementById("planner-container");
-    const stanze = [...new Set(tasks.map(t => t.stanza))];
-    planner.innerHTML = stanze.map(s => `
-        <div class="stanza-section">
-            <h3>${s}</h3>
-            ${tasks.filter(t => t.stanza === s).map((t, i) => {
-                const info = calcolaInfoEnergia(t);
-                const realIdx = tasks.indexOf(t);
-                return `
-                <div class="card">
-                    <strong>${t.nome}</strong>
-                    <div class="energy-container"><div class="energy-bar" style="width:${info.percentuale}%; background:${info.colore}"></div></div>
-                    <button onclick="segnaFatto(${realIdx})">Fatto</button>
-                </div>`;
-            }).join('')}
-        </div>
-    `).join('');
+    if (planner) {
+        const stanze = [...new Set(tasks.map(t => t.stanza))];
+        planner.innerHTML = stanze.map(s => `
+            <div class="stanza-section">
+                <h3>${s}</h3>
+                ${tasks.filter(t => t.stanza === s).map(t => {
+                    const energy = getEnergyStats(t);
+                    const idx = tasks.indexOf(t);
+                    return `
+                    <div class="card">
+                        <strong>${t.nome}</strong>
+                        <div class="energy-container"><div class="energy-bar" style="width:${energy.percentuale}%; background:${energy.colore}"></div></div>
+                        <button onclick="segnaFatto(${idx})">Completato</button>
+                    </div>`;
+                }).join('')}
+            </div>
+        `).join('');
+    }
 }
 
-// Orologio e Note
-setInterval(() => {
-    const d = new Date();
-    document.getElementById("clock").innerText = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    document.getElementById("date").innerText = d.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
-}, 1000);
+// --- NOTE ---
+const noteInput = document.getElementById("quick-notes");
+if(noteInput) {
+    noteInput.value = localStorage.getItem("cleanNotes") || "";
+    noteInput.addEventListener("input", (e) => localStorage.setItem("cleanNotes", e.target.value));
+}
 
-const notesArea = document.getElementById("quick-notes");
-notesArea.value = localStorage.getItem("cleanNotes") || "";
-notesArea.addEventListener("input", (e) => localStorage.setItem("cleanNotes", e.target.value));
-
-document.addEventListener("DOMContentLoaded", () => render());
+// Inizializzazione
+document.addEventListener("DOMContentLoaded", () => {
+    updateClock();
+    render();
+});
