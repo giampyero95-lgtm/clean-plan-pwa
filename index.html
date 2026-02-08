@@ -45,16 +45,19 @@
 </head>
 <body>
 
-    <div id="auth-container">
+        <div id="auth-container">
         <div class="auth-card">
-            <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
-            <h3>Accesso Riservato</h3>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="handleLogin()">Accedi</button>
-            <p id="auth-error" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
+            <i class="fas fa-shield-halved" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h2>MySpace</h2>
+            <p>Accedi per gestire il tuo ecosistema</p>
+            <button onclick="handleGoogleLogin()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: #444; border: 1px solid #ddd; font-weight: bold;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                Accedi con Google
+            </button>
+            <p id="auth-error" style="color: #ff4d4d; font-size: 0.8rem; margin-top: 15px;"></p>
         </div>
     </div>
+
 
     <main id="main-hub">
         <h1 style="color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">Benvenuto nel tuo Spazio</h1>
