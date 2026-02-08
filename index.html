@@ -9,7 +9,7 @@
         :root { --primary: #4a90e2; --sidebar: #1a2233; --glass: rgba(255, 255, 255, 0.3); }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; display: flex; }
         
-        /* --- STILE GLASS CORRETTO --- */
+        /* --- STILE VETRO (GLASS) --- */
         .stanza-section, .notes-container textarea, .modal-content, .card, .day-column, table {
             background: var(--glass) !important;
             backdrop-filter: blur(10px) !important;
@@ -18,47 +18,52 @@
             border-radius: 20px;
         }
 
-        /* LOGIN & HUB */
+        /* LOGIN */
         #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 320px; text-align: center; }
+        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 320px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+
+        /* HUB */
         #main-hub { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 30px; }
         .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; max-width: 900px; width: 90%; }
-        .hub-item { background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .hub-item { background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.4); color: white; transition: 0.3s; }
+        .hub-item i { font-size: 3.5rem; margin-bottom: 15px; display: block; }
 
         /* APP CLEAN PLAN */
         #clean-plan-app { display: none; width: 100%; height: 100%; }
         .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; z-index: 10; }
-        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; }
-        .content { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; }
-        .view { animation: fadeIn 0.4s ease; width: 100%; max-width: 1200px; margin: 0 auto; }
+        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
         
-        /* HOME & AGENDA */
         #clock { font-size: 4.5rem; margin: 0; font-weight: 800; color: #2c3e50; line-height: 1; }
         #date { font-size: 1.3rem; color: #444; margin: 5px 0 25px 0; text-transform: capitalize; }
+        
         .agenda-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-        .day-column { flex: 1; min-width: 140px; padding: 15px; min-height: 160px; box-sizing: border-box; text-align: center; }
-        .agenda-item { font-size: 0.8rem; background: rgba(255,255,255,0.6); padding: 6px; border-radius: 8px; margin-top: 6px; color: #333; }
+        .day-column { flex: 1; min-width: 140px; padding: 15px; min-height: 160px; }
+        .day-column h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: #222; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .agenda-item { font-size: 0.8rem; background: rgba(255,255,255,0.6); padding: 6px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--primary); color: #333; }
 
-        /* SISTEMAZIONE TABELLA (Angoli e Bordi) */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; border: none !important; }
-        th { text-align: left; padding: 18px; background: rgba(255,255,255,0.1); font-weight: 600; color: #222; border: none; }
-        td { padding: 18px; border-top: 1px solid rgba(255,255,255,0.2); color: #333; }
-        th:first-child { border-top-left-radius: 20px; }
-        th:last-child { border-top-right-radius: 20px; }
-        tr:last-child td:first-child { border-bottom-left-radius: 20px; }
-        tr:last-child td:last-child { border-bottom-right-radius: 20px; }
+        .notes-container textarea { width: 100%; max-width: 600px; height: 120px; padding: 15px; outline: none; font-size: 1rem; color: #333; box-sizing: border-box; }
 
-        /* SISTEMAZIONE CARDS (Centratura e Allineamento) */
-        #planner-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; padding: 10px 0; }
+        /* --- FIX TABELLA (ANGOLI PULITI) --- */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; border: none !important; overflow: hidden; }
+        th { text-align: left; padding: 18px; background: rgba(255,255,255,0.1); font-weight: 600; color: #222; border: none !important; }
+        td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #333; }
+        tr:last-child td { border-bottom: none; }
+
+        /* --- FIX CARDS (IMPAGINAZIONE CENTRATA) --- */
+        #planner-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .stanza-section { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .stanza-section h3 { width: 100%; text-align: left; margin-top: 0; }
-        .card { width: 100%; max-width: 320px; box-sizing: border-box; padding: 20px !important; margin: 10px 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .energy-container { width: 100%; height: 12px; background: rgba(0,0,0,0.1); border-radius: 6px; margin: 15px 0; overflow: hidden; }
+        .stanza-section h3 { align-self: flex-start; margin-bottom: 15px; width: 100%; }
+        .card { width: 100%; max-width: 280px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .energy-container-wrap { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 12px 0; overflow: hidden; }
 
-        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: none; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 99; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal { display: none; position: fixed; inset:0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { display: flex; flex-direction: column; gap: 15px; width: 320px; padding: 25px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -163,29 +168,41 @@
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 
-        document.getElementById('login-google-btn').onclick = () => signInWithRedirect(auth, provider);
-        document.getElementById('logout-btn').onclick = () => signOut(auth);
+        document.getElementById('login-google-btn').addEventListener('click', () => signInWithRedirect(auth, provider));
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
         onAuthStateChanged(auth, async (user) => {
-            if (user && (whitelist.includes(user.email))) {
+            if (user && whitelist.includes(user.email)) {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-hub').style.display = 'flex';
-                onSnapshot(collection(db, "tasks"), (snap) => {
-                    window.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    render();
-                });
+                startApp();
             } else if (user) {
-                document.getElementById('auth-error').innerText = "Accesso non autorizzato.";
-                signOut(auth);
+                document.getElementById('auth-error').innerText = "Email non autorizzata.";
+                await signOut(auth);
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
             }
         });
 
-        // Navigazione
-        document.getElementById('btn-open-clean').onclick = () => { document.getElementById('main-hub').style.display = 'none'; document.getElementById('clean-plan-app').style.display = 'flex'; };
-        document.getElementById('nav-hub').onclick = () => { document.getElementById('clean-plan-app').style.display = 'none'; document.getElementById('main-hub').style.display = 'flex'; };
-        const switchView = (id) => { document.querySelectorAll('.view').forEach(v => v.style.display = 'none'); document.getElementById('view-' + id).style.display = 'block'; };
+        function startApp() {
+            onSnapshot(collection(db, "tasks"), (snap) => {
+                window.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
+            });
+        }
+
+        document.getElementById('btn-open-clean').onclick = () => {
+            document.getElementById('main-hub').style.display = 'none';
+            document.getElementById('clean-plan-app').style.display = 'flex';
+        };
+        document.getElementById('nav-hub').onclick = () => {
+            document.getElementById('clean-plan-app').style.display = 'none';
+            document.getElementById('main-hub').style.display = 'flex';
+        };
+        const switchView = (id) => {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-' + id).style.display = 'block';
+        };
         document.getElementById('nav-home').onclick = () => switchView('home');
         document.getElementById('nav-planner').onclick = () => switchView('planner');
         document.getElementById('nav-list').onclick = () => switchView('list');
@@ -202,8 +219,12 @@
             document.getElementById('modal-task').style.display = 'none';
         };
 
-        window.segnaFatto = async (id) => { await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] }); };
-        window.eliminaTask = async (id) => { if(confirm("Eliminare attività?")) await deleteDoc(doc(db, "tasks", id)); };
+        window.segnaFatto = async (id) => {
+            await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
+        };
+        window.eliminaTask = async (id) => {
+            if(confirm("Eliminare attività?")) await deleteDoc(doc(db, "tasks", id));
+        };
 
         function calcolaEnergia(t) {
             const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
@@ -222,27 +243,29 @@
                 <div class="stanza-section"><h3><i class="fas fa-door-open"></i> ${s}</h3>
                 ${tasks.filter(t => t.stanza === s).map(t => {
                     const en = calcolaEnergia(t);
-                    return `<div class="card">
+                    return `<div class="card" style="padding:15px; margin-bottom:10px; background:rgba(255,255,255,0.2) !important">
                     <strong>${t.nome}</strong><br><small>Manca: ${en.rim} gg</small>
-                    <div class="energy-container"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
-                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:10px; border-radius:10px; cursor:pointer;">Fatto</button></div>`;
+                    <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
+                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button></div>`;
                 }).join('')}</div>`).join('');
 
             list.innerHTML = tasks.map(t => {
                 const en = calcolaEnergia(t);
                 return `<tr><td><strong>${t.nome}</strong></td><td>${t.stanza}</td><td>Ogni ${t.freq} gg</td>
-                <td><div class="energy-container" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
+                <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
                 <td><button onclick="segnaFatto('${t.id}')" style="border:none; color:var(--primary); background:none; cursor:pointer; font-size:1.2rem;"><i class="fas fa-check-circle"></i></button>
                 <button onclick="eliminaTask('${t.id}')" style="border:none; color:#f56565; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button></td></tr>`;
             }).join('');
 
             const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
             agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="ag-${g}"></div></div>`).join('');
-            tasks.forEach(t => { if(calcolaEnergia(t).rim <= 1) { 
-                const d = (new Date().getDay() + 6) % 7; 
-                const target = document.getElementById(`ag-${giorni[d]}`);
-                if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
-            }});
+            tasks.forEach(t => {
+                if(calcolaEnergia(t).rim <= 1) {
+                    const d = (new Date().getDay() + 6) % 7;
+                    const target = document.getElementById(`ag-${giorni[d]}`);
+                    if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
+                }
+            });
         }
 
         setInterval(() => {
@@ -251,7 +274,7 @@
             document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
         }, 1000);
         document.getElementById("quick-notes").value = localStorage.getItem("cleanNotes") || "";
-        document.getElementById("quick-notes").addEventListener("input", (e) => localStorage.setItem("cleanNotes", e.target.value));
+        document.getElementById("quick-notes").addEventListener("input", () => localStorage.setItem("cleanNotes", document.getElementById("quick-notes").value));
     </script>
 </body>
 </html>
