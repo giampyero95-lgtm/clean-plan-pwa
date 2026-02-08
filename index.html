@@ -4,75 +4,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clean Plan PWA</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- CSS INTEGRATO --- */
+        :root { --primary: #4a90e2; --sidebar: #1a2233; --glass: rgba(255, 255, 255, 0.85); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%); height: 100vh; overflow: hidden; display: flex; }
+        
+        .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 30px; }
+        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .sidebar button:hover, .sidebar button.active { color: white; transform: scale(1.1); }
+
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .view { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Widget Home */
+        .clock-widget { margin-bottom: 30px; }
+        #clock { font-size: 5rem; margin: 0; color: #2c3e50; font-weight: 800; }
+        #date { font-size: 1.5rem; color: #7f8c8d; margin: 0; text-transform: capitalize; }
+        
+        .notes-container textarea { width: 100%; max-width: 400px; height: 200px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); padding: 15px; background: var(--glass); backdrop-filter: blur(10px); }
+
+        /* Cards & Energy */
+        .planner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .stanza-section { background: var(--glass); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
+        .card { background: white; border-radius: 12px; padding: 15px; margin-top: 15px; border: 1px solid #eee; }
+        
+        .energy-container { height: 10px; background: #eee; border-radius: 5px; margin: 10px 0; overflow: hidden; }
+        .energy-bar { height: 100%; transition: width 0.5s; }
+
+        /* Modale */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; display: flex; flex-direction: column; gap: 15px; width: 300px; }
+        button.btn-primary { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="logo"><i class="fas fa-sparkles" style="color: #4a90e2;"></i></div>
-            <button onclick="switchView('home')" id="btn-home"><i class="fas fa-home"></i></button>
-            <button onclick="switchView('planner')" id="btn-planner"><i class="fas fa-th-large"></i></button>
-            <button onclick="switchView('list')" id="btn-list"><i class="fas fa-list"></i></button>
-            <button onclick="apriModale()"><i class="fas fa-plus-circle"></i></button>
-        </nav>
 
-        <main class="content">
-            <section id="view-home" class="view">
-                <div class="clock-widget">
-                    <h1 id="clock">--:--</h1>
-                    <p id="date">Caricamento...</p>
-                </div>
-                <div class="notes-container">
-                    <h3><i class="fas fa-sticky-note"></i> Note Rapide</h3>
-                    <textarea id="quick-notes" placeholder="Scrivi qui i tuoi promemoria..."></textarea>
-                </div>
-            </section>
+    <nav class="sidebar">
+        <div style="color:var(--primary); font-size: 1.8rem;"><i class="fas fa-broom"></i></div>
+        <button onclick="switchView('home')"><i class="fas fa-home"></i></button>
+        <button onclick="switchView('planner')"><i class="fas fa-th-large"></i></button>
+        <button onclick="switchView('list')"><i class="fas fa-list"></i></button>
+        <button onclick="document.getElementById('modal-task').style.display='flex'"><i class="fas fa-plus-circle"></i></button>
+    </nav>
 
-            <section id="view-planner" class="view" style="display:none;">
-                <h2 class="view-title">Il tuo Piano</h2>
-                <div id="planner-container" class="planner-grid"></div>
-            </section>
+    <main class="content">
+        <section id="view-home" class="view">
+            <div class="clock-widget">
+                <h1 id="clock">00:00</h1>
+                <p id="date">Caricamento...</p>
+            </div>
+            <div class="notes-container">
+                <h3><i class="fas fa-sticky-note"></i> Note Rapide</h3>
+                <textarea id="quick-notes" placeholder="Cose da fare..."></textarea>
+            </div>
+        </section>
 
-            <section id="view-list" class="view" style="display:none;">
-                <h2 class="view-title">Riepilogo Task</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Task</th>
-                                <th>Stanza</th>
-                                <th>Energia</th>
-                                <th>Ultima volta</th>
-                                <th>Azione</th>
-                            </tr>
-                        </thead>
-                        <tbody id="task-table-body"></tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
+        <section id="view-planner" class="view" style="display:none;">
+            <h2>I Tuoi Ambienti</h2>
+            <div id="planner-container" class="planner-grid"></div>
+        </section>
+
+        <section id="view-list" class="view" style="display:none;">
+            <h2>Tutte le Task</h2>
+            <div id="list-container"></div>
+        </section>
+    </main>
 
     <div id="modal-task" class="modal">
         <div class="modal-content">
             <h3>Nuova Attività</h3>
-            <input type="text" id="task-nome" placeholder="Cosa devi pulire?">
-            <select id="task-stanza">
-                <option value="Cucina">Cucina</option>
-                <option value="Bagno">Bagno</option>
-                <option value="Camera">Camera</option>
-                <option value="Soggiorno">Soggiorno</option>
-                <option value="Balcone">Balcone</option>
+            <input type="text" id="t-nome" placeholder="Nome task">
+            <select id="t-stanza">
+                <option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option>
             </select>
-            <select id="task-frequenza" title="Frequenza"></select>
-            <div class="modal-buttons">
-                <button onclick="chiudiModale()" class="btn-cancel">Annulla</button>
-                <button onclick="salvaNuovaTask()" class="btn-save">Salva</button>
-            </div>
+            <select id="t-frequenza">
+                <option value="7">Settimanale</option><option value="14">2 Settimane</option><option value="30">Mensile</option>
+            </select>
+            <button class="btn-primary" onclick="aggiungiTask()">Salva</button>
+            <button onclick="document.getElementById('modal-task').style.display='none'">Chiudi</button>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        /* --- JS INTEGRATO --- */
+        let tasks = JSON.parse(localStorage.getItem("cleanTasks")) || [];
+
+        function updateClock() {
+            const ora = new Date();
+            document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-' + id).style.display = 'block';
+            render();
+        }
+
+        function aggiungiTask() {
+            const nome = document.getElementById("t-nome").value;
+            const stanza = document.getElementById("t-stanza").value;
+            const freq = document.getElementById("t-frequenza").value;
+            if(!nome) return;
+            tasks.push({ nome, stanza, freq: parseInt(freq), ultima: new Date().toISOString().split('T')[0] });
+            localStorage.setItem("cleanTasks", JSON.stringify(tasks));
+            document.getElementById('modal-task').style.display='none';
+            render();
+        }
+
+        function segnaFatto(idx) {
+            tasks[idx].ultima = new Date().toISOString().split('T')[0];
+            localStorage.setItem("cleanTasks", JSON.stringify(tasks));
+            render();
+        }
+
+        function render() {
+            const planner = document.getElementById("planner-container");
+            const stanze = [...new Set(tasks.map(t => t.stanza))];
+            planner.innerHTML = stanze.map(s => `
+                <div class="stanza-section">
+                    <h3>${s}</h3>
+                    ${tasks.filter(t => t.stanza === s).map((t, i) => {
+                        const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
+                        const perc = Math.min((trascorsi / t.freq) * 100, 100);
+                        const col = perc > 90 ? '#f56565' : perc > 60 ? '#ecc94b' : '#48bb78';
+                        return `
+                        <div class="card">
+                            <strong>${t.nome}</strong>
+                            <div class="energy-container"><div class="energy-bar" style="width:${perc}%; background:${col}"></div></div>
+                            <button onclick="segnaFatto(${tasks.indexOf(t)})">Fatto</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Carica Note
+        const n = document.getElementById("quick-notes");
+        n.value = localStorage.getItem("cleanNotes") || "";
+        n.addEventListener("input", () => localStorage.setItem("cleanNotes", n.value));
+
+        render();
+    </script>
 </body>
 </html>
