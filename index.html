@@ -130,23 +130,47 @@
                 </table>
             </section>
         </main>
-        <button class="fab" id="btn-add-task"><i class="fas fa-plus"></i></button>
-    </div>
+            </div>
+    <button class="fab" id="btn-add-task"><i class="fas fa-plus"></i></button>
+</div>
 
-    <div id="modal-task" class="modal">
-        <div class="modal-content">
-            <h3>Nuova Attività</h3>
-            <input type="text" id="t-nome" placeholder="Cosa devi fare?">
-            <select id="t-stanza">
-                <option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option><option>Balcone</option>
-            </select>
-            <select id="t-frequenza">
-                <option value="3">Ogni 3 giorni</option><option value="7">Settimanale</option><option value="14">Ogni 2 sett.</option><option value="30">Mensile</option>
-            </select>
-            <button id="btn-save-task" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:10px;">Salva Cloud</button>
-            <button id="btn-close-modal" style="background:none; border:none; margin-top:5px; cursor:pointer;">Annulla</button>
-        </div>
+<div id="modal-task" class="modal">
+    <div class="modal-content" style="background: var(--glass) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.5) !important; color: #2c3e50;">
+        <h3 style="margin-top: 0; color: #2c3e50; font-weight: 800; text-align: center;">Nuova Attività</h3>
+        
+        <label style="font-size: 0.8rem; font-weight: bold; margin-bottom: -5px; opacity: 0.7; display: block;">Descrizione</label>
+        <input type="text" id="t-nome" placeholder="Cosa devi fare?" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
+        
+        <label style="font-size: 0.8rem; font-weight: bold; margin-bottom: -5px; opacity: 0.7; display: block; margin-top: 10px;">Stanza</label>
+        <select id="t-stanza" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
+            <option>Cucina</option>
+            <option>Bagno</option>
+            <option>Camera</option>
+            <option>Soggiorno</option>
+            <option>Balcone</option>
+        </select>
+        
+        <label style="font-size: 0.8rem; font-weight: bold; margin-bottom: -5px; opacity: 0.7; display: block; margin-top: 10px;">Ogni quanto?</label>
+        <select id="t-frequenza" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
+            <option value="3">Ogni 3 giorni</option>
+            <option value="7">Settimanale</option>
+            <option value="14">2 settimane</option>
+            <option value="21">3 settimane</option>
+            <option value="30">Mensile</option>
+            <option value="60">Bimestrale</option>
+            <option value="90">Trimestrale</option>
+            <option value="180">Semestrale</option>
+            <option value="365">Annuale</option>
+        </select>
+        
+        <button id="btn-save-task" style="background: var(--primary); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3); width: 100%;">Salva nel Cloud</button>
+        <button id="btn-close-modal" style="background: none; border: none; color: #2c3e50; opacity: 0.6; cursor: pointer; font-size: 0.9rem; font-weight: bold; width: 100%; margin-top: 10px;">Annulla</button>
     </div>
+</div>
+
+<script type="module">
+    // ... (tutto il tuo codice Firebase rimane qui sotto)
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
