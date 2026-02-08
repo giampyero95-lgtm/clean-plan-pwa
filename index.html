@@ -1,41 +1,80 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Clean Plan</title>
-
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Plan PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
-  <aside class="sidebar">
-    <h2>Clean Plan</h2>
-    <nav>
-      <a class="active">Planner</a>
-      <a href="list.html">Lista</a>
-    </nav>
-  </aside>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo"><i class="fas fa-broom"></i></div>
+            <button onclick="switchView('home')" title="Home"><i class="fas fa-home"></i></button>
+            <button onclick="switchView('planner')" title="Planner"><i class="fas fa-th-large"></i></button>
+            <button onclick="switchView('list')" title="Lista Task"><i class="fas fa-list"></i></button>
+            <button onclick="apriModale()" title="Aggiungi"><i class="fas fa-plus-circle"></i></button>
+        </nav>
 
-  <main class="content">
-    <section class="card">
-      <h3>Planner</h3>
-      <p class="muted">Task pianificati oggi</p>
+        <main class="content">
+            <section id="view-home" class="view">
+                <div class="header-home">
+                    <div class="clock-widget">
+                        <h1 id="clock">00:00</h1>
+                        <p id="date">Domenica, 8 Febbraio</p>
+                    </div>
+                </div>
+                <div class="notes-section">
+                    <h3><i class="fas fa-sticky-note"></i> Note Rapide</h3>
+                    <textarea id="quick-notes" placeholder="Cose da sistemare o aggiungere..."></textarea>
+                </div>
+            </section>
 
-      <div class="kpi">
-        <div>
-          <span class="number">0</span>
-          <span class="label">Da fare</span>
+            <section id="view-planner" class="view" style="display:none;">
+                <h2>Planner per Stanza</h2>
+                <div id="planner-container" class="planner-grid"></div>
+            </section>
+
+            <section id="view-list" class="view" style="display:none;">
+                <h2>Elenco Task</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Stanza</th>
+                                <th>Energia</th>
+                                <th>Prossima</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-task" class="modal">
+        <div class="modal-content">
+            <h3>Nuova Task</h3>
+            <input type="text" id="task-nome" placeholder="Nome della pulizia">
+            <select id="task-stanza">
+                <option value="Casa">Casa</option>
+                <option value="Bagno">Bagno</option>
+                <option value="Camera">Camera</option>
+                <option value="Cucina">Cucina</option>
+                <option value="Balcone">Balcone</option>
+            </select>
+            <select id="task-frequenza"></select>
+            <div class="modal-buttons">
+                <button onclick="chiudiModale()">Annulla</button>
+                <button onclick="salvaNuovaTask()" class="btn-primary">Salva</button>
+            </div>
         </div>
-        <div>
-          <span class="number">0</span>
-          <span class="label">Completati</span>
-        </div>
-      </div>
-    </section>
-  </main>
+    </div>
 
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
