@@ -14,18 +14,29 @@
             --bg-gradient: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
         }
 
-       body { 
+      body { 
     margin: 0; 
     font-family: 'Segoe UI', sans-serif; 
-    /* Gradiente Rosa-Arancio */
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #ffd1ff 100%);
-    /* Oppure un arancio più deciso: */
-    /* background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); */
+    /* Gradiente Arancio Vitaminico -> Verde Menta */
+    background: linear-gradient(135deg, #f6d365 0%, #a1c4fd 50%, #d4fc79 100%);
+    /* Alternativa più decisa: */
+    /* background: linear-gradient(135deg, #ff9a44 0%, #86fde8 100%); */
+    
     background-attachment: fixed;
     height: 100vh; 
     overflow: hidden; 
-    display: flex;
-           }
+    display: flex; 
+}
+
+/* --- EFFETTO VETRO (BLUR 10px) --- */
+.stanza-section, .notes-container textarea, .modal-content, .card {
+    background: rgba(255, 255, 255, 0.3) !important; /* Più trasparente per far vedere i colori */
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 20px;
+}
         
         /* Sidebar */
         .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 30px; z-index: 10; }
