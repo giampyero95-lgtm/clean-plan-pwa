@@ -21,12 +21,23 @@ function aggiungiGiorni(data, giorni) {
   return d.toISOString().split("T")[0];
 }
 
-function calcolaEnergia(task) {
-  const tot = FREQUENZE[task.frequenza];
-  const rimasti = Math.ceil(
-    (new Date(task.prossimaVolta) - new Date()) / 86400000
-  );
-  return tot - rimasti;
+function calcolaDatiEnergia(task) {
+    const totGiorni = FREQUENZE[task.frequenza];
+    const dataUltima = new Date(task.ultimaVolta);
+    const oggiData = new Date();
+    
+    // Differenza in millisecondi convertita in giorni
+    const giorniTrascorsi = Math.floor((oggiData - dataUltima) / (1000 * 60 * 60 * 24));
+    
+    // Percentuale di "carica" (0% = appena fatto, 100% = da fare subito)
+    let percentuale = Math.min(Math.max((giorniTrascorsi / totGiorni) * 100, 0), 100);
+    
+    // Determiniamo il colore
+    let colore = "#4CAF50"; // Verde
+    if (percentuale > 60) colore = "#FFC107"; // Giallo
+    if (percentuale > 90) colore = "#F44336"; // Rosso
+    
+    return { percentuale, colore };
 }
 
 function salva() {
@@ -41,24 +52,40 @@ function segnaFatto(index) {
   render();
 }
 
-function render() {
-  const tbody = document.querySelector("tbody");
-  if (!tbody) return;
+function renderPlanner() {
+    const container = document.getElementById("planner-container");
+    if (!container) return;
+    container.innerHTML = "";
 
-  tbody.innerHTML = "";
+    // Raggruppiamo per stanza
+    const stanze = [...new Set(tasks.map(t => t.stanza))];
 
-  tasks
-    .map((t, i) => ({ ...t, energia: calcolaEnergia(t), i }))
-    .sort((a, b) => b.energia - a.energia)
-    .forEach(t => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${t.nome}</td>
-          <td>${t.frequenza}</td>
-          <td>${t.stanza}</td>
-          <td>${t.prossimaVolta}</td>
-          <td><button onclick="segnaFatto(${t.i})">Fatto</button></td>
-        </tr>`;
+    stanze.forEach(stanza => {
+        const tasksStanza = tasks
+            .filter(t => t.stanza === stanza)
+            .map((t, index) => ({ ...t, originalIndex: index, stats: calcolaDatiEnergia(t) }))
+            .sort((a, b) => b.stats.percentuale - a.stats.percentuale); // Più urgenti in alto
+
+        let stanzaHTML = `
+            <div class="stanza-section">
+                <h3>${stanza}</h3>
+                <div class="cards-grid">
+                    ${tasksStanza.map(t => `
+                        <div class="card ${t.stats.percentuale >= 100 ? 'scaduta' : ''}">
+                            <div class="card-info">
+                                <strong>${t.nome}</strong>
+                                <span>Ultima volta: ${t.ultimaVolta}</span>
+                            </div>
+                            <div class="energy-bar-container">
+                                <div class="energy-bar" style="width: ${t.stats.percentuale}%; background: ${t.stats.colore}"></div>
+                            </div>
+                            <button onclick="segnaFatto(${t.originalIndex})">Done</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        container.innerHTML += stanzaHTML;
     });
 }
 
