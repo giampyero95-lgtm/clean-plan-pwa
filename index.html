@@ -9,34 +9,65 @@
         :root { --primary: #4a90e2; --sidebar: #1a2233; --glass: rgba(255, 255, 255, 0.3); }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; display: flex; }
         
+        /* --- EFFETTO VETRO GENERALE --- */
+        .stanza-section, .notes-container textarea, .modal-content, .card, .day-column, table {
+            background: var(--glass) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            border-radius: 20px;
+        }
+
         /* LOGIN */
         #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 320px; text-align: center; }
-        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; background: white; color: #444; border: 1px solid #ddd; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        
+        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 320px; text-align: center; }
+        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+
         /* HUB */
         #main-hub { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 30px; }
         .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; max-width: 900px; width: 90%; }
-        .hub-item { background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; text-align: center; cursor: pointer; transition: 0.4s; border: 1px solid rgba(255,255,255,0.4); color: white; }
+        .hub-item { background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.4); color: white; transition: 0.3s; }
+        .hub-item:hover { transform: translateY(-5px); background: rgba(255,255,255,0.4); }
         .hub-item i { font-size: 3.5rem; margin-bottom: 15px; display: block; }
 
         /* APP CLEAN PLAN */
         #clean-plan-app { display: none; width: 100%; height: 100%; }
-        .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; }
-        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; }
+        .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; z-index: 10; }
+        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .sidebar button:hover { color: white; transform: scale(1.1); }
+        
         .content { flex: 1; padding: 30px; overflow-y: auto; }
         .view { animation: fadeIn 0.4s ease; max-width: 1200px; margin: 0 auto; }
         
-        .stanza-section, .card, .day-column, table, .notes-container textarea { background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); padding: 15px; margin-bottom: 20px;}
-        #clock { font-size: 4rem; margin: 0; font-weight: 800; color: #2c3e50; }
-        .energy-container { height: 12px; background: rgba(0,0,0,0.1); border-radius: 6px; margin: 10px 0; overflow: hidden; }
-        .energy-bar { height: 100%; transition: width 0.6s; }
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; cursor: pointer; z-index: 99; }
+        /* HEADER & AGENDA */
+        #clock { font-size: 4.5rem; margin: 0; font-weight: 800; color: #2c3e50; line-height: 1; }
+        #date { font-size: 1.3rem; color: #444; margin: 5px 0 25px 0; text-transform: capitalize; }
+        
+        .agenda-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
+        .day-column { flex: 1; min-width: 140px; padding: 15px; min-height: 160px; box-sizing: border-box; }
+        .day-column h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: #222; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .agenda-item { font-size: 0.8rem; background: rgba(255,255,255,0.6); padding: 6px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--primary); color: #333; }
+
+        /* NOTE */
+        .notes-container textarea { width: 100%; max-width: 600px; height: 120px; padding: 15px; outline: none; font-size: 1rem; color: #333; box-sizing: border-box; }
+
+        /* TABELLA LISTA */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; overflow: hidden; }
+        th { text-align: left; padding: 18px; background: rgba(255,255,255,0.2); font-weight: 600; color: #222; }
+        td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #333; }
+        tr:last-child td { border-bottom: none; }
+        
+        .energy-container { height: 12px; background: rgba(0,0,0,0.1); border-radius: 6px; margin: 5px 0; overflow: hidden; width: 100px; }
+        .energy-bar { height: 100%; transition: width 0.6s ease; }
+
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: none; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 99; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* MODALE */
         .modal { display: none; position: fixed; inset:0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { display: flex; flex-direction: column; gap: 15px; width: 300px; padding: 25px; background: white !important; color: #333; border-radius: 20px; }
+        .modal-content { display: flex; flex-direction: column; gap: 15px; width: 320px; padding: 25px; box-sizing: border-box; }
+        .modal-content input, .modal-content select { padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); }
     </style>
 </head>
 <body>
@@ -45,12 +76,11 @@
         <div class="auth-card">
             <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--primary);"></i>
             <h2>MySpace</h2>
-            <p style="color: #666;">Accedi per continuare</p>
             <button class="btn-google" id="btn-login-google">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
                 Accedi con Google
             </button>
-            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:15px; font-weight:bold;"></p>
+            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:15px;"></p>
         </div>
     </div>
 
@@ -64,10 +94,10 @@
             <div class="hub-item" style="opacity: 0.5;">
                 <i class="fas fa-wallet"></i>
                 <h3>Finance</h3>
-                <p>Coming Soon</p>
+                <p>In arrivo</p>
             </div>
         </div>
-        <button onclick="logout()" style="background:none; border:1px solid white; color:white; padding:10px; border-radius:10px; cursor:pointer; margin-top:20px;">Esci</button>
+        <button onclick="logout()" style="background:none; border:1px solid white; color:white; padding:10px 20px; border-radius:10px; cursor:pointer;">Esci</button>
     </main>
 
     <div id="clean-plan-app">
@@ -77,20 +107,29 @@
             <button onclick="switchView('planner')"><i class="fas fa-layer-group"></i></button>
             <button onclick="switchView('list')"><i class="fas fa-table-list"></i></button>
         </nav>
+
         <main class="content">
             <section id="view-home" class="view">
                 <h1 id="clock">00:00</h1>
                 <p id="date">...</p>
-                <div id="agenda-settimanale" style="display: flex; gap:10px; overflow-x:auto;"></div>
-                <div style="margin-top:20px;">
-                    <h3>Note</h3>
-                    <textarea id="quick-notes" style="width:100%; height:80px;"></textarea>
+                <div id="agenda-settimanale" class="agenda-grid"></div>
+                <div class="notes-container">
+                    <h3><i class="fas fa-pen"></i> Note Rapide</h3>
+                    <textarea id="quick-notes" placeholder="Cose da ricordare..."></textarea>
                 </div>
             </section>
-            <section id="view-planner" class="view" style="display:none;"><div id="planner-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:20px;"></div></section>
+
+            <section id="view-planner" class="view" style="display:none;">
+                <h2>Stato Stanze</h2>
+                <div id="planner-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;"></div>
+            </section>
+
             <section id="view-list" class="view" style="display:none;">
-                <table style="width:100%; border-collapse: collapse;">
-                    <thead><tr style="text-align:left;"><th>Task</th><th>Stanza</th><th>Frequenza</th><th>Azioni</th></tr></thead>
+                <h2 style="font-size: 2rem; margin-bottom: 20px;">Tasks</h2>
+                <table>
+                    <thead>
+                        <tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Stato</th><th>Azioni</th></tr>
+                    </thead>
                     <tbody id="list-table-body"></tbody>
                 </table>
             </section>
@@ -100,18 +139,18 @@
 
     <div id="modal-task" class="modal">
         <div class="modal-content">
-            <h3>Nuova Task</h3>
+            <h3>Nuova Attività</h3>
             <input type="text" id="t-nome" placeholder="Cosa devi fare?">
-            <select id="t-stanza"><option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option></select>
-            <select id="t-frequenza"><option value="3">3 giorni</option><option value="7">7 giorni</option><option value="30">30 giorni</option></select>
-            <button onclick="aggiungiTask()" style="background:var(--primary); color:white; padding:10px; border:none; border-radius:8px;">Salva</button>
-            <button onclick="chiudiModale()" style="background:none; border:none;">Annulla</button>
+            <select id="t-stanza"><option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option><option>Balcone</option></select>
+            <select id="t-frequenza"><option value="3">Ogni 3 giorni</option><option value="7">Settimanale</option><option value="14">Ogni 2 sett.</option><option value="30">Mensile</option></select>
+            <button onclick="aggiungiTask()" style="background:var(--primary); color:white; padding:12px; border:none; border-radius:10px;">Salva Cloud</button>
+            <button onclick="chiudiModale()" style="background:none; border:none; margin-top:5px;">Annulla</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -127,50 +166,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
-        let tasksCol;
+        
+        // --- MODIFICA QUI LE EMAIL AUTORIZZATE ---
+        const whitelist = ["giampyero95@gmail.com"]; // Inserisci qui le mail
 
-        // --- LISTA EMAIL AUTORIZZATE (METTI LA TUA QUI) ---
-        const whitelist = ["giampyero95@gmail.com"]; 
-
-        // LOGIN CLICK
-        document.getElementById('btn-login-google').onclick = () => {
-            signInWithPopup(auth, provider).catch(e => {
-                document.getElementById('auth-error').innerText = "Errore pop-up: assicurati di usare un server (non cliccare il file .html direttamente)";
-            });
-        };
-
+        document.getElementById('btn-login-google').onclick = () => signInWithRedirect(auth, provider);
         window.logout = () => signOut(auth);
 
-        // CONTROLLO STATO ACCESSO
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if (whitelist.includes(user.email)) {
-                    document.getElementById('auth-container').style.display = 'none';
-                    document.getElementById('main-hub').style.display = 'flex';
-                    initApp();
-                } else {
-                    document.getElementById('auth-error').innerText = "Email non autorizzata.";
-                    signOut(auth);
-                }
+            if (user && (whitelist.includes(user.email) || whitelist.length === 0)) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-hub').style.display = 'flex';
+                initApp();
+            } else if (user) {
+                document.getElementById('auth-error').innerText = "Accesso non autorizzato.";
+                signOut(auth);
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
-                document.getElementById('main-hub').style.display = 'none';
-                document.getElementById('clean-plan-app').style.display = 'none';
             }
         });
 
         function initApp() {
-            tasksCol = collection(db, "tasks");
+            const tasksCol = collection(db, "tasks");
             onSnapshot(tasksCol, (snap) => {
                 window.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 render();
             });
         }
 
-        // NAVIGAZIONE
         window.openApp = (id) => {
             document.getElementById('main-hub').style.display = 'none';
-            if(id === 'clean-plan') document.getElementById('clean-plan-app').style.display = 'flex';
+            document.getElementById(id + '-app').style.display = 'flex';
         }
         window.goHome = () => {
             document.getElementById('clean-plan-app').style.display = 'none';
@@ -181,7 +207,6 @@
             document.getElementById('view-' + id).style.display = 'block';
         }
 
-        // LOGICA APP
         window.apriModale = () => document.getElementById('modal-task').style.display = 'flex';
         window.chiudiModale = () => document.getElementById('modal-task').style.display = 'none';
 
@@ -191,7 +216,7 @@
             const f = parseInt(document.getElementById("t-frequenza").value);
             if(!n) return;
             const d = new Date(); d.setDate(d.getDate() - f);
-            await addDoc(tasksCol, { nome: n, stanza: s, freq: f, ultima: d.toISOString().split('T')[0] });
+            await addDoc(collection(db, "tasks"), { nome: n, stanza: s, freq: f, ultima: d.toISOString().split('T')[0] });
             chiudiModale();
         };
 
@@ -200,7 +225,7 @@
         };
 
         window.eliminaTask = async (id) => {
-            if(confirm("Eliminare?")) await deleteDoc(doc(db, "tasks", id));
+            if(confirm("Eliminare attività?")) await deleteDoc(doc(db, "tasks", id));
         };
 
         function calcolaEnergia(t) {
@@ -217,18 +242,20 @@
             const tasks = window.tasks || [];
             
             planner.innerHTML = [...new Set(tasks.map(t => t.stanza))].map(s => `
-                <div class="stanza-section"><h3>${s}</h3>
+                <div class="stanza-section"><h3><i class="fas fa-door-open"></i> ${s}</h3>
                 ${tasks.filter(t => t.stanza === s).map(t => {
                     const en = calcolaEnergia(t);
-                    return `<div class="card"><strong>${t.nome}</strong><br><small>${en.rim} gg</small>
-                    <div class="energy-container"><div class="energy-bar" style="width:${100-en.perc}%; background:${en.col}"></div></div>
-                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:5px; border-radius:5px; cursor:pointer;">Fatto</button></div>`;
+                    return `<div class="card"><strong>${t.nome}</strong><br><small>Manca: ${en.rim} gg</small>
+                    <div class="energy-container" style="width:100%"><div class="energy-bar" style="width:${100-en.perc}%; background:${en.col}"></div></div>
+                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button></div>`;
                 }).join('')}</div>`).join('');
 
-            list.innerHTML = tasks.map(t => `
-                <tr style="border-bottom: 1px solid rgba(0,0,0,0.05)"><td>${t.nome}</td><td>${t.stanza}</td><td>${t.freq} gg</td>
-                <td><button onclick="segnaFatto('${t.id}')" style="border:none; color:green; background:none; cursor:pointer;"><i class="fas fa-check"></i></button>
-                <button onclick="eliminaTask('${t.id}')" style="border:none; color:red; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            list.innerHTML = tasks.map(t => {
+                const en = calcolaEnergia(t);
+                return `<tr><td><strong>${t.nome}</strong></td><td>${t.stanza}</td><td>Ogni ${t.freq} gg</td>
+                <td><div class="energy-container"><div class="energy-bar" style="width:${100-en.perc}%; background:${en.col}"></div></div></td>
+                <td><button onclick="segnaFatto('${t.id}')" style="border:none; color:var(--primary); background:none; cursor:pointer; font-size:1.2rem;"><i class="fas fa-check-circle"></i></button>
+                <button onclick="eliminaTask('${t.id}')" style="border:none; color:#f56565; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button></td></tr>`).join('');
 
             const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
             agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="ag-${g}"></div></div>`).join('');
@@ -236,7 +263,7 @@
                 if(calcolaEnergia(t).rim <= 1) {
                     const d = (new Date().getDay() + 6) % 7;
                     const target = document.getElementById(`ag-${giorni[d]}`);
-                    if(target) target.innerHTML += `<div style="font-size:0.7rem; background:white; padding:3px; margin-top:3px; border-radius:5px;">${t.nome}</div>`;
+                    if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
                 }
             });
         };
@@ -246,6 +273,10 @@
             document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
             document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
         }, 1000);
+
+        const n = document.getElementById("quick-notes");
+        n.value = localStorage.getItem("cleanNotes") || "";
+        n.addEventListener("input", () => localStorage.setItem("cleanNotes", n.value));
     </script>
 </body>
 </html>
