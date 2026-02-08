@@ -6,271 +6,111 @@
     <title>Clean Plan PWA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* --- CSS AGGIORNATO --- */
         :root { 
             --primary: #4a90e2; 
-            --sidebar: #1a2233; 
-            --glass: rgba(255, 255, 255, 0.85);
-            --bg-gradient: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
+            --glass: rgba(255, 255, 255, 0.35); 
         }
 
-body { 
-    margin: 0; 
-    font-family: 'Segoe UI', sans-serif; 
-    /* Solo 2 colori: Arancio e Verde */
-    background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); 
-    background-attachment: fixed;
-    height: 100vh; 
-    overflow: hidden; 
-    display: flex; 
-}
-/* --- EFFETTO VETRO (BLUR 10px) --- */
-.stanza-section, .notes-container textarea, .modal-content, .card, .day-column {
-    background: rgba(255, 255, 255, 0.3) !important; /* Trasparenza */
-    backdrop-filter: blur(10px) !important;           /* Sfocatura 10px */
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    border-radius: 20px;
-}
+        body { 
+            margin: 0; 
+            font-family: 'Segoe UI', sans-serif; 
+            /* Gradiente 2 colori Arancio-Verde */
+            background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%);
+            background-attachment: fixed;
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+        }
         
-        /* Sidebar */
-        .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 30px; z-index: 10; }
+        .sidebar { 
+            width: 70px; 
+            background: rgba(26, 34, 51, 0.85); 
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 30px; 
+        }
         .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-        .sidebar button:hover, .sidebar button.active { color: white; transform: scale(1.1); }
+        .sidebar button:hover { color: white; transform: scale(1.1); }
 
-        /* Contenuto */
-        .content { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
-        .view { animation: fadeIn 0.4s ease; max-width: 1200px; margin: 0 auto; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Widget Home */
-        .clock-widget { margin-bottom: 20px; }
-        #clock { font-size: 4.5rem; margin: 0; color: #2c3e50; font-weight: 800; line-height: 1; }
-        #date { font-size: 1.3rem; color: #7f8c8d; margin: 5px 0 20px 0; text-transform: capitalize; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
         
-        /* Agenda Settimanale Style Agenda */
-        .agenda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; }
-        .day-column { background: var(--glass); border-radius: 15px; padding: 10px; min-height: 150px; border: 1px solid rgba(255,255,255,0.5); }
-        .day-column h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid #ddd; }
-        .agenda-item { font-size: 0.8rem; background: white; padding: 5px; border-radius: 5px; margin-bottom: 5px; border-left: 3px solid var(--primary); box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        /* Glass Style */
+        .stanza-section, .card, .modal-content, textarea, .day-card {
+            background: var(--glass) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
 
-        .notes-container textarea { width: 100%; max-width: 500px; height: 150px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); padding: 15px; background: var(--glass); backdrop-filter: blur(10px); font-family: inherit; }
+        /* Home Layout */
+        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0; }
+        .day-card { padding: 10px; text-align: center; min-height: 80px; }
+        .day-label { font-size: 0.8rem; font-weight: bold; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 5px; }
 
-        /* Cards & Energy Bar EVIDENTE */
+        /* Planner */
         .planner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .stanza-section { background: var(--glass); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .card { background: white; border-radius: 12px; padding: 15px; margin-top: 15px; border: 1px solid #eee; position: relative; }
+        .stanza-section { padding: 20px; }
+        .card { padding: 15px; margin-top: 15px; }
         
-        .energy-label { font-size: 0.7rem; font-weight: bold; color: #7f8c8d; margin-bottom: 4px; display: block; }
-        .energy-container { height: 14px; background: #e0e0e0; border-radius: 7px; margin: 5px 0 15px 0; overflow: hidden; border: 1px solid #ccc; }
-        .energy-bar { height: 100%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .energy-container { height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        .energy-bar { height: 100%; transition: width 0.5s; }
 
-        /* Floating Button */
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 10px 20px rgba(74, 144, 226, 0.3); border: none; transition: 0.3s; z-index: 99; }
-        .fab:hover { transform: scale(1.1) rotate(90deg); }
+        /* Buttons */
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #ff6b6b; color: white; border-radius: 50%; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-        /* Modale Glass Style */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--glass); padding: 30px; border-radius: 25px; display: flex; flex-direction: column; gap: 15px; width: 320px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .modal-content h3 { margin-top: 0; color: #2c3e50; }
-        .modal-content input, .modal-content select { padding: 12px; border-radius: 10px; border: 1px solid #ccc; background: white; }
-        .btn-save { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-close { background: #95a5a6; color: white; border: none; padding: 8px; border-radius: 10px; cursor: pointer; margin-top: 5px; }
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.05); }
 
-        /* Table Style */
-        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 15px; overflow: hidden; }
-        th { text-align: left; padding: 15px; background: rgba(0,0,0,0.05); color: #2c3e50; }
-        td { padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { padding: 30px; width: 300px; display: flex; flex-direction: column; gap: 15px; }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div style="color:var(--primary); font-size: 1.8rem;"><i class="fas fa-broom"></i></div>
-        <button onclick="switchView('home')" id="nav-home"><i class="fas fa-home"></i></button>
-        <button onclick="switchView('planner')" id="nav-planner"><i class="fas fa-th-large"></i></button>
-        <button onclick="switchView('list')" id="nav-list"><i class="fas fa-list"></i></button>
+        <div style="color:white; font-size: 1.8rem; margin-bottom: 20px;"><i class="fas fa-broom"></i></div>
+        <button onclick="switchView('home')"><i class="fas fa-home"></i></button>
+        <button onclick="switchView('planner')"><i class="fas fa-th-large"></i></button>
+        <button onclick="switchView('list')"><i class="fas fa-list"></i></button>
     </nav>
 
     <main class="content">
         <section id="view-home" class="view">
-            <div class="clock-widget">
-                <h1 id="clock">00:00</h1>
-                <p id="date">Caricamento...</p>
+            <h1 id="clock" style="font-size: 4rem; margin:0">00:00</h1>
+            <p id="date" style="font-size: 1.2rem; margin:0 0 20px 0; opacity: 0.8"></p>
+            
+            <h3><i class="fas fa-calendar-week"></i> Agenda Settimanale</h3>
+            <div class="week-grid">
+                <div class="day-card"><div class="day-label">Lun</div><div id="day-0"></div></div>
+                <div class="day-card"><div class="day-label">Mar</div><div id="day-1"></div></div>
+                <div class="day-card"><div class="day-label">Mer</div><div id="day-2"></div></div>
+                <div class="day-card"><div class="day-label">Gio</div><div id="day-3"></div></div>
+                <div class="day-card"><div class="day-label">Ven</div><div id="day-4"></div></div>
+                <div class="day-card"><div class="day-label">Sab</div><div id="day-5"></div></div>
+                <div class="day-card"><div class="day-label">Dom</div><div id="day-6"></div></div>
             </div>
 
-            <h3 style="color:#2c3e50; margin-bottom: 10px;"><i class="far fa-calendar-alt"></i> Agenda Settimanale</h3>
-            <div id="agenda-settimanale" class="agenda-grid">
-                </div>
-
-            <div class="notes-container">
-                <h3 style="color:#2c3e50;"><i class="fas fa-sticky-note"></i> Note Rapide</h3>
-                <textarea id="quick-notes" placeholder="Cose da sistemare o aggiungere..."></textarea>
-            </div>
+            <h3><i class="fas fa-sticky-note"></i> Note Rapide</h3>
+            <textarea id="quick-notes" style="width: 100%; max-width: 500px; height: 150px; padding: 15px; outline: none;" placeholder="Scrivi qui i tuoi promemoria..."></textarea>
         </section>
 
         <section id="view-planner" class="view" style="display:none;">
-            <h2 style="color:#2c3e50;">Planner per Stanza</h2>
+            <h2>I Tuoi Ambienti</h2>
             <div id="planner-container" class="planner-grid"></div>
         </section>
 
         <section id="view-list" class="view" style="display:none;">
-            <h2 style="color:#2c3e50;">Dettaglio Attività</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Attività</th>
-                        <th>Stanza</th>
-                        <th style="width: 200px;">Stato Energia</th>
-                        <th>Azione</th>
-                    </tr>
-                </thead>
-                <tbody id="list-table-body"></tbody>
-            </table>
+            <h2>Tutte le Task</h2>
+            <div class="stanza-section" id="list-container"></div>
         </section>
     </main>
 
-    <button class="fab" onclick="apriModale()"><i class="fas fa-plus"></i></button>
+    <button class="fab" onclick="document.getElementById('modal-task').style.display='flex'"><i class="fas fa-plus"></i></button>
 
     <div id="modal-task" class="modal">
         <div class="modal-content">
             <h3>Nuova Attività</h3>
-            <input type="text" id="t-nome" placeholder="Esempio: Lavare vetri">
-            <select id="t-stanza">
-                <option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option><option>Balcone</option>
-            </select>
-            <select id="t-frequenza">
-                <option value="3">Ogni 3 giorni</option>
-                <option value="7">Settimanale</option>
-                <option value="14">Ogni 2 settimane</option>
-                <option value="30">Mensile</option>
-            </select>
-            <button class="btn-save" onclick="aggiungiTask()">Aggiungi ora</button>
-            <button class="btn-close" onclick="chiudiModale()">Annulla</button>
-        </div>
-    </div>
-
-    <script>
-        /* --- LOGICA AGGIORNATA --- */
-        let tasks = JSON.parse(localStorage.getItem("cleanTasks")) || [];
-
-        function updateClock() {
-            const ora = new Date();
-            document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        function switchView(id) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.getElementById('view-' + id).style.display = 'block';
-            render();
-        }
-
-        function apriModale() { document.getElementById('modal-task').style.display = 'flex'; }
-        function chiudiModale() { document.getElementById('modal-task').style.display = 'none'; }
-
-        function aggiungiTask() {
-            const nome = document.getElementById("t-nome").value;
-            const stanza = document.getElementById("t-stanza").value;
-            const freq = document.getElementById("t-frequenza").value;
-            if(!nome) return;
-
-            // Per impostarla come "non completa", impostiamo la data ultima a molto tempo fa
-            // In questo modo la barra sarà subito rossa (0% energia rimasta / 100% da fare)
-            const dataPassata = new Date();
-            dataPassata.setDate(dataPassata.getDate() - freq);
-            
-            tasks.push({ 
-                nome, 
-                stanza, 
-                freq: parseInt(freq), 
-                ultima: dataPassata.toISOString().split('T')[0] 
-            });
-
-            localStorage.setItem("cleanTasks", JSON.stringify(tasks));
-            document.getElementById("t-nome").value = "";
-            chiudiModale();
-            render();
-        }
-
-        function segnaFatto(idx) {
-            tasks[idx].ultima = new Date().toISOString().split('T')[0];
-            localStorage.setItem("cleanTasks", JSON.stringify(tasks));
-            render();
-        }
-
-        function render() {
-            const planner = document.getElementById("planner-container");
-            const listTable = document.getElementById("list-table-body");
-            const agenda = document.getElementById("agenda-settimanale");
-            
-            const stanze = [...new Set(tasks.map(t => t.stanza))];
-
-            // Render Planner Cards
-            planner.innerHTML = stanze.map(s => `
-                <div class="stanza-section">
-                    <h3><i class="fas fa-door-open"></i> ${s}</h3>
-                    ${tasks.filter(t => t.stanza === s).map(t => {
-                        const stats = calcolaEnergia(t);
-                        return `
-                        <div class="card">
-                            <strong>${t.nome}</strong>
-                            <span class="energy-label">Stato pulizia: ${Math.round(100 - stats.perc)}%</span>
-                            <div class="energy-container"><div class="energy-bar" style="width:${100 - stats.perc}%; background:${stats.col}"></div></div>
-                            <button class="btn-save" style="width:100%" onclick="segnaFatto(${tasks.indexOf(t)})">Fatto</button>
-                        </div>`;
-                    }).join('')}
-                </div>
-            `).join('');
-
-            // Render Lista Tabella
-            listTable.innerHTML = tasks.map((t, i) => {
-                const stats = calcolaEnergia(t);
-                return `<tr>
-                    <td><strong>${t.nome}</strong></td>
-                    <td>${t.stanza}</td>
-                    <td>
-                        <div class="energy-container" style="margin:0"><div class="energy-bar" style="width:${100 - stats.perc}%; background:${stats.col}"></div></div>
-                    </td>
-                    <td><button class="btn-save" onclick="segnaFatto(${i})">Fatto</button></td>
-                </tr>`;
-            }).join('');
-
-            // Render Agenda Settimanale
-            const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
-            agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="agenda-${g}"></div></div>`).join('');
-            
-            tasks.forEach(t => {
-                const stats = calcolaEnergia(t);
-                if(stats.perc >= 80) { // Se è quasi ora di farlo (energia scarica)
-                    // Distribuiamo casualmente o in base a logica nei giorni per l'agenda (esempio semplificato)
-                    const giornoCasuale = giorni[Math.floor(Math.random() * 7)];
-                    document.getElementById(`agenda-${giornoCasuale}`).innerHTML += `<div class="agenda-item">${t.nome}</div>`;
-                }
-            });
-        }
-
-        function calcolaEnergia(t) {
-            const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
-            const perc = Math.min((trascorsi / t.freq) * 100, 100);
-            // Colore: più è alto il trascorso, più va verso il rosso (energia scarica)
-            let col = '#48bb78'; // Verde (Appena fatto)
-            if (perc > 60) col = '#ecc94b'; // Giallo
-            if (perc > 90) col = '#f56565'; // Rosso (Da fare!)
-            return { perc, col };
-        }
-
-        const n = document.getElementById("quick-notes");
-        n.value = localStorage.getItem("cleanNotes") || "";
-        n.addEventListener("input", () => localStorage.setItem("cleanNotes", n.value));
-
-        render();
-    </script>
-</body>
-</html>
-</body>
-</html>
-</body>
-</html>
+            <input type
