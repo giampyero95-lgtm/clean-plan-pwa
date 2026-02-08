@@ -161,55 +161,52 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // AGGIUNTO getRedirectResult per iPhone/Safari
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+ <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    // CAMBIATO: rimosso getRedirectResult e aggiunto signInWithPopup
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
-            authDomain: "myspace-pwa.firebaseapp.com",
-            projectId: "myspace-pwa",
-            storageBucket: "myspace-pwa.firebasestorage.app",
-            messagingSenderId: "519649568828",
-            appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
+        authDomain: "myspace-pwa.firebaseapp.com",
+        projectId: "myspace-pwa",
+        storageBucket: "myspace-pwa.firebasestorage.app",
+        messagingSenderId: "519649568828",
+        appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-        const whitelist = ["giampyero95@gmail.com"];
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    const whitelist = ["giampyero95@gmail.com"];
 
-        // SALVAGENTE IPHONE: Intercetta il risultato dopo il redirect
-        getRedirectResult(auth).then((result) => {
-            if (result?.user) {
-                console.log("Accesso eseguito dopo redirect");
-            }
-        }).catch((error) => {
-            if (error.code !== 'auth/invalid-pending-token') {
-                document.getElementById('auth-error').innerText = "Errore login mobile: " + error.message;
-            }
+    // MODIFICATO: Ora usa il Popup, più compatibile con iPhone
+    document.getElementById('login-google-btn').addEventListener('click', () => {
+        signInWithPopup(auth, provider).catch((error) => {
+            alert("Errore Login: " + error.message);
         });
+    });
 
-        document.getElementById('login-google-btn').addEventListener('click', () => signInWithRedirect(auth, provider));
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user && whitelist.includes(user.email)) {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('main-hub').style.display = 'flex';
-                startApp();
-            } else if (user) {
-                document.getElementById('auth-error').innerText = "Email non autorizzata.";
-                await signOut(auth);
-            } else {
-                document.getElementById('auth-container').style.display = 'flex';
-                document.getElementById('main-hub').style.display = 'none';
-                document.getElementById('clean-plan-app').style.display = 'none';
-            }
-        });
+    onAuthStateChanged(auth, async (user) => {
+        if (user && whitelist.includes(user.email)) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('main-hub').style.display = 'flex';
+            startApp();
+        } else if (user) {
+            document.getElementById('auth-error').innerText = "Email non autorizzata.";
+            await signOut(auth);
+        } else {
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('main-hub').style.display = 'none';
+            document.getElementById('clean-plan-app').style.display = 'none';
+        }
+    });
+    
+
 
         function startApp() {
             onSnapshot(collection(db, "tasks"), (snap) => {
