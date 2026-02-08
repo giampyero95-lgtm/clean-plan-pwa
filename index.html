@@ -10,34 +10,32 @@
 <body>
     <div class="app-container">
         <nav class="sidebar">
-            <div class="logo"><i class="fas fa-broom"></i></div>
-            <button onclick="switchView('home')" title="Home"><i class="fas fa-home"></i></button>
-            <button onclick="switchView('planner')" title="Planner"><i class="fas fa-th-large"></i></button>
-            <button onclick="switchView('list')" title="Lista Task"><i class="fas fa-list"></i></button>
-            <button onclick="apriModale()" title="Aggiungi"><i class="fas fa-plus-circle"></i></button>
+            <div class="logo"><i class="fas fa-sparkles" style="color: #4a90e2;"></i></div>
+            <button onclick="switchView('home')" id="btn-home"><i class="fas fa-home"></i></button>
+            <button onclick="switchView('planner')" id="btn-planner"><i class="fas fa-th-large"></i></button>
+            <button onclick="switchView('list')" id="btn-list"><i class="fas fa-list"></i></button>
+            <button onclick="apriModale()"><i class="fas fa-plus-circle"></i></button>
         </nav>
 
         <main class="content">
             <section id="view-home" class="view">
-                <div class="header-home">
-                    <div class="clock-widget">
-                        <h1 id="clock">00:00</h1>
-                        <p id="date">Domenica, 8 Febbraio</p>
-                    </div>
+                <div class="clock-widget">
+                    <h1 id="clock">--:--</h1>
+                    <p id="date">Caricamento...</p>
                 </div>
-                <div class="notes-section">
+                <div class="notes-container">
                     <h3><i class="fas fa-sticky-note"></i> Note Rapide</h3>
-                    <textarea id="quick-notes" placeholder="Cose da sistemare o aggiungere..."></textarea>
+                    <textarea id="quick-notes" placeholder="Scrivi qui i tuoi promemoria..."></textarea>
                 </div>
             </section>
 
             <section id="view-planner" class="view" style="display:none;">
-                <h2>Planner per Stanza</h2>
+                <h2 class="view-title">Il tuo Piano</h2>
                 <div id="planner-container" class="planner-grid"></div>
             </section>
 
             <section id="view-list" class="view" style="display:none;">
-                <h2>Elenco Task</h2>
+                <h2 class="view-title">Riepilogo Task</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -45,8 +43,8 @@
                                 <th>Task</th>
                                 <th>Stanza</th>
                                 <th>Energia</th>
-                                <th>Prossima</th>
-                                <th>Azioni</th>
+                                <th>Ultima volta</th>
+                                <th>Azione</th>
                             </tr>
                         </thead>
                         <tbody id="task-table-body"></tbody>
@@ -58,19 +56,19 @@
 
     <div id="modal-task" class="modal">
         <div class="modal-content">
-            <h3>Nuova Task</h3>
-            <input type="text" id="task-nome" placeholder="Nome della pulizia">
+            <h3>Nuova Attività</h3>
+            <input type="text" id="task-nome" placeholder="Cosa devi pulire?">
             <select id="task-stanza">
-                <option value="Casa">Casa</option>
+                <option value="Cucina">Cucina</option>
                 <option value="Bagno">Bagno</option>
                 <option value="Camera">Camera</option>
-                <option value="Cucina">Cucina</option>
+                <option value="Soggiorno">Soggiorno</option>
                 <option value="Balcone">Balcone</option>
             </select>
-            <select id="task-frequenza"></select>
+            <select id="task-frequenza" title="Frequenza"></select>
             <div class="modal-buttons">
-                <button onclick="chiudiModale()">Annulla</button>
-                <button onclick="salvaNuovaTask()" class="btn-primary">Salva</button>
+                <button onclick="chiudiModale()" class="btn-cancel">Annulla</button>
+                <button onclick="salvaNuovaTask()" class="btn-save">Salva</button>
             </div>
         </div>
     </div>
