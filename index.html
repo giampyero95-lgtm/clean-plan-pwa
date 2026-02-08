@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clean Plan PWA</title>
+    <title>Clean Plan PWA Cloud</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* --- RESET E VARIABILI --- */
@@ -73,40 +73,20 @@
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: none; z-index: 99; }
 
         /* 3. TABELLA LISTA CON TRASPARENZA */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; overflow: hidden;}
         th { text-align: left; padding: 15px; background: rgba(255,255,255,0.2); }
         td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        /* Rimuove l'ultimo bordo per non rovinare l'arrotondamento in basso */
-tr:last-child td { border-bottom: none; }
+        tr:last-child td { border-bottom: none; }
         
         .btn-del { color: #f56565; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
         .btn-fatto { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
 
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
-   /* Layout Pop-up ordinato */
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 320px; /* Larghezza fissa per renderla più quadrata */
-    padding: 25px;
-}
-
-/* Input e Select a tutta larghezza (vanno a capo da soli) */
-.modal-content input, 
-.modal-content select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.5);
-    box-sizing: border-box; /* Evita che l'input esca dai bordi */
-}
-
-.modal-content h3 {
-    margin-top: 0;
-    text-align: center;
-}
+        
+        /* Layout Pop-up ordinato */
+        .modal-content { display: flex; flex-direction: column; gap: 15px; width: 320px; padding: 25px; }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.5); box-sizing: border-box; }
+        .modal-content h3 { margin-top: 0; text-align: center; }
     </style>
 </head>
 <body>
@@ -133,21 +113,15 @@ tr:last-child td { border-bottom: none; }
         </section>
 
         <section id="view-planner" class="view" style="display:none;">
-            <h2>Planner per Stanza</h2>
+            <h2>Planner Cloud</h2>
             <div id="planner-container" class="planner-grid"></div>
         </section>
 
         <section id="view-list" class="view" style="display:none;">
-            <h2>Dettaglio Attività</h2>
+            <h2>Dettaglio Attività Cloud</h2>
             <table>
                 <thead>
-                    <tr>
-                        <th>Attività</th>
-                        <th>Stanza</th>
-                        <th>Frequenza</th>
-                        <th>Stato</th>
-                        <th>Azioni</th>
-                    </tr>
+                    <tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Stato</th><th>Azioni</th></tr>
                 </thead>
                 <tbody id="list-table-body"></tbody>
             </table>
@@ -174,26 +148,42 @@ tr:last-child td { border-bottom: none; }
         </div>
     </div>
 
-    <script>
-        let tasks = JSON.parse(localStorage.getItem("cleanTasks")) || [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        function updateClock() {
-            const ora = new Date();
-            document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-        }
-        setInterval(updateClock, 1000); updateClock();
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
+            authDomain: "myspace-pwa.firebaseapp.com",
+            projectId: "myspace-pwa",
+            storageBucket: "myspace-pwa.firebasestorage.app",
+            messagingSenderId: "519649568828",
+            appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
+        };
 
-        function switchView(id) {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const tasksCol = collection(db, "tasks");
+
+        window.tasks = []; // Rendiamo tasks globale per il rendering
+
+        // Sincronizzazione Cloud in tempo reale
+        onSnapshot(tasksCol, (snapshot) => {
+            window.tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            render();
+        });
+
+        // Funzioni globali aggiornate per Firebase
+        window.switchView = (id) => {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.getElementById('view-' + id).style.display = 'block';
             render();
         }
 
-        function apriModale() { document.getElementById('modal-task').style.display = 'flex'; }
-        function chiudiModale() { document.getElementById('modal-task').style.display = 'none'; }
+        window.apriModale = () => document.getElementById('modal-task').style.display = 'flex';
+        window.chiudiModale = () => document.getElementById('modal-task').style.display = 'none';
 
-        function aggiungiTask() {
+        window.aggiungiTask = async () => {
             const nome = document.getElementById("t-nome").value;
             const stanza = document.getElementById("t-stanza").value;
             const freq = parseInt(document.getElementById("t-frequenza").value);
@@ -202,51 +192,48 @@ tr:last-child td { border-bottom: none; }
             const dataPassata = new Date();
             dataPassata.setDate(dataPassata.getDate() - freq);
             
-            tasks.push({ nome, stanza, freq, ultima: dataPassata.toISOString().split('T')[0] });
-            salvaERender();
+            await addDoc(tasksCol, { 
+                nome, stanza, freq, 
+                ultima: dataPassata.toISOString().split('T')[0] 
+            });
+            
             document.getElementById("t-nome").value = "";
             chiudiModale();
         }
 
-        function segnaFatto(idx) {
-            tasks[idx].ultima = new Date().toISOString().split('T')[0];
-            salvaERender();
+        window.segnaFatto = async (id) => {
+            const taskRef = doc(db, "tasks", id);
+            await updateDoc(taskRef, {
+                ultima: new Date().toISOString().split('T')[0]
+            });
         }
 
-        function eliminaTask(idx) {
+        window.eliminaTask = async (id) => {
             if(confirm("Eliminare questa attività?")) {
-                tasks.splice(idx, 1);
-                salvaERender();
+                await deleteDoc(doc(db, "tasks", id));
             }
-        }
-
-        function salvaERender() {
-            localStorage.setItem("cleanTasks", JSON.stringify(tasks));
-            render();
         }
 
         function calcolaEnergia(t) {
             const ultimaData = new Date(t.ultima);
-            if(isNaN(ultimaData)) return { perc: 100, rimanenti: 0, col: '#f56565' }; // Anti-NaN
-
+            if(isNaN(ultimaData)) return { perc: 100, rimanenti: 0, col: '#f56565' };
             const oggi = new Date();
             const trascorsi = Math.floor((oggi - ultimaData) / 86400000);
             const rimanenti = Math.max(0, t.freq - trascorsi);
             const perc = Math.min((trascorsi / t.freq) * 100, 100);
-            
             let col = '#48bb78';
             if (perc > 60) col = '#ecc94b';
             if (perc > 90) col = '#f56565';
             return { perc, rimanenti, col };
         }
 
-        function render() {
+        window.render = function() {
             const planner = document.getElementById("planner-container");
             const listTable = document.getElementById("list-table-body");
             const agenda = document.getElementById("agenda-settimanale");
+            const tasks = window.tasks;
             const stanze = [...new Set(tasks.map(t => t.stanza))];
 
-            // Render Planner Cards
             planner.innerHTML = stanze.map(s => `
                 <div class="stanza-section">
                     <h3><i class="fas fa-door-open"></i> ${s}</h3>
@@ -257,14 +244,13 @@ tr:last-child td { border-bottom: none; }
                             <strong>${t.nome}</strong><br>
                             <span style="font-size:0.8rem; color:#444">Mancano: <b>${stats.rimanenti} giorni</b></span>
                             <div class="energy-container"><div class="energy-bar" style="width:${100 - stats.perc}%; background:${stats.col}"></div></div>
-                            <button class="btn-fatto" style="width:100%" onclick="segnaFatto(${tasks.indexOf(t)})">Fatto</button>
+                            <button class="btn-fatto" style="width:100%" onclick="segnaFatto('${t.id}')">Fatto</button>
                         </div>`;
                     }).join('')}
                 </div>
             `).join('');
 
-            // 2 & 3. Render Lista con Frequenza e Cestino
-            listTable.innerHTML = tasks.map((t, i) => {
+            listTable.innerHTML = tasks.map((t) => {
                 const stats = calcolaEnergia(t);
                 return `<tr>
                     <td><strong>${t.nome}</strong></td>
@@ -272,34 +258,37 @@ tr:last-child td { border-bottom: none; }
                     <td>Ogni ${t.freq} gg</td>
                     <td><div class="energy-container" style="margin:0; width:100px"><div class="energy-bar" style="width:${100 - stats.perc}%; background:${stats.col}"></div></div></td>
                     <td>
-                        <button class="btn-fatto" onclick="segnaFatto(${i})" style="padding:5px 10px"><i class="fas fa-check"></i></button>
-                        <button class="btn-del" onclick="eliminaTask(${i})" style="margin-left:10px"><i class="fas fa-trash"></i></button>
+                        <button class="btn-fatto" onclick="segnaFatto('${t.id}')" style="padding:5px 10px"><i class="fas fa-check"></i></button>
+                        <button class="btn-del" onclick="eliminaTask('${t.id}')" style="margin-left:10px"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
             }).join('');
 
-            // 1. Agenda Settimanale Unica Linea
             const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
             agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="agenda-${g}"></div></div>`).join('');
             
             tasks.forEach(t => {
                 const stats = calcolaEnergia(t);
-                if(stats.rimanenti <= 1) { // Mostra nell'agenda se mancano 0 o 1 giorni
+                if(stats.rimanenti <= 1) {
                     const oggi = new Date().getDay();
                     const index = oggi === 0 ? 6 : oggi - 1;
-                    const gCorrente = giorni[index];
-                    const target = document.getElementById(`agenda-${gCorrente}`);
+                    const target = document.getElementById(`agenda-${giorni[index]}`);
                     if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
                 }
             });
         }
 
-        // Caricamento Note
+        // Clock e Note
+        function updateClock() {
+            const ora = new Date();
+            document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+        setInterval(updateClock, 1000); updateClock();
+
         const n = document.getElementById("quick-notes");
         n.value = localStorage.getItem("cleanNotes") || "";
         n.addEventListener("input", () => localStorage.setItem("cleanNotes", n.value));
-
-        render();
     </script>
 </body>
 </html>
