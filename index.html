@@ -35,6 +35,10 @@
         .content-area { margin-left: 70px; padding: 25px; height: 100vh; overflow-y: auto; box-sizing: border-box; padding-bottom: 100px; }
 
         /* --- BOOK TRACKER SPECIFIC --- */
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .goal-card { padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; color: #1a2233; position: relative; overflow: hidden; }
         .goal-header { display: flex; justify-content: space-between; align-items: center; }
         .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
@@ -54,6 +58,23 @@
         .badge-ebook { background: #3498db; color: white; }
         .badge-cartaceo { background: #e67e22; color: white; }
         .badge-wishlist { background: #9b59b6; color: white; }
+
+        /* --- NUOVI STILI (TABELLA E GOALS) --- */
+        .data-table-container { overflow-x: auto; border-radius: 15px; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 0.9rem; color: #1a2233; }
+        .data-table th { text-align: left; padding: 15px; background: rgba(255,255,255,0.5); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(0,0,0,0.1); }
+        .data-table td { padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.15); vertical-align: middle; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.3); }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 5px; opacity: 0.6; transition: 0.2s; font-size: 1rem; }
+        .action-btn:hover { opacity: 1; transform: scale(1.2); }
+        .text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; display: block; }
+
+        .goals-archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .archive-card { padding: 20px; background: rgba(26, 34, 51, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; }
+        .archive-year { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
+        .archive-stats { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 15px; opacity: 0.8; }
+        .archive-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; margin: 10px 0; overflow: hidden; }
+        .archive-bar-fill { background: #27ae60; height: 100%; }
 
         /* --- MODAL FORMS --- */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
@@ -113,46 +134,83 @@
     <div id="app-books" class="app-container">
         <nav class="sidebar">
             <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
-            <button class="active"><i class="fas fa-book-open"></i></button>
+            
+            <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
+
+            <button id="nav-home" class="nav-internal active" onclick="switchView('home')"><i class="fas fa-book-open"></i></button>
+            <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
+            <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
+            
+            <div style="flex:1"></div>
             <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
             <input type="file" id="csv-input" style="display:none" accept=".csv">
         </nav>
 
         <main class="content-area">
-            <div class="glass-panel goal-card">
-                <div class="goal-header">
-                    <h2 style="margin:0"><i class="fas fa-calendar-alt"></i> 2026</h2>
-                    <span id="goal-perc-text" style="font-weight: bold; font-size: 1.2rem;">0%</span>
+            
+            <div id="view-home" class="view-section active">
+                <div class="glass-panel goal-card">
+                    <div class="goal-header">
+                        <h2 style="margin:0"><i class="fas fa-calendar-alt"></i> 2026</h2>
+                        <span id="goal-perc-text" style="font-weight: bold; font-size: 1.2rem;">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="goal-bar" class="progress-bar-fill"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; opacity: 0.8;">
+                        <span id="goal-books-text">0 su 24 Libri</span>
+                        <span id="goal-pages-text">0 pagine tot.</span>
+                    </div>
                 </div>
-                <div class="progress-bar-bg">
-                    <div id="goal-bar" class="progress-bar-fill"></div>
+
+                <div class="glass-panel" style="padding: 15px; margin-bottom: 25px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; color: #555;">
+                        <i class="fas fa-lightbulb"></i> <small style="font-weight:bold; text-transform:uppercase;">Note Rapide</small>
+                    </div>
+                    <textarea id="book-notes" placeholder="ISBN da cercare, note..." style="width:100%; background:none; border:none; resize:none; font-size:0.9rem; height:40px;"></textarea>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; opacity: 0.8;">
-                    <span id="goal-books-text">0 su 24 Libri</span>
-                    <span id="goal-pages-text">0 pagine tot.</span>
+
+                <div class="filter-tabs" id="book-filters">
+                    <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
+                    <button class="filter-tab" data-filter="library">Libreria</button>
+                    <button class="filter-tab" data-filter="toread">Da leggere</button>
+                    <button class="filter-tab" data-filter="read">Letti</button>
+                    <button class="filter-tab" data-filter="buy">Da comprare</button>
+                    <button class="filter-tab" data-filter="wishlist">Wishlist</button>
+                </div>
+
+                <div id="books-grid" class="books-grid"></div>
+            </div>
+
+            <div id="view-table" class="view-section">
+                <h2 style="color: #1a2233; margin-bottom: 20px;">Database Completo</h2>
+                <div class="glass-panel data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Titolo</th>
+                                <th>Autore</th>
+                                <th>Serie</th>
+                                <th>Stato</th>
+                                <th>Anno</th>
+                                <th style="text-align:right">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="glass-panel" style="padding: 15px; margin-bottom: 25px;">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; color: #555;">
-                    <i class="fas fa-lightbulb"></i> <small style="font-weight:bold; text-transform:uppercase;">Note Rapide</small>
-                </div>
-                <textarea id="book-notes" placeholder="ISBN da cercare, note..." style="width:100%; background:none; border:none; resize:none; font-size:0.9rem; height:40px;"></textarea>
+            <div id="view-goals" class="view-section">
+                <h2 style="color: #1a2233; margin-bottom: 20px;">Archivio Obiettivi</h2>
+                <div id="goals-archive-grid" class="goals-archive-grid">
+                    </div>
             </div>
 
-            <div class="filter-tabs" id="book-filters">
-                <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
-                <button class="filter-tab" data-filter="library">Libreria</button>
-                <button class="filter-tab" data-filter="toread">Da leggere</button>
-                <button class="filter-tab" data-filter="read">Letti</button>
-                <button class="filter-tab" data-filter="buy">Da comprare</button>
-                <button class="filter-tab" data-filter="wishlist">Wishlist</button>
-            </div>
-
-            <div id="books-grid" class="books-grid"></div>
         </main>
 
-        <button class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
+        <button id="main-fab" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="modal-book" class="modal-overlay">
@@ -262,7 +320,7 @@
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 
-        // --- AUTH LOGIC (POPUP FIX) ---
+        // --- AUTH LOGIC ---
         document.getElementById('login-btn').onclick = () => {
             signInWithPopup(auth, provider).catch(err => document.getElementById('error-msg').innerText = err.message);
         };
@@ -273,7 +331,7 @@
             if (user && whitelist.includes(user.email)) {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-hub').style.display = 'flex';
-                initBookTracker(); // Avvia listener libri
+                initBookTracker();
             } else if (user) {
                 document.getElementById('error-msg').innerText = "Non autorizzato.";
                 signOut(auth);
@@ -282,7 +340,7 @@
             }
         });
 
-        // --- NAVIGATION LOGIC ---
+        // --- GLOBAL NAVIGATION ---
         window.openApp = (appName) => {
             document.getElementById('main-hub').style.display = 'none';
             document.querySelectorAll('.app-container').forEach(el => el.style.display = 'none');
@@ -296,42 +354,61 @@
         // --- BOOK TRACKER LOGIC ---
         let books = [];
         let currentFilter = 'reading';
-        const GOAL_YEAR = "2026";
-        const GOAL_TARGET = 24;
+        
+        // TARGET DEGLI ANNI PASSATI (DA CONFIGURARE)
+        const YEARLY_TARGETS = {
+            "2026": 24, "2025": 24, "2024": 20, "2023": 15, "2022": 12, 
+            "2010": 5, "2009": 5, "2008": 3, "2007": 3, "2006": 1
+        };
+        const DEFAULT_TARGET = 12;
 
         function initBookTracker() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                updateStats();
+                updateStats2026();
                 renderBooks();
+                renderTable();
+                renderGoalsArchive();
                 updateDataLists();
             });
 
-            // Note Listener
             const noteArea = document.getElementById('book-notes');
             noteArea.value = localStorage.getItem('bookNotes') || "";
             noteArea.addEventListener('input', () => localStorage.setItem('bookNotes', noteArea.value));
         }
 
-        // Calcolo Statistiche 2026
-        function updateStats() {
-            const booksRead2026 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes(GOAL_YEAR));
-            const count = booksRead2026.length;
-            const pages = booksRead2026.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0);
-            const perc = Math.min(Math.round((count / GOAL_TARGET) * 100), 100);
+        // NAVIGATION INTERNA BOOK
+        window.switchView = (viewName) => {
+            document.querySelectorAll('.nav-internal').forEach(b => b.classList.remove('active'));
+            document.getElementById('nav-' + viewName).classList.add('active');
+            
+            document.querySelectorAll('.view-section').forEach(d => d.classList.remove('active'));
+            document.getElementById('view-' + viewName).classList.add('active');
+            
+            // Nascondi pulsante + nella vista goals
+            document.getElementById('main-fab').style.display = viewName === 'goals' ? 'none' : 'flex';
+        };
+
+        // 1. STATS 2026 (HOME)
+        function updateStats2026() {
+            const target = YEARLY_TARGETS["2026"] || 24;
+            const booksRead = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes("2026"));
+            const count = booksRead.length;
+            const pages = booksRead.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0);
+            const perc = Math.min(Math.round((count / target) * 100), 100);
 
             document.getElementById('goal-perc-text').innerText = perc + "%";
             document.getElementById('goal-bar').style.width = perc + "%";
-            document.getElementById('goal-books-text').innerText = `${count} su ${GOAL_TARGET} Libri`;
+            document.getElementById('goal-books-text').innerText = `${count} su ${target} Libri`;
             document.getElementById('goal-pages-text').innerText = `${pages} pagine tot.`;
         }
 
-        // Render Card
+        // 2. RENDER GRID (HOME)
         function renderBooks() {
             const grid = document.getElementById('books-grid');
             grid.innerHTML = "";
-            
             let filtered = [];
+            
             if(currentFilter === 'reading') filtered = books.filter(b => b.status === 'in_lettura');
             else if(currentFilter === 'library') filtered = books.filter(b => b.format !== 'ebook' && b.status !== 'wishlist');
             else if(currentFilter === 'toread') filtered = books.filter(b => b.status === 'da_leggere');
@@ -343,20 +420,17 @@
 
             filtered.forEach(b => {
                 const coverStyle = b.cover ? `background-image: url('${b.cover}')` : 'background: #bdc3c7; display:flex; align-items:center; justify-content:center;';
-                const coverContent = b.cover ? '' : '<i class="fas fa-book" style="font-size:2rem; color:white"></i>';
-                
-                const seriesInfo = b.series ? `<div class="book-series">${b.series} (${b.vol || '?'}/${b.volTot || '?'})</div>` : '';
                 const badgeClass = b.format === 'ebook' ? 'badge-ebook' : (b.format === 'wishlist' ? 'badge-wishlist' : 'badge-cartaceo');
                 
                 const card = document.createElement('div');
                 card.className = 'book-card glass-panel';
                 card.onclick = () => openBookModal(b);
                 card.innerHTML = `
-                    <div class="book-cover" style="${coverStyle}">${coverContent}</div>
+                    <div class="book-cover" style="${coverStyle}">${!b.cover ? '<i class="fas fa-book" style="font-size:2rem; color:white"></i>' : ''}</div>
                     <div class="book-info">
                         <div>
                             <div class="book-title">${b.title}</div>
-                            ${seriesInfo}
+                            ${b.series ? `<div class="book-series">${b.series} (${b.vol||'?'}/${b.volTot||'?'})</div>` : ''}
                         </div>
                         <span class="badge ${badgeClass}">${b.format}</span>
                     </div>
@@ -365,7 +439,74 @@
             });
         }
 
-        // Filters Tab Logic
+        // 3. RENDER TABLE (LIST VIEW)
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+            const sortedBooks = [...books].sort((a,b) => (a.title || "").localeCompare(b.title));
+
+            sortedBooks.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="text-truncate" style="font-weight:bold">${b.title}</span></td>
+                    <td><span class="text-truncate">${b.author || '-'}</span></td>
+                    <td><span class="text-truncate">${b.series ? b.series + ' #' + b.vol : '-'}</span></td>
+                    <td><span style="padding:2px 6px; border-radius:4px; font-size:0.7rem; background:${getStatusColor(b.status)}; color:white">${b.status.replace('_', ' ')}</span></td>
+                    <td>${b.readYear || '-'}</td>
+                    <td style="text-align:right; white-space:nowrap;">
+                        <button class="action-btn" style="color:#2980b9" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt"></i></button>
+                        <button class="action-btn" style="color:#c0392b" onclick='deleteBook("${b.id}")'><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 4. RENDER GOALS ARCHIVE
+        function renderGoalsArchive() {
+            const grid = document.getElementById('goals-archive-grid');
+            grid.innerHTML = "";
+            const yearStats = {};
+
+            books.forEach(b => {
+                if((b.status === 'letto' || b.status === 'rilettura') && b.readYear) {
+                    const years = b.readYear.split(',').map(y => y.trim());
+                    years.forEach(y => {
+                        if(!yearStats[y]) yearStats[y] = { count: 0, pages: 0 };
+                        yearStats[y].count++;
+                        yearStats[y].pages += (parseInt(b.pages) || 0);
+                    });
+                }
+            });
+
+            const yearsList = Object.keys(yearStats).sort((a,b) => b - a);
+            yearsList.forEach(year => {
+                if(year === "2026") return; 
+                const stats = yearStats[year];
+                const target = YEARLY_TARGETS[year] || DEFAULT_TARGET;
+                const perc = Math.min(Math.round((stats.count / target) * 100), 100);
+
+                const card = document.createElement('div');
+                card.className = 'archive-card glass-panel';
+                card.innerHTML = `
+                    <div class="archive-year">${year}</div>
+                    <div style="font-size:0.9rem">${stats.count} Libri su ${target}</div>
+                    <div class="archive-bar-bg"><div class="archive-bar-fill" style="width: ${perc}%"></div></div>
+                    <div class="archive-stats"><span>${perc}% Completato</span><span>${stats.pages} Pagine</span></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // UTILS
+        function getStatusColor(status) {
+            if(status === 'letto') return '#27ae60';
+            if(status === 'in_lettura') return '#f39c12';
+            if(status === 'da_leggere') return '#3498db';
+            if(status === 'wishlist') return '#9b59b6';
+            return '#95a5a6';
+        }
+
         document.querySelectorAll('.filter-tab').forEach(btn => {
             btn.onclick = () => {
                 document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
@@ -375,7 +516,6 @@
             };
         });
 
-        // Autocomplete Helper
         function updateDataLists() {
             const authors = [...new Set(books.map(b => b.author).filter(Boolean))];
             const series = [...new Set(books.map(b => b.series).filter(Boolean))];
@@ -383,7 +523,7 @@
             document.getElementById('series-list').innerHTML = series.map(s => `<option value="${s}">`).join('');
         }
 
-        // --- MODAL & SAVE LOGIC ---
+        // MODAL LOGIC
         window.openBookModal = (book = null) => {
             const m = document.getElementById('modal-book');
             m.style.display = 'flex';
@@ -407,7 +547,6 @@
                 document.getElementById('btn-delete-book').style.display = 'block';
                 document.getElementById('btn-delete-book').onclick = () => deleteBook(book.id);
             } else {
-                // Reset for new book
                 document.querySelectorAll('#modal-book input').forEach(i => i.value = "");
                 document.getElementById('b-status').value = "da_leggere";
                 document.getElementById('b-format').value = "cartaceo";
@@ -415,6 +554,11 @@
                 document.getElementById('btn-delete-book').style.display = 'none';
             }
         };
+
+        window.openBookModalEdit = (id) => {
+            const book = books.find(b => b.id === id);
+            if(book) openBookModal(book);
+        }
 
         document.getElementById('btn-save-book').onclick = async () => {
             const id = document.getElementById('b-id').value;
@@ -428,7 +572,7 @@
                 status: document.getElementById('b-status').value,
                 format: document.getElementById('b-format').value,
                 cover: document.getElementById('b-cover').value,
-                readYear: document.getElementById('b-read-year').value, // Gestire come array se necessario in futuro
+                readYear: document.getElementById('b-read-year').value,
                 rating: document.getElementById('b-rating').value,
                 coverType: document.getElementById('b-cover-type').value,
                 toBuy: document.getElementById('b-tobuy').value,
@@ -444,24 +588,23 @@
             document.getElementById('modal-book').style.display = 'none';
         };
 
-        async function deleteBook(id) {
+        window.deleteBook = async (id) => {
             if(confirm("Eliminare libro definitivamente?")) {
                 await deleteDoc(doc(db, "books", id));
                 document.getElementById('modal-book').style.display = 'none';
             }
         }
 
-        // CSV Import (Basic)
         document.getElementById('csv-input').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(!file) return;
             const reader = new FileReader();
             reader.onload = async (event) => {
                 const text = event.target.result;
-                const rows = text.split('\n').slice(1); // Skip header
+                const rows = text.split('\n').slice(1);
                 let count = 0;
                 for(let row of rows) {
-                    const cols = row.split(','); // ATTENZIONE: Se i titoli hanno virgole, questo rompe tutto. Serve parser serio.
+                    const cols = row.split(',');
                     if(cols.length > 2) {
                         await addDoc(collection(db, "books"), {
                             title: cols[0] || "No Title",
@@ -473,11 +616,10 @@
                         count++;
                     }
                 }
-                alert(`Importati ${count} libri! (Nota: CSV deve essere semplice Titolo,Autore,...)`);
+                alert(`Importati ${count} libri!`);
             };
             reader.readAsText(file);
         });
-
     </script>
 </body>
 </html>
