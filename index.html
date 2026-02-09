@@ -40,9 +40,10 @@
         .filter-tab.active { background: #1a2233; color: white; }
 
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/4.2; cursor: pointer; }
-        .book-cover-grid { width: 100%; flex: 2.2; background-size: cover; background-position: center; position: relative; }
-        .book-info-grid { padding: 10px; flex: 1.8; background: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.3; overflow: hidden; }
+        /* Modificata card per adattarsi al testo */
+        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; cursor: pointer; height: auto; }
+        .book-cover-grid { width: 100%; aspect-ratio: 2/3; background-size: cover; background-position: center; position: relative; }
+        .book-info-grid { padding: 10px; background: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.3; flex-grow: 1; }
 
         /* WISHLIST SPECIFICA */
         .wishlist-list { display: flex; flex-direction: column; gap: 10px; }
@@ -382,7 +383,8 @@
                     card.className = 'book-card glass-panel';
                     card.onclick = () => openBookModal(b);
                     const seriesInfo = b.series ? `<br><i>Vol. ${b.vol || '?'}: serie ${b.series}</i>` : "";
-                    const readYearInfo = b.readYear ? `<br>📅 ${b.readYear}` : "";
+                    /* Rimosso emoji calendario 📅 */
+                    const readYearInfo = b.readYear ? `<br>${b.readYear}` : "";
                     card.innerHTML = `<div class="book-cover-grid" style="background-image:url('${b.cover||''}')"></div>
                     <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small>${seriesInfo}${readYearInfo}</div>`;
                     grid.appendChild(card);
@@ -390,7 +392,7 @@
             }
         }
 
-        /* LOGICA AUTORI */
+        /* LOGICA AUTORI - Inserita icona contatto classica */
         function renderAuthors() {
             const grid = document.getElementById('authors-grid');
             grid.innerHTML = "";
@@ -399,7 +401,7 @@
                 const card = document.createElement('div');
                 card.className = 'hub-card glass-panel';
                 card.style.height = "auto"; card.style.padding = "20px"; card.style.color = "inherit";
-                card.innerHTML = `<i class="fas fa-user-nib" style="font-size:1.5rem; margin-bottom:10px; color:var(--primary);"></i><h4 style="margin:0">${auth}</h4>`;
+                card.innerHTML = `<i class="fas fa-user-circle" style="font-size:1.5rem; margin-bottom:10px; color:var(--primary);"></i><h4 style="margin:0">${auth}</h4>`;
                 card.onclick = () => showAuthorBooks(auth);
                 grid.appendChild(card);
             });
