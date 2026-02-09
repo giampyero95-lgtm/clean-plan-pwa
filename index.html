@@ -22,12 +22,9 @@
 
         /* APP STRUCTURE */
         .app-container { display: none; width: 100%; height: 100%; position: relative; }
-        /* MODIFICA: Spazio in alto per la sidebar */
         .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 70px; background: rgba(26, 34, 51, 0.95); display: flex; flex-direction: column; align-items: center; padding-top: 50px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
         .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.4rem; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 10px; }
         .sidebar button.active, .sidebar button:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
-        
-        /* MODIFICA: Spazio in alto (padding-top) per tutte le viste interne */
         .content-area { margin-left: 70px; padding: 70px 25px 100px 25px; height: 100vh; overflow-y: auto; box-sizing: border-box; }
 
         .view-section { display: none; animation: fadeIn 0.3s ease; }
@@ -43,9 +40,9 @@
         .filter-tab.active { background: #1a2233; color: white; }
 
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/3.5; cursor: pointer; }
-        .book-cover-grid { width: 100%; flex: 2; background-size: cover; background-position: center; position: relative; }
-        .book-info-grid { padding: 10px; flex: 1; background: rgba(255,255,255,0.4); font-size: 0.85rem; }
+        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/4.2; cursor: pointer; }
+        .book-cover-grid { width: 100%; flex: 2.2; background-size: cover; background-position: center; position: relative; }
+        .book-info-grid { padding: 10px; flex: 1.8; background: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.3; overflow: hidden; }
 
         /* WISHLIST SPECIFICA */
         .wishlist-list { display: flex; flex-direction: column; gap: 10px; }
@@ -106,6 +103,7 @@
             <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
             <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.2);"></div>
             <button id="nav-home" class="nav-internal active" onclick="switchView('home')"><i class="fas fa-book-open"></i></button>
+            <button id="nav-authors" class="nav-internal" onclick="switchView('authors')"><i class="fas fa-user-nib"></i></button>
             <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
             <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
             <div style="flex:1"></div>
@@ -137,6 +135,27 @@
                 </div>
                 <div id="books-grid" class="books-grid"></div>
                 <div id="wishlist-list" class="wishlist-list" style="display:none;"></div>
+            </div>
+
+            <div id="view-authors" class="view-section">
+                <h2 style="margin-bottom:15px;">Autori</h2>
+                <div id="authors-grid" class="books-grid"></div>
+                <div id="author-detail-view" style="display:none; margin-top:10px;">
+                    <button onclick="closeAuthorDetail()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:10px; margin-bottom:15px; cursor:pointer;"><i class="fas fa-arrow-left"></i> Torna agli Autori</button>
+                    <h3 id="selected-author-name"></h3>
+                    <div class="glass-panel data-table-container">
+                        <table class="data-table" style="min-width:auto; width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width:60%;">Titolo</th>
+                                    <th style="width:25%;">Stato</th>
+                                    <th style="width:15%;">Formato</th>
+                                </tr>
+                            </thead>
+                            <tbody id="author-books-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div id="view-table" class="view-section">
@@ -306,7 +325,7 @@
         function initBooks() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                updateStats(); renderBooks(); renderTable(); renderGoalsArchive();
+                updateStats(); renderBooks(); renderTable(); renderGoalsArchive(); renderAuthors();
             });
         }
 
@@ -315,7 +334,8 @@
             document.getElementById('nav-'+v).classList.add('active');
             document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
             document.getElementById('view-'+v).classList.add('active');
-            document.getElementById('main-fab').style.display = v === 'goals' ? 'none' : 'flex';
+            document.getElementById('main-fab').style.display = (v === 'goals' || v === 'authors') ? 'none' : 'flex';
+            if(v === 'authors') closeAuthorDetail();
         };
 
         const parseYears = (str) => str ? str.toString().split(/[ ,/-]+/).filter(y => y.length === 4) : [];
@@ -361,12 +381,50 @@
                     const card = document.createElement('div');
                     card.className = 'book-card glass-panel';
                     card.onclick = () => openBookModal(b);
+                    const seriesInfo = b.series ? `<br><i>Vol. ${b.vol || '?'}: serie ${b.series}</i>` : "";
+                    const readYearInfo = b.readYear ? `<br>📅 ${b.readYear}` : "";
                     card.innerHTML = `<div class="book-cover-grid" style="background-image:url('${b.cover||''}')"></div>
-                    <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small></div>`;
+                    <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small>${seriesInfo}${readYearInfo}</div>`;
                     grid.appendChild(card);
                 });
             }
         }
+
+        /* LOGICA AUTORI */
+        function renderAuthors() {
+            const grid = document.getElementById('authors-grid');
+            grid.innerHTML = "";
+            const authors = [...new Set(books.map(b => b.author).filter(a => a))].sort();
+            authors.forEach(auth => {
+                const card = document.createElement('div');
+                card.className = 'hub-card glass-panel';
+                card.style.height = "auto"; card.style.padding = "20px"; card.style.color = "inherit";
+                card.innerHTML = `<i class="fas fa-user-nib" style="font-size:1.5rem; margin-bottom:10px; color:var(--primary);"></i><h4 style="margin:0">${auth}</h4>`;
+                card.onclick = () => showAuthorBooks(auth);
+                grid.appendChild(card);
+            });
+        }
+
+        window.showAuthorBooks = (authorName) => {
+            document.getElementById('authors-grid').style.display = "none";
+            document.getElementById('author-detail-view').style.display = "block";
+            document.getElementById('selected-author-name').innerText = authorName;
+            const tbody = document.getElementById('author-books-body');
+            tbody.innerHTML = "";
+            const filtered = books.filter(b => b.author === authorName).sort((a,b) => a.title.localeCompare(b.title));
+            filtered.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><b>${b.title}</b></td>
+                    <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span></td>
+                    <td>${b.format||'-'}</td>`;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.closeAuthorDetail = () => {
+            document.getElementById('authors-grid').style.display = "grid";
+            document.getElementById('author-detail-view').style.display = "none";
+        };
 
         function renderTable() {
             const tbody = document.getElementById('table-body'); tbody.innerHTML = "";
