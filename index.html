@@ -9,84 +9,62 @@
         :root { --primary: #4a90e2; --accent: #f5a623; --glass: rgba(255, 255, 255, 0.25); --glass-strong: rgba(255, 255, 255, 0.4); --text: #2c3e50; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; color: var(--text); }
         
-        /* --- UI COMPONENTS --- */
-        .glass-panel {
-            background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-        }
+        .glass-panel { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); }
         button, select, input, textarea { font-family: inherit; outline: none; }
 
-        /* --- LOGIN --- */
         #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .auth-card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         
-        /* --- MAIN HUB --- */
         #main-hub { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
         .hub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 90%; max-width: 600px; }
         .hub-card { padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; }
-        .hub-card:active { transform: scale(0.95); }
         .hub-card i { font-size: 3rem; margin-bottom: 15px; }
 
-        /* --- APPS COMMON --- */
         .app-container { display: none; width: 100%; height: 100%; position: relative; }
         .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 70px; background: rgba(26, 34, 51, 0.95); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
         .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.4rem; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 10px; }
         .sidebar button.active, .sidebar button:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
         .content-area { margin-left: 70px; padding: 25px; height: 100vh; overflow-y: auto; box-sizing: border-box; padding-bottom: 100px; }
 
-        /* --- BOOK TRACKER SPECIFIC --- */
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .goal-card { padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; color: #1a2233; position: relative; overflow: hidden; }
-        .goal-header { display: flex; justify-content: space-between; align-items: center; }
-        .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        /* BOOK TRACKER SPECIFIC */
+        .goal-card { padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; color: #1a2233; position: relative; }
+        .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 1s ease; }
         
-        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-        .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); color: #1a2233; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 0.9rem; }
+        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); cursor: pointer; white-space: nowrap; font-size: 0.9rem; font-weight: 600; }
         .filter-tab.active { background: #1a2233; color: white; }
 
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .book-card { padding: 0; overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/3.5; }
-        .book-cover { width: 100%; flex: 2; background: #ddd; background-size: cover; background-position: center; position: relative; }
-        .book-info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.85rem; background: rgba(255,255,255,0.4); }
-        .book-title { font-weight: 700; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
-        .book-series { font-size: 0.7rem; opacity: 0.8; margin-bottom: 5px; }
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; width: fit-content; }
-        .badge-ebook { background: #3498db; color: white; }
-        .badge-cartaceo { background: #e67e22; color: white; }
-        .badge-wishlist { background: #9b59b6; color: white; }
+        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/3.5; cursor: pointer; }
+        .book-cover { width: 100%; flex: 2; background-size: cover; background-position: center; position: relative; }
+        .book-info { padding: 10px; flex: 1; background: rgba(255,255,255,0.4); font-size: 0.85rem; }
+        .book-title { font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
 
-        /* --- NUOVI STILI (TABELLA E GOALS) --- */
-        .data-table-container { overflow-x: auto; border-radius: 15px; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 0.9rem; color: #1a2233; }
-        .data-table th { text-align: left; padding: 15px; background: rgba(255,255,255,0.5); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(0,0,0,0.1); }
-        .data-table td { padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.15); vertical-align: middle; }
-        .data-table tr:hover td { background: rgba(255,255,255,0.3); }
-        .action-btn { background: none; border: none; cursor: pointer; padding: 5px; opacity: 0.6; transition: 0.2s; font-size: 1rem; }
-        .action-btn:hover { opacity: 1; transform: scale(1.2); }
-        .text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; display: block; }
+        /* TABELLA E ARCHIVIO */
+        .data-table-container { overflow-x: auto; border-radius: 15px; margin-top: 10px; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem; }
+        .data-table th { text-align: left; padding: 12px; background: rgba(0,0,0,0.05); font-weight: 700; border-bottom: 2px solid rgba(0,0,0,0.1); }
+        .data-table td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; transition: 0.2s; }
+        .action-btn:hover { transform: scale(1.2); }
 
         .goals-archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .archive-card { padding: 20px; background: rgba(26, 34, 51, 0.6); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; position: relative; }
-        .archive-year { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
-        .archive-stats { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 15px; opacity: 0.8; }
-        .archive-bar-bg { background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; margin: 10px 0; overflow: hidden; }
-        .archive-bar-fill { background: #27ae60; height: 100%; }
+        .archive-card { padding: 20px; background: rgba(26, 34, 51, 0.7); color: white; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .archive-year { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
 
-        /* --- MODAL FORMS --- */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; background: rgba(255,255,255,0.85); border-radius: 20px; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.8rem; font-weight: bold; opacity: 0.6; text-transform: uppercase; }
-        .form-input { padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); background: white; font-size: 1rem; }
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { width: 90%; max-width: 480px; max-height: 90vh; overflow-y: auto; background: white; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-input { padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         .form-row { display: flex; gap: 10px; }
-        .btn-save { background: #1a2233; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
-        
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 500; transition: transform 0.2s; }
-        .fab:active { transform: scale(0.9); }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 500; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -95,53 +73,28 @@
         <div class="auth-card">
             <i class="fas fa-meteor" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
             <h2>MySpace</h2>
-            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Accedi con Google
-            </button>
+            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer;">Accedi con Google</button>
             <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div id="main-hub">
         <div class="hub-grid">
-            <div class="hub-card glass-panel" onclick="openApp('clean')">
-                <i class="fas fa-broom"></i>
-                <h3>Clean Plan</h3>
-            </div>
-            <div class="hub-card glass-panel" onclick="openApp('books')">
-                <i class="fas fa-book"></i>
-                <h3>Library</h3>
-            </div>
+            <div class="hub-card glass-panel" onclick="openApp('clean')"><i class="fas fa-broom"></i><h3>Clean Plan</h3></div>
+            <div class="hub-card glass-panel" onclick="openApp('books')"><i class="fas fa-book"></i><h3>Library</h3></div>
         </div>
         <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Esci</button>
-    </div>
-
-    <div id="app-clean" class="app-container">
-        <nav class="sidebar">
-            <button onclick="closeApp()"><i class="fas fa-th-large" style="color: #4a90e2;"></i></button>
-            <div style="flex:1"></div>
-        </nav>
-        <main class="content-area">
-            <h1>Clean Plan</h1>
-            <p>Sezione Home Management attiva.</p>
-            <div class="glass-panel" style="padding:20px; margin-top:20px;">
-                <h3><i class="fas fa-check-circle"></i> Funziona</h3>
-                <p>Il codice Clean Plan va incollato qui dentro se vuoi tutto unito.</p>
-            </div>
-        </main>
     </div>
 
     <div id="app-books" class="app-container">
         <nav class="sidebar">
             <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
-            
-            <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
-
+            <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.2);"></div>
             <button id="nav-home" class="nav-internal active" onclick="switchView('home')"><i class="fas fa-book-open"></i></button>
-            <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
+            <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-table"></i></button>
             <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
-            
             <div style="flex:1"></div>
+            <button onclick="exportToCSV()" title="Esporta CSV"><i class="fas fa-file-export"></i></button>
             <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
             <input type="file" id="csv-input" style="display:none" accept=".csv">
         </nav>
@@ -150,64 +103,53 @@
             
             <div id="view-home" class="view-section active">
                 <div class="glass-panel goal-card">
-                    <div class="goal-header">
-                        <h2 style="margin:0"><i class="fas fa-calendar-alt"></i> 2026</h2>
-                        <span id="goal-perc-text" style="font-weight: bold; font-size: 1.2rem;">0%</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="margin:0">Obiettivo 2026</h2>
+                        <span id="goal-perc-text" style="font-weight:bold">0%</span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div id="goal-bar" class="progress-bar-fill"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; opacity: 0.8;">
-                        <span id="goal-books-text">0 su 24 Libri</span>
-                        <span id="goal-pages-text">0 pagine tot.</span>
+                    <div class="progress-bar-bg"><div id="goal-bar" class="progress-bar-fill"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; opacity:0.8;">
+                        <span id="goal-books-text">0 / 24 Libri</span>
+                        <span id="goal-pages-text">0 pagine</span>
                     </div>
                 </div>
 
-                <div class="glass-panel" style="padding: 15px; margin-bottom: 25px;">
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; color: #555;">
-                        <i class="fas fa-lightbulb"></i> <small style="font-weight:bold; text-transform:uppercase;">Note Rapide</small>
-                    </div>
-                    <textarea id="book-notes" placeholder="ISBN da cercare, note..." style="width:100%; background:none; border:none; resize:none; font-size:0.9rem; height:40px;"></textarea>
-                </div>
-
-                <div class="filter-tabs" id="book-filters">
-                    <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="reading">In lettura</button>
                     <button class="filter-tab" data-filter="library">Libreria</button>
                     <button class="filter-tab" data-filter="toread">Da leggere</button>
                     <button class="filter-tab" data-filter="read">Letti</button>
-                    <button class="filter-tab" data-filter="buy">Da comprare</button>
                     <button class="filter-tab" data-filter="wishlist">Wishlist</button>
                 </div>
-
                 <div id="books-grid" class="books-grid"></div>
             </div>
 
             <div id="view-table" class="view-section">
-                <h2 style="color: #1a2233; margin-bottom: 20px;">Database Completo</h2>
+                <h2 style="margin-bottom:15px;">Database Completo</h2>
                 <div class="glass-panel data-table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Titolo</th>
                                 <th>Autore</th>
-                                <th>Serie</th>
+                                <th>Serie / Vol</th>
+                                <th>Pagine</th>
                                 <th>Stato</th>
                                 <th>Anno</th>
+                                <th>Rating</th>
+                                <th>ISBN</th>
                                 <th style="text-align:right">Azioni</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body">
-                            </tbody>
+                        <tbody id="table-body"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="view-goals" class="view-section">
-                <h2 style="color: #1a2233; margin-bottom: 20px;">Archivio Obiettivi</h2>
-                <div id="goals-archive-grid" class="goals-archive-grid">
-                    </div>
+                <h2 style="margin-bottom:20px;">Archivio Storico</h2>
+                <div id="goals-archive-grid" class="goals-archive-grid"></div>
             </div>
-
         </main>
 
         <button id="main-fab" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
@@ -215,411 +157,229 @@
 
     <div id="modal-book" class="modal-overlay">
         <div class="modal-box glass-panel">
-            <h3 style="margin:0; text-align:center;">Dettagli Libro</h3>
-            
+            <h3 id="modal-title" style="margin-top:0">Dettagli Libro</h3>
             <input type="hidden" id="b-id">
             
-            <div class="form-group">
-                <label>Titolo</label>
-                <input type="text" id="b-title" class="form-input" placeholder="Titolo del libro">
-            </div>
-
+            <div class="form-group"><label>Titolo *</label><input type="text" id="b-title" class="form-input"></div>
             <div class="form-row">
-                <div class="form-group" style="flex:1">
-                    <label>Autore</label>
-                    <input type="text" id="b-author" class="form-input" list="authors-list">
-                    <datalist id="authors-list"></datalist>
-                </div>
-                <div class="form-group" style="width: 80px;">
-                    <label>Pagine</label>
-                    <input type="number" id="b-pages" class="form-input">
-                </div>
+                <div class="form-group" style="flex:1"><label>Autore</label><input type="text" id="b-author" class="form-input"></div>
+                <div class="form-group" style="width:80px"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
             </div>
-
-            <div class="glass-panel" style="padding:10px; background:rgba(255,255,255,0.3);">
-                <div class="form-row">
-                    <div class="form-group" style="flex:2">
-                        <label>Serie</label>
-                        <input type="text" id="b-series" class="form-input" list="series-list" placeholder="Es. Harry Potter">
-                        <datalist id="series-list"></datalist>
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label>Vol.</label>
-                        <input type="number" id="b-vol" class="form-input" placeholder="1">
-                    </div>
-                    <div class="form-group" style="flex:1">
-                        <label>Tot.</label>
-                        <input type="number" id="b-vol-tot" class="form-input" placeholder="7">
-                    </div>
-                </div>
-            </div>
-
             <div class="form-row">
-                <div class="form-group" style="flex:1">
-                    <label>Stato</label>
+                <div class="form-group" style="flex:2"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
+                <div class="form-group" style="flex:1"><label>Vol.</label><input type="number" id="b-vol" class="form-input"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1"><label>Stato</label>
                     <select id="b-status" class="form-input">
                         <option value="da_leggere">Da Leggere</option>
                         <option value="in_lettura">Sto Leggendo</option>
                         <option value="letto">Letto</option>
                         <option value="rilettura">Rilettura</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex:1">
-                    <label>Formato</label>
-                    <select id="b-format" class="form-input">
-                        <option value="cartaceo">Cartaceo</option>
-                        <option value="ebook">E-Book</option>
                         <option value="wishlist">Wishlist</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label>Copertina (URL Immagine)</label>
-                <input type="text" id="b-cover" class="form-input" placeholder="Incolla link immagine...">
-            </div>
-
-            <details style="margin-top:10px;">
-                <summary style="cursor:pointer; font-weight:bold; opacity:0.7;">Altri Dettagli (ISBN, Anno, Goal)</summary>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
-                    <div class="form-row">
-                        <div class="form-group" style="flex:1"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input" placeholder="2026"></div>
-                        <div class="form-group" style="flex:1"><label>Valutazione</label><select id="b-rating" class="form-input"><option value="0">-</option><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select></div>
-                    </div>
-                    <div class="form-group"><label>Tipo Cover</label><select id="b-cover-type" class="form-input"><option value="flessibile">Flessibile</option><option value="rigida">Rigida</option><option value="rilegato">Rilegato</option></select></div>
-                    <div class="form-group"><label>Da Comprare?</label><select id="b-tobuy" class="form-input"><option value="no">No (Già mio)</option><option value="nuovo">Sì (Nuovo)</option><option value="usato">Sì (Usato)</option></select></div>
-                    <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
+                <div class="form-group" style="flex:1"><label>Formato</label>
+                    <select id="b-format" class="form-input">
+                        <option value="cartaceo">Cartaceo</option>
+                        <option value="ebook">E-Book</option>
+                    </select>
                 </div>
-            </details>
+            </div>
+            <div class="form-group"><label>URL Copertina</label><input type="text" id="b-cover" class="form-input"></div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input" placeholder="Es: 2024"></div>
+                <div class="form-group" style="flex:1"><label>Rating</label>
+                    <select id="b-rating" class="form-input">
+                        <option value="0">-</option><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
 
             <div class="form-row" style="margin-top:10px;">
-                <button class="btn-save" id="btn-save-book" style="flex:1">Salva</button>
-                <button onclick="document.getElementById('modal-book').style.display='none'" style="background:none; border:none; padding:15px; cursor:pointer;">Annulla</button>
+                <button class="btn-save" id="btn-save-book" style="flex:2; padding:12px; background:#1a2233; color:white; border:none; border-radius:10px; cursor:pointer;">Salva</button>
+                <button onclick="document.getElementById('modal-book').style.display='none'" style="flex:1; border:none; background:none; cursor:pointer;">Annulla</button>
             </div>
-            <button id="btn-delete-book" style="color:red; background:none; border:none; margin-top:10px; font-size:0.8rem; cursor:pointer; display:none;">Elimina Libro</button>
+            <button id="btn-delete-book" style="color:red; background:none; border:none; margin-top:5px; cursor:pointer; font-size:0.8rem; display:none;">Elimina Definitivamente</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
-            authDomain: "myspace-pwa.firebaseapp.com",
-            projectId: "myspace-pwa",
-            storageBucket: "myspace-pwa.firebasestorage.app",
-            messagingSenderId: "519649568828",
-            appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs", authDomain: "myspace-pwa.firebaseapp.com", projectId: "myspace-pwa", storageBucket: "myspace-pwa.firebasestorage.app", messagingSenderId: "519649568828", appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 
-        // --- AUTH LOGIC ---
-        document.getElementById('login-btn').onclick = () => {
-            signInWithPopup(auth, provider).catch(err => document.getElementById('error-msg').innerText = err.message);
-        };
-
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, (user) => {
             if (user && whitelist.includes(user.email)) {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-hub').style.display = 'flex';
-                initBookTracker();
-            } else if (user) {
-                document.getElementById('error-msg').innerText = "Non autorizzato.";
-                signOut(auth);
-            } else {
-                document.getElementById('auth-container').style.display = 'flex';
-            }
+                initBooks();
+            } else if (user) { signOut(auth); }
         });
 
-        // --- GLOBAL NAVIGATION ---
-        window.openApp = (appName) => {
-            document.getElementById('main-hub').style.display = 'none';
-            document.querySelectorAll('.app-container').forEach(el => el.style.display = 'none');
-            document.getElementById('app-' + appName).style.display = 'block';
-        };
-        window.closeApp = () => {
-            document.querySelectorAll('.app-container').forEach(el => el.style.display = 'none');
-            document.getElementById('main-hub').style.display = 'flex';
-        };
+        window.openApp = (n) => { document.getElementById('main-hub').style.display = 'none'; document.getElementById('app-'+n).style.display = 'block'; };
+        window.closeApp = () => { document.querySelectorAll('.app-container').forEach(a=>a.style.display='none'); document.getElementById('main-hub').style.display = 'flex'; };
 
-        // --- BOOK TRACKER LOGIC ---
+        // BOOK TRACKER
         let books = [];
         let currentFilter = 'reading';
-        
-        // TARGET DEGLI ANNI PASSATI (DA CONFIGURARE)
-        const YEARLY_TARGETS = {
-            "2026": 24, "2025": 24, "2024": 20, "2023": 15, "2022": 12, 
-            "2010": 5, "2009": 5, "2008": 3, "2007": 3, "2006": 1
-        };
-        const DEFAULT_TARGET = 12;
+        const TARGETS = { "2026": 24, "2025": 24, "2024": 20, "2023": 15, "2008": 3, "2006": 1 };
 
-        function initBookTracker() {
+        function initBooks() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                updateStats2026();
+                updateStats();
                 renderBooks();
                 renderTable();
                 renderGoalsArchive();
-                updateDataLists();
             });
-
-            const noteArea = document.getElementById('book-notes');
-            noteArea.value = localStorage.getItem('bookNotes') || "";
-            noteArea.addEventListener('input', () => localStorage.setItem('bookNotes', noteArea.value));
         }
 
-        // NAVIGATION INTERNA BOOK
-        window.switchView = (viewName) => {
+        window.switchView = (v) => {
             document.querySelectorAll('.nav-internal').forEach(b => b.classList.remove('active'));
-            document.getElementById('nav-' + viewName).classList.add('active');
-            
-            document.querySelectorAll('.view-section').forEach(d => d.classList.remove('active'));
-            document.getElementById('view-' + viewName).classList.add('active');
-            
-            // Nascondi pulsante + nella vista goals
-            document.getElementById('main-fab').style.display = viewName === 'goals' ? 'none' : 'flex';
+            document.getElementById('nav-'+v).classList.add('active');
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('view-'+v).classList.add('active');
+            document.getElementById('main-fab').style.display = v === 'goals' ? 'none' : 'flex';
         };
 
-        // 1. STATS 2026 (HOME)
-        function updateStats2026() {
-            const target = YEARLY_TARGETS["2026"] || 24;
-            const booksRead = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes("2026"));
-            const count = booksRead.length;
-            const pages = booksRead.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0);
-            const perc = Math.min(Math.round((count / target) * 100), 100);
-
+        function updateStats() {
+            const read26 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes("2026"));
+            const perc = Math.min(Math.round((read26.length / 24) * 100), 100);
             document.getElementById('goal-perc-text').innerText = perc + "%";
             document.getElementById('goal-bar').style.width = perc + "%";
-            document.getElementById('goal-books-text').innerText = `${count} su ${target} Libri`;
-            document.getElementById('goal-pages-text').innerText = `${pages} pagine tot.`;
+            document.getElementById('goal-books-text').innerText = `${read26.length} / 24 Libri`;
+            document.getElementById('goal-pages-text').innerText = `${read26.reduce((s,b)=>s+(parseInt(b.pages)||0),0)} pagine`;
         }
 
-        // 2. RENDER GRID (HOME)
         function renderBooks() {
-            const grid = document.getElementById('books-grid');
-            grid.innerHTML = "";
-            let filtered = [];
-            
-            if(currentFilter === 'reading') filtered = books.filter(b => b.status === 'in_lettura');
-            else if(currentFilter === 'library') filtered = books.filter(b => b.format !== 'ebook' && b.status !== 'wishlist');
-            else if(currentFilter === 'toread') filtered = books.filter(b => b.status === 'da_leggere');
-            else if(currentFilter === 'read') filtered = books.filter(b => b.status === 'letto' || b.status === 'rilettura');
-            else if(currentFilter === 'buy') filtered = books.filter(b => b.toBuy && (b.toBuy === 'nuovo' || b.toBuy === 'usato'));
-            else if(currentFilter === 'wishlist') filtered = books.filter(b => b.status === 'wishlist');
-
-            filtered.sort((a,b) => (a.title || "").localeCompare(b.title));
-
+            const grid = document.getElementById('books-grid'); grid.innerHTML = "";
+            let filtered = books.filter(b => {
+                if(currentFilter === 'reading') return b.status === 'in_lettura';
+                if(currentFilter === 'library') return b.format === 'cartaceo' && b.status !== 'wishlist';
+                if(currentFilter === 'toread') return b.status === 'da_leggere';
+                if(currentFilter === 'read') return b.status === 'letto' || b.status === 'rilettura';
+                if(currentFilter === 'wishlist') return b.status === 'wishlist';
+                return true;
+            });
+            filtered.sort((a,b) => (a.title||"").localeCompare(b.title));
             filtered.forEach(b => {
-                const coverStyle = b.cover ? `background-image: url('${b.cover}')` : 'background: #bdc3c7; display:flex; align-items:center; justify-content:center;';
-                const badgeClass = b.format === 'ebook' ? 'badge-ebook' : (b.format === 'wishlist' ? 'badge-wishlist' : 'badge-cartaceo');
-                
                 const card = document.createElement('div');
                 card.className = 'book-card glass-panel';
                 card.onclick = () => openBookModal(b);
-                card.innerHTML = `
-                    <div class="book-cover" style="${coverStyle}">${!b.cover ? '<i class="fas fa-book" style="font-size:2rem; color:white"></i>' : ''}</div>
-                    <div class="book-info">
-                        <div>
-                            <div class="book-title">${b.title}</div>
-                            ${b.series ? `<div class="book-series">${b.series} (${b.vol||'?'}/${b.volTot||'?'})</div>` : ''}
-                        </div>
-                        <span class="badge ${badgeClass}">${b.format}</span>
-                    </div>
-                `;
+                card.innerHTML = `<div class="book-cover" style="background-image:url('${b.cover||''}')">${!b.cover?'<i class="fas fa-book" style="position:absolute;top:40%;left:40%;opacity:0.3;font-size:2rem"></i>':''}</div>
+                <div class="book-info"><div class="book-title">${b.title}</div><span class="badge ${b.format==='ebook'?'badge-ebook':'badge-cartaceo'}">${b.format}</span></div>`;
                 grid.appendChild(card);
             });
         }
 
-        // 3. RENDER TABLE (LIST VIEW)
         function renderTable() {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = "";
-            const sortedBooks = [...books].sort((a,b) => (a.title || "").localeCompare(b.title));
-
-            sortedBooks.forEach(b => {
+            const tbody = document.getElementById('table-body'); tbody.innerHTML = "";
+            [...books].sort((a,b)=>(a.title||"").localeCompare(b.title)).forEach(b => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="text-truncate" style="font-weight:bold">${b.title}</span></td>
-                    <td><span class="text-truncate">${b.author || '-'}</span></td>
-                    <td><span class="text-truncate">${b.series ? b.series + ' #' + b.vol : '-'}</span></td>
-                    <td><span style="padding:2px 6px; border-radius:4px; font-size:0.7rem; background:${getStatusColor(b.status)}; color:white">${b.status.replace('_', ' ')}</span></td>
-                    <td>${b.readYear || '-'}</td>
-                    <td style="text-align:right; white-space:nowrap;">
-                        <button class="action-btn" style="color:#2980b9" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt"></i></button>
-                        <button class="action-btn" style="color:#c0392b" onclick='deleteBook("${b.id}")'><i class="fas fa-trash"></i></button>
-                    </td>
-                `;
+                tr.innerHTML = `<td><b>${b.title}</b></td><td>${b.author||'-'}</td><td>${b.series||'-'} ${b.vol?`#${b.vol}`:''}</td>
+                <td>${b.pages||'0'}</td><td>${b.status}</td><td>${b.readYear||'-'}</td><td>${'⭐'.repeat(b.rating||0)}</td><td>${b.isbn||'-'}</td>
+                <td style="text-align:right"><button class="action-btn" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt" style="color:#2980b9"></i></button>
+                <button class="action-btn" onclick='deleteBook("${b.id}")'><i class="fas fa-trash" style="color:#c0392b"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
 
-        // 4. RENDER GOALS ARCHIVE
         function renderGoalsArchive() {
-            const grid = document.getElementById('goals-archive-grid');
-            grid.innerHTML = "";
-            const yearStats = {};
-
+            const grid = document.getElementById('goals-archive-grid'); grid.innerHTML = "";
+            const stats = {};
             books.forEach(b => {
                 if((b.status === 'letto' || b.status === 'rilettura') && b.readYear) {
                     const years = b.readYear.split(',').map(y => y.trim());
                     years.forEach(y => {
-                        if(!yearStats[y]) yearStats[y] = { count: 0, pages: 0 };
-                        yearStats[y].count++;
-                        yearStats[y].pages += (parseInt(b.pages) || 0);
+                        if(!stats[y]) stats[y] = { count: 0, pages: 0 };
+                        stats[y].count++; stats[y].pages += (parseInt(b.pages)||0);
                     });
                 }
             });
-
-            const yearsList = Object.keys(yearStats).sort((a,b) => b - a);
-            yearsList.forEach(year => {
-                if(year === "2026") return; 
-                const stats = yearStats[year];
-                const target = YEARLY_TARGETS[year] || DEFAULT_TARGET;
-                const perc = Math.min(Math.round((stats.count / target) * 100), 100);
-
-                const card = document.createElement('div');
-                card.className = 'archive-card glass-panel';
-                card.innerHTML = `
-                    <div class="archive-year">${year}</div>
-                    <div style="font-size:0.9rem">${stats.count} Libri su ${target}</div>
-                    <div class="archive-bar-bg"><div class="archive-bar-fill" style="width: ${perc}%"></div></div>
-                    <div class="archive-stats"><span>${perc}% Completato</span><span>${stats.pages} Pagine</span></div>
-                `;
-                grid.appendChild(card);
+            Object.keys(stats).sort((a,b)=>b-a).forEach(y => {
+                if(y === "2026") return;
+                const target = TARGETS[y] || 12;
+                const perc = Math.min(Math.round((stats[y].count/target)*100), 100);
+                grid.innerHTML += `<div class="archive-card glass-panel"><div class="archive-year">${y}</div>
+                <div>${stats[y].count} / ${target} Libri</div>
+                <div class="progress-bar-bg" style="margin:10px 0"><div class="progress-bar-fill" style="width:${perc}%"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem"><span>${perc}%</span><span>${stats[y].pages} pag.</span></div></div>`;
             });
         }
 
-        // UTILS
-        function getStatusColor(status) {
-            if(status === 'letto') return '#27ae60';
-            if(status === 'in_lettura') return '#f39c12';
-            if(status === 'da_leggere') return '#3498db';
-            if(status === 'wishlist') return '#9b59b6';
-            return '#95a5a6';
-        }
-
-        document.querySelectorAll('.filter-tab').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                renderBooks();
-            };
-        });
-
-        function updateDataLists() {
-            const authors = [...new Set(books.map(b => b.author).filter(Boolean))];
-            const series = [...new Set(books.map(b => b.series).filter(Boolean))];
-            document.getElementById('authors-list').innerHTML = authors.map(a => `<option value="${a}">`).join('');
-            document.getElementById('series-list').innerHTML = series.map(s => `<option value="${s}">`).join('');
-        }
-
-        // MODAL LOGIC
-        window.openBookModal = (book = null) => {
-            const m = document.getElementById('modal-book');
-            m.style.display = 'flex';
-            
-            if(book) {
-                document.getElementById('b-id').value = book.id;
-                document.getElementById('b-title').value = book.title || "";
-                document.getElementById('b-author').value = book.author || "";
-                document.getElementById('b-pages').value = book.pages || "";
-                document.getElementById('b-series').value = book.series || "";
-                document.getElementById('b-vol').value = book.vol || "";
-                document.getElementById('b-vol-tot').value = book.volTot || "";
-                document.getElementById('b-status').value = book.status || "da_leggere";
-                document.getElementById('b-format').value = book.format || "cartaceo";
-                document.getElementById('b-cover').value = book.cover || "";
-                document.getElementById('b-read-year').value = book.readYear || "";
-                document.getElementById('b-rating').value = book.rating || "0";
-                document.getElementById('b-cover-type').value = book.coverType || "flessibile";
-                document.getElementById('b-tobuy').value = book.toBuy || "no";
-                document.getElementById('b-isbn').value = book.isbn || "";
-                document.getElementById('btn-delete-book').style.display = 'block';
-                document.getElementById('btn-delete-book').onclick = () => deleteBook(book.id);
-            } else {
-                document.querySelectorAll('#modal-book input').forEach(i => i.value = "");
-                document.getElementById('b-status').value = "da_leggere";
-                document.getElementById('b-format').value = "cartaceo";
-                document.getElementById('b-id').value = "";
-                document.getElementById('btn-delete-book').style.display = 'none';
-            }
+        // AZIONI
+        window.openBookModal = (b = null) => {
+            document.getElementById('modal-book').style.display = 'flex';
+            document.getElementById('b-id').value = b?.id || "";
+            document.getElementById('b-title').value = b?.title || "";
+            document.getElementById('b-author').value = b?.author || "";
+            document.getElementById('b-pages').value = b?.pages || "";
+            document.getElementById('b-series').value = b?.series || "";
+            document.getElementById('b-vol').value = b?.vol || "";
+            document.getElementById('b-status').value = b?.status || "da_leggere";
+            document.getElementById('b-format').value = b?.format || "cartaceo";
+            document.getElementById('b-cover').value = b?.cover || "";
+            document.getElementById('b-read-year').value = b?.readYear || "";
+            document.getElementById('b-rating').value = b?.rating || "0";
+            document.getElementById('b-isbn').value = b?.isbn || "";
+            document.getElementById('btn-delete-book').style.display = b ? 'block' : 'none';
         };
 
-        window.openBookModalEdit = (id) => {
-            const book = books.find(b => b.id === id);
-            if(book) openBookModal(book);
-        }
+        window.openBookModalEdit = (id) => openBookModal(books.find(b=>b.id===id));
 
         document.getElementById('btn-save-book').onclick = async () => {
             const id = document.getElementById('b-id').value;
             const data = {
-                title: document.getElementById('b-title').value,
-                author: document.getElementById('b-author').value,
-                pages: parseInt(document.getElementById('b-pages').value) || 0,
-                series: document.getElementById('b-series').value,
-                vol: document.getElementById('b-vol').value,
-                volTot: document.getElementById('b-vol-tot').value,
-                status: document.getElementById('b-status').value,
-                format: document.getElementById('b-format').value,
-                cover: document.getElementById('b-cover').value,
-                readYear: document.getElementById('b-read-year').value,
-                rating: document.getElementById('b-rating').value,
-                coverType: document.getElementById('b-cover-type').value,
-                toBuy: document.getElementById('b-tobuy').value,
-                isbn: document.getElementById('b-isbn').value,
-                lastUpdate: new Date().toISOString()
+                title: document.getElementById('b-title').value, author: document.getElementById('b-author').value,
+                pages: parseInt(document.getElementById('b-pages').value)||0, series: document.getElementById('b-series').value,
+                vol: document.getElementById('b-vol').value, status: document.getElementById('b-status').value,
+                format: document.getElementById('b-format').value, cover: document.getElementById('b-cover').value,
+                readYear: document.getElementById('b-read-year').value, rating: document.getElementById('b-rating').value,
+                isbn: document.getElementById('b-isbn').value
             };
-
-            if(!data.title) return alert("Titolo obbligatorio");
-
-            if(id) await updateDoc(doc(db, "books", id), data);
-            else await addDoc(collection(db, "books"), data);
-
+            if(!data.title) return alert("Inserisci il titolo");
+            id ? await updateDoc(doc(db, "books", id), data) : await addDoc(collection(db, "books"), data);
             document.getElementById('modal-book').style.display = 'none';
         };
 
-        window.deleteBook = async (id) => {
-            if(confirm("Eliminare libro definitivamente?")) {
-                await deleteDoc(doc(db, "books", id));
-                document.getElementById('modal-book').style.display = 'none';
-            }
-        }
+        window.deleteBook = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "books", id)); document.getElementById('modal-book').style.display = 'none'; };
 
-        document.getElementById('csv-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const text = event.target.result;
-                const rows = text.split('\n').slice(1);
-                let count = 0;
-                for(let row of rows) {
-                    const cols = row.split(',');
-                    if(cols.length > 2) {
-                        await addDoc(collection(db, "books"), {
-                            title: cols[0] || "No Title",
-                            author: cols[1] || "Unknown",
-                            status: "da_leggere",
-                            format: "cartaceo",
-                            dateAdded: new Date().toISOString()
-                        });
-                        count++;
-                    }
-                }
-                alert(`Importati ${count} libri!`);
+        // FILTRI
+        document.querySelectorAll('.filter-tab').forEach(t => {
+            t.onclick = () => {
+                document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active'));
+                t.classList.add('active'); currentFilter = t.dataset.filter; renderBooks();
             };
-            reader.readAsText(file);
         });
+
+        // CSV EXPORT
+        window.exportToCSV = () => {
+            if(books.length === 0) return alert("Nessun dato da esportare");
+            const headers = ["Titolo", "Autore", "Pagine", "Serie", "Vol", "Stato", "Formato", "Anno Lettura", "Rating", "ISBN"];
+            const rows = books.map(b => [
+                `"${b.title||''}"`, `"${b.author||''}"`, b.pages||0, `"${b.series||''}"`, b.vol||'', 
+                b.status, b.format, `"${b.readYear||''}"`, b.rating||0, `"${b.isbn||''}"`
+            ]);
+            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `libreria_myspace_${new Date().getFullYear()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+        };
     </script>
 </body>
 </html>
