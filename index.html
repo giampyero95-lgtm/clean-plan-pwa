@@ -40,7 +40,6 @@
         .filter-tab.active { background: #1a2233; color: white; }
 
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        /* Modificata card per adattarsi al testo */
         .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; cursor: pointer; height: auto; }
         .book-cover-grid { width: 100%; aspect-ratio: 2/3; background-size: cover; background-position: center; position: relative; }
         .book-info-grid { padding: 10px; background: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.3; flex-grow: 1; }
@@ -139,7 +138,7 @@
             </div>
 
             <div id="view-authors" class="view-section">
-                <h2 style="margin-bottom:15px;">Autori</h2>
+                <h2 style="margin-bottom:15px;"><i class="fas fa-users" style="margin-right:10px; color:var(--primary);"></i>Autori</h2>
                 <div id="authors-grid" class="books-grid"></div>
                 <div id="author-detail-view" style="display:none; margin-top:10px;">
                     <button onclick="closeAuthorDetail()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:10px; margin-bottom:15px; cursor:pointer;"><i class="fas fa-arrow-left"></i> Torna agli Autori</button>
@@ -383,7 +382,6 @@
                     card.className = 'book-card glass-panel';
                     card.onclick = () => openBookModal(b);
                     const seriesInfo = b.series ? `<br><i>Vol. ${b.vol || '?'}: serie ${b.series}</i>` : "";
-                    /* Rimosso emoji calendario 📅 */
                     const readYearInfo = b.readYear ? `<br>${b.readYear}` : "";
                     card.innerHTML = `<div class="book-cover-grid" style="background-image:url('${b.cover||''}')"></div>
                     <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small>${seriesInfo}${readYearInfo}</div>`;
@@ -392,7 +390,6 @@
             }
         }
 
-        /* LOGICA AUTORI - Inserita icona contatto classica */
         function renderAuthors() {
             const grid = document.getElementById('authors-grid');
             grid.innerHTML = "";
