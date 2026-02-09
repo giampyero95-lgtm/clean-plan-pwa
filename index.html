@@ -3,303 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySpace - Google Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>MySpace - Ultimate Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #4a90e2; --sidebar: #1a2233; --glass: rgba(255, 255, 255, 0.3); }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; display: flex; }
+        :root { --primary: #4a90e2; --accent: #f5a623; --glass: rgba(255, 255, 255, 0.25); --glass-strong: rgba(255, 255, 255, 0.4); --text: #2c3e50; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; color: var(--text); }
         
-        /* --- STILE VETRO (GLASS) --- */
-        .stanza-section, .notes-container textarea, .modal-content, .card, .day-column, table {
-            background: var(--glass) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            border-radius: 20px;
+        /* --- UI COMPONENTS --- */
+        .glass-panel {
+            background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
         }
+        button, select, input, textarea { font-family: inherit; outline: none; }
 
-        /* LOGIN */
-        #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 320px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; background: white; border: 1px solid #ddd; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-
-        /* HUB */
-        #main-hub { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; gap: 30px; }
-        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; max-width: 900px; width: 90%; }
-        .hub-item { background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.4); color: white; transition: 0.3s; }
-        .hub-item i { font-size: 3.5rem; margin-bottom: 15px; display: block; }
-
-        /* APP CLEAN PLAN */
-        #clean-plan-app { display: none; width: 100%; height: 100%; }
-        .sidebar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 25px; z-index: 10; }
-        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        /* --- LOGIN --- */
+        #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         
-        #clock { font-size: 4.5rem; margin: 0; font-weight: 800; color: #2c3e50; line-height: 1; }
-        #date { font-size: 1.3rem; color: #444; margin: 5px 0 25px 0; text-transform: capitalize; }
+        /* --- MAIN HUB --- */
+        #main-hub { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+        .hub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 90%; max-width: 600px; }
+        .hub-card { padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; }
+        .hub-card:active { transform: scale(0.95); }
+        .hub-card i { font-size: 3rem; margin-bottom: 15px; }
+
+        /* --- APPS COMMON --- */
+        .app-container { display: none; width: 100%; height: 100%; position: relative; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 70px; background: rgba(26, 34, 51, 0.95); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
+        .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.4rem; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 10px; }
+        .sidebar button.active, .sidebar button:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
+        .content-area { margin-left: 70px; padding: 25px; height: 100vh; overflow-y: auto; box-sizing: border-box; padding-bottom: 100px; }
+
+        /* --- BOOK TRACKER SPECIFIC --- */
+        .goal-card { padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; color: #1a2233; position: relative; overflow: hidden; }
+        .goal-header { display: flex; justify-content: space-between; align-items: center; }
+        .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 1s ease; }
         
-        .agenda-grid { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-        .day-column { flex: 1; min-width: 140px; padding: 15px; min-height: 160px; }
-        .day-column h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: #222; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .agenda-item { font-size: 0.8rem; background: rgba(255,255,255,0.6); padding: 6px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--primary); color: #333; }
+        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
+        .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); color: #1a2233; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 0.9rem; }
+        .filter-tab.active { background: #1a2233; color: white; }
 
-        .notes-container textarea { width: 100%; max-width: 600px; height: 120px; padding: 15px; outline: none; font-size: 1rem; color: #333; box-sizing: border-box; }
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .book-card { padding: 0; overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/3.5; }
+        .book-cover { width: 100%; flex: 2; background: #ddd; background-size: cover; background-position: center; position: relative; }
+        .book-info { padding: 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.85rem; background: rgba(255,255,255,0.4); }
+        .book-title { font-weight: 700; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
+        .book-series { font-size: 0.7rem; opacity: 0.8; margin-bottom: 5px; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; width: fit-content; }
+        .badge-ebook { background: #3498db; color: white; }
+        .badge-cartaceo { background: #e67e22; color: white; }
+        .badge-wishlist { background: #9b59b6; color: white; }
 
-        /* --- FIX TABELLA --- */
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; border: none !important; overflow: hidden; }
-        th { text-align: left; padding: 18px; background: rgba(255,255,255,0.1); font-weight: 600; color: #222; border: none !important; }
-        td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #333; }
-        tr:last-child td { border-bottom: none; }
-
-        #planner-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .stanza-section { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .stanza-section h3 { align-self: flex-start; margin-bottom: 15px; width: 100%; }
-        .card { width: 100%; max-width: 280px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .energy-container-wrap { width: 100%; height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 12px 0; overflow: hidden; }
-
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: none; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 99; }
+        /* --- MODAL FORMS --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; background: rgba(255,255,255,0.85); border-radius: 20px; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.8rem; font-weight: bold; opacity: 0.6; text-transform: uppercase; }
+        .form-input { padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); background: white; font-size: 1rem; }
+        .form-row { display: flex; gap: 10px; }
+        .btn-save { background: #1a2233; color: white; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
         
-        .modal { display: none; position: fixed; inset:0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 500; transition: transform 0.2s; }
+        .fab:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
     <div id="auth-container">
         <div class="auth-card">
-            <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--primary);"></i>
+            <i class="fas fa-meteor" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
             <h2>MySpace</h2>
-            <button class="btn-google" id="login-google-btn">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
-                Accedi con Google
+            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Accedi con Google
             </button>
-            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:15px;"></p>
+            <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
         </div>
     </div>
 
-    <main id="main-hub">
+    <div id="main-hub">
         <div class="hub-grid">
-            <div class="hub-item" id="btn-open-clean">
+            <div class="hub-card glass-panel" onclick="openApp('clean')">
                 <i class="fas fa-broom"></i>
                 <h3>Clean Plan</h3>
-                <p>Gestione Casa</p>
             </div>
-            <div class="hub-item" style="opacity: 0.5;">
-                <i class="fas fa-wallet"></i>
-                <h3>Finance</h3>
-                <p>In arrivo</p>
+            <div class="hub-card glass-panel" onclick="openApp('books')">
+                <i class="fas fa-book"></i>
+                <h3>Library</h3>
             </div>
         </div>
-        <button id="logout-btn" style="background:none; border:1px solid white; color:white; padding:10px 20px; border-radius:10px; cursor:pointer; margin-top: 20px;">Esci</button>
-    </main>
+        <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Esci</button>
+    </div>
 
-    <div id="clean-plan-app">
+    <div id="app-clean" class="app-container">
         <nav class="sidebar">
-            <button id="nav-hub"><i class="fas fa-th-large" style="color:var(--primary)"></i></button>
-            <button id="nav-home"><i class="fas fa-house"></i></button>
-            <button id="nav-planner"><i class="fas fa-layer-group"></i></button>
-            <button id="nav-list"><i class="fas fa-table-list"></i></button>
+            <button onclick="closeApp()"><i class="fas fa-th-large" style="color: #4a90e2;"></i></button>
+            <div style="flex:1"></div>
+        </nav>
+        <main class="content-area">
+            <h1>Clean Plan</h1>
+            <p>Sezione Home Management attiva.</p>
+            <div class="glass-panel" style="padding:20px; margin-top:20px;">
+                <h3><i class="fas fa-check-circle"></i> Funziona</h3>
+                <p>Il codice Clean Plan va incollato qui dentro se vuoi tutto unito.</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="app-books" class="app-container">
+        <nav class="sidebar">
+            <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
+            <button class="active"><i class="fas fa-book-open"></i></button>
+            <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
+            <input type="file" id="csv-input" style="display:none" accept=".csv">
         </nav>
 
-        <main class="content">
-            <section id="view-home" class="view">
-                <h1 id="clock">00:00</h1>
-                <p id="date">...</p>
-                <div id="agenda-settimanale" class="agenda-grid"></div>
-                <div class="notes-container">
-                    <h3><i class="fas fa-pen"></i> Note Rapide</h3>
-                    <textarea id="quick-notes" placeholder="Cose da ricordare..."></textarea>
+        <main class="content-area">
+            <div class="glass-panel goal-card">
+                <div class="goal-header">
+                    <h2 style="margin:0"><i class="fas fa-calendar-alt"></i> 2026</h2>
+                    <span id="goal-perc-text" style="font-weight: bold; font-size: 1.2rem;">0%</span>
                 </div>
-            </section>
+                <div class="progress-bar-bg">
+                    <div id="goal-bar" class="progress-bar-fill"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; opacity: 0.8;">
+                    <span id="goal-books-text">0 su 24 Libri</span>
+                    <span id="goal-pages-text">0 pagine tot.</span>
+                </div>
+            </div>
 
-            <section id="view-planner" class="view" style="display:none;">
-                <h2 style="font-size: 2rem; margin-bottom: 20px;">Stato Stanze</h2>
-                <div id="planner-container"></div>
-            </section>
+            <div class="glass-panel" style="padding: 15px; margin-bottom: 25px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px; color: #555;">
+                    <i class="fas fa-lightbulb"></i> <small style="font-weight:bold; text-transform:uppercase;">Note Rapide</small>
+                </div>
+                <textarea id="book-notes" placeholder="ISBN da cercare, note..." style="width:100%; background:none; border:none; resize:none; font-size:0.9rem; height:40px;"></textarea>
+            </div>
 
-            <section id="view-list" class="view" style="display:none;">
-                <h2 style="font-size: 2rem; margin-bottom: 20px;">Tasks</h2>
-                <table>
-                    <thead>
-                        <tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Stato</th><th>Azioni</th></tr>
-                    </thead>
-                    <tbody id="list-table-body"></tbody>
-                </table>
-            </section>
+            <div class="filter-tabs" id="book-filters">
+                <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
+                <button class="filter-tab" data-filter="library">Libreria</button>
+                <button class="filter-tab" data-filter="toread">Da leggere</button>
+                <button class="filter-tab" data-filter="read">Letti</button>
+                <button class="filter-tab" data-filter="buy">Da comprare</button>
+                <button class="filter-tab" data-filter="wishlist">Wishlist</button>
+            </div>
+
+            <div id="books-grid" class="books-grid"></div>
         </main>
-        <button class="fab" id="btn-add-task"><i class="fas fa-plus"></i></button>
+
+        <button class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <div id="modal-task" class="modal">
-        <div class="modal-content" style="background: var(--glass) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.5) !important; color: #2c3e50; padding: 25px; width: 340px; border-radius: 25px; display: flex; flex-direction: column; gap: 15px;">
-            <h3 style="margin: 0; text-align: center; color: #2c3e50; font-weight: 800;">Nuova Attività</h3>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.8rem; font-weight: bold; opacity: 0.7;">Descrizione</label>
-                <input type="text" id="t-nome" placeholder="Cosa devi fare?" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
+    <div id="modal-book" class="modal-overlay">
+        <div class="modal-box glass-panel">
+            <h3 style="margin:0; text-align:center;">Dettagli Libro</h3>
+            
+            <input type="hidden" id="b-id">
+            
+            <div class="form-group">
+                <label>Titolo</label>
+                <input type="text" id="b-title" class="form-input" placeholder="Titolo del libro">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.8rem; font-weight: bold; opacity: 0.7;">Stanza</label>
-                <select id="t-stanza" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
-                    <option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option><option>Balcone</option>
-                </select>
+
+            <div class="form-row">
+                <div class="form-group" style="flex:1">
+                    <label>Autore</label>
+                    <input type="text" id="b-author" class="form-input" list="authors-list">
+                    <datalist id="authors-list"></datalist>
+                </div>
+                <div class="form-group" style="width: 80px;">
+                    <label>Pagine</label>
+                    <input type="number" id="b-pages" class="form-input">
+                </div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-size: 0.8rem; font-weight: bold; opacity: 0.7;">Frequenza</label>
-                <select id="t-frequenza" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); outline: none; width: 100%; box-sizing: border-box;">
-                    <option value="3">Ogni 3 giorni</option>
-                    <option value="7">Settimanale</option>
-                    <option value="14">2 settimane</option>
-                    <option value="21">3 settimane</option>
-                    <option value="30">Mensile</option>
-                    <option value="60">Bimestrale</option>
-                    <option value="90">Trimestrale</option>
-                    <option value="180">Semestrale</option>
-                    <option value="365">Annuale</option>
-                </select>
+
+            <div class="glass-panel" style="padding:10px; background:rgba(255,255,255,0.3);">
+                <div class="form-row">
+                    <div class="form-group" style="flex:2">
+                        <label>Serie</label>
+                        <input type="text" id="b-series" class="form-input" list="series-list" placeholder="Es. Harry Potter">
+                        <datalist id="series-list"></datalist>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Vol.</label>
+                        <input type="number" id="b-vol" class="form-input" placeholder="1">
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Tot.</label>
+                        <input type="number" id="b-vol-tot" class="form-input" placeholder="7">
+                    </div>
+                </div>
             </div>
-            <button id="btn-save-task" style="background: var(--primary); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);">Salva nel Cloud</button>
-            <button id="btn-close-modal" style="background: none; border: none; color: #2c3e50; opacity: 0.6; cursor: pointer; font-size: 0.9rem; font-weight: bold; text-align: center;">Annulla</button>
+
+            <div class="form-row">
+                <div class="form-group" style="flex:1">
+                    <label>Stato</label>
+                    <select id="b-status" class="form-input">
+                        <option value="da_leggere">Da Leggere</option>
+                        <option value="in_lettura">Sto Leggendo</option>
+                        <option value="letto">Letto</option>
+                        <option value="rilettura">Rilettura</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Formato</label>
+                    <select id="b-format" class="form-input">
+                        <option value="cartaceo">Cartaceo</option>
+                        <option value="ebook">E-Book</option>
+                        <option value="wishlist">Wishlist</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Copertina (URL Immagine)</label>
+                <input type="text" id="b-cover" class="form-input" placeholder="Incolla link immagine...">
+            </div>
+
+            <details style="margin-top:10px;">
+                <summary style="cursor:pointer; font-weight:bold; opacity:0.7;">Altri Dettagli (ISBN, Anno, Goal)</summary>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input" placeholder="2026"></div>
+                        <div class="form-group" style="flex:1"><label>Valutazione</label><select id="b-rating" class="form-input"><option value="0">-</option><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select></div>
+                    </div>
+                    <div class="form-group"><label>Tipo Cover</label><select id="b-cover-type" class="form-input"><option value="flessibile">Flessibile</option><option value="rigida">Rigida</option><option value="rilegato">Rilegato</option></select></div>
+                    <div class="form-group"><label>Da Comprare?</label><select id="b-tobuy" class="form-input"><option value="no">No (Già mio)</option><option value="nuovo">Sì (Nuovo)</option><option value="usato">Sì (Usato)</option></select></div>
+                    <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
+                </div>
+            </details>
+
+            <div class="form-row" style="margin-top:10px;">
+                <button class="btn-save" id="btn-save-book" style="flex:1">Salva</button>
+                <button onclick="document.getElementById('modal-book').style.display='none'" style="background:none; border:none; padding:15px; cursor:pointer;">Annulla</button>
+            </div>
+            <button id="btn-delete-book" style="color:red; background:none; border:none; margin-top:10px; font-size:0.8rem; cursor:pointer; display:none;">Elimina Libro</button>
         </div>
     </div>
 
- <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    // CAMBIATO: rimosso getRedirectResult e aggiunto signInWithPopup
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
-        authDomain: "myspace-pwa.firebaseapp.com",
-        projectId: "myspace-pwa",
-        storageBucket: "myspace-pwa.firebasestorage.app",
-        messagingSenderId: "519649568828",
-        appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs",
+            authDomain: "myspace-pwa.firebaseapp.com",
+            projectId: "myspace-pwa",
+            storageBucket: "myspace-pwa.firebasestorage.app",
+            messagingSenderId: "519649568828",
+            appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-    const whitelist = ["giampyero95@gmail.com"];
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        const whitelist = ["giampyero95@gmail.com"];
 
-    // MODIFICATO: Ora usa il Popup, più compatibile con iPhone
-    document.getElementById('login-google-btn').addEventListener('click', () => {
-        signInWithPopup(auth, provider).catch((error) => {
-            alert("Errore Login: " + error.message);
+        // --- AUTH LOGIC (POPUP FIX) ---
+        document.getElementById('login-btn').onclick = () => {
+            signInWithPopup(auth, provider).catch(err => document.getElementById('error-msg').innerText = err.message);
+        };
+
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && whitelist.includes(user.email)) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-hub').style.display = 'flex';
+                initBookTracker(); // Avvia listener libri
+            } else if (user) {
+                document.getElementById('error-msg').innerText = "Non autorizzato.";
+                signOut(auth);
+            } else {
+                document.getElementById('auth-container').style.display = 'flex';
+            }
         });
-    });
 
-    document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user && whitelist.includes(user.email)) {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('main-hub').style.display = 'flex';
-            startApp();
-        } else if (user) {
-            document.getElementById('auth-error').innerText = "Email non autorizzata.";
-            await signOut(auth);
-        } else {
-            document.getElementById('auth-container').style.display = 'flex';
+        // --- NAVIGATION LOGIC ---
+        window.openApp = (appName) => {
             document.getElementById('main-hub').style.display = 'none';
-            document.getElementById('clean-plan-app').style.display = 'none';
+            document.querySelectorAll('.app-container').forEach(el => el.style.display = 'none');
+            document.getElementById('app-' + appName).style.display = 'block';
+        };
+        window.closeApp = () => {
+            document.querySelectorAll('.app-container').forEach(el => el.style.display = 'none');
+            document.getElementById('main-hub').style.display = 'flex';
+        };
+
+        // --- BOOK TRACKER LOGIC ---
+        let books = [];
+        let currentFilter = 'reading';
+        const GOAL_YEAR = "2026";
+        const GOAL_TARGET = 24;
+
+        function initBookTracker() {
+            onSnapshot(collection(db, "books"), (snap) => {
+                books = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                updateStats();
+                renderBooks();
+                updateDataLists();
+            });
+
+            // Note Listener
+            const noteArea = document.getElementById('book-notes');
+            noteArea.value = localStorage.getItem('bookNotes') || "";
+            noteArea.addEventListener('input', () => localStorage.setItem('bookNotes', noteArea.value));
         }
-    });
-    
 
+        // Calcolo Statistiche 2026
+        function updateStats() {
+            const booksRead2026 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes(GOAL_YEAR));
+            const count = booksRead2026.length;
+            const pages = booksRead2026.reduce((sum, b) => sum + (parseInt(b.pages) || 0), 0);
+            const perc = Math.min(Math.round((count / GOAL_TARGET) * 100), 100);
 
-        function startApp() {
-            onSnapshot(collection(db, "tasks"), (snap) => {
-                window.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                render();
+            document.getElementById('goal-perc-text').innerText = perc + "%";
+            document.getElementById('goal-bar').style.width = perc + "%";
+            document.getElementById('goal-books-text').innerText = `${count} su ${GOAL_TARGET} Libri`;
+            document.getElementById('goal-pages-text').innerText = `${pages} pagine tot.`;
+        }
+
+        // Render Card
+        function renderBooks() {
+            const grid = document.getElementById('books-grid');
+            grid.innerHTML = "";
+            
+            let filtered = [];
+            if(currentFilter === 'reading') filtered = books.filter(b => b.status === 'in_lettura');
+            else if(currentFilter === 'library') filtered = books.filter(b => b.format !== 'ebook' && b.status !== 'wishlist');
+            else if(currentFilter === 'toread') filtered = books.filter(b => b.status === 'da_leggere');
+            else if(currentFilter === 'read') filtered = books.filter(b => b.status === 'letto' || b.status === 'rilettura');
+            else if(currentFilter === 'buy') filtered = books.filter(b => b.toBuy && (b.toBuy === 'nuovo' || b.toBuy === 'usato'));
+            else if(currentFilter === 'wishlist') filtered = books.filter(b => b.status === 'wishlist');
+
+            filtered.sort((a,b) => (a.title || "").localeCompare(b.title));
+
+            filtered.forEach(b => {
+                const coverStyle = b.cover ? `background-image: url('${b.cover}')` : 'background: #bdc3c7; display:flex; align-items:center; justify-content:center;';
+                const coverContent = b.cover ? '' : '<i class="fas fa-book" style="font-size:2rem; color:white"></i>';
+                
+                const seriesInfo = b.series ? `<div class="book-series">${b.series} (${b.vol || '?'}/${b.volTot || '?'})</div>` : '';
+                const badgeClass = b.format === 'ebook' ? 'badge-ebook' : (b.format === 'wishlist' ? 'badge-wishlist' : 'badge-cartaceo');
+                
+                const card = document.createElement('div');
+                card.className = 'book-card glass-panel';
+                card.onclick = () => openBookModal(b);
+                card.innerHTML = `
+                    <div class="book-cover" style="${coverStyle}">${coverContent}</div>
+                    <div class="book-info">
+                        <div>
+                            <div class="book-title">${b.title}</div>
+                            ${seriesInfo}
+                        </div>
+                        <span class="badge ${badgeClass}">${b.format}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
             });
         }
 
-        document.getElementById('btn-open-clean').onclick = () => {
-            document.getElementById('main-hub').style.display = 'none';
-            document.getElementById('clean-plan-app').style.display = 'flex';
-        };
-        document.getElementById('nav-hub').onclick = () => {
-            document.getElementById('clean-plan-app').style.display = 'none';
-            document.getElementById('main-hub').style.display = 'flex';
-        };
-        const switchView = (id) => {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.getElementById('view-' + id).style.display = 'block';
-        };
-        document.getElementById('nav-home').onclick = () => switchView('home');
-        document.getElementById('nav-planner').onclick = () => switchView('planner');
-        document.getElementById('nav-list').onclick = () => switchView('list');
-        document.getElementById('btn-add-task').onclick = () => document.getElementById('modal-task').style.display = 'flex';
-        document.getElementById('btn-close-modal').onclick = () => document.getElementById('modal-task').style.display = 'none';
+        // Filters Tab Logic
+        document.querySelectorAll('.filter-tab').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderBooks();
+            };
+        });
 
-        document.getElementById('btn-save-task').onclick = async () => {
-            const n = document.getElementById("t-nome").value;
-            const s = document.getElementById("t-stanza").value;
-            const f = parseInt(document.getElementById("t-frequenza").value);
-            if(!n) return;
-            const d = new Date(); d.setDate(d.getDate() - f);
-            await addDoc(collection(db, "tasks"), { nome: n, stanza: s, freq: f, ultima: d.toISOString().split('T')[0] });
-            document.getElementById('modal-task').style.display = 'none';
-            document.getElementById("t-nome").value = "";
-        };
-
-        window.segnaFatto = async (id) => {
-            await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
-        };
-        window.eliminaTask = async (id) => {
-            if(confirm("Eliminare attività?")) await deleteDoc(doc(db, "tasks", id));
-        };
-
-        function calcolaEnergia(t) {
-            const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
-            const perc = Math.min((trascorsi / t.freq) * 100, 100);
-            const col = perc > 90 ? '#f56565' : (perc > 60 ? '#ecc94b' : '#48bb78');
-            return { perc, rim: Math.max(0, t.freq - trascorsi), col };
+        // Autocomplete Helper
+        function updateDataLists() {
+            const authors = [...new Set(books.map(b => b.author).filter(Boolean))];
+            const series = [...new Set(books.map(b => b.series).filter(Boolean))];
+            document.getElementById('authors-list').innerHTML = authors.map(a => `<option value="${a}">`).join('');
+            document.getElementById('series-list').innerHTML = series.map(s => `<option value="${s}">`).join('');
         }
 
-        function render() {
-            const planner = document.getElementById("planner-container");
-            const list = document.getElementById("list-table-body");
-            const agenda = document.getElementById("agenda-settimanale");
-            const tasks = window.tasks || [];
+        // --- MODAL & SAVE LOGIC ---
+        window.openBookModal = (book = null) => {
+            const m = document.getElementById('modal-book');
+            m.style.display = 'flex';
+            
+            if(book) {
+                document.getElementById('b-id').value = book.id;
+                document.getElementById('b-title').value = book.title || "";
+                document.getElementById('b-author').value = book.author || "";
+                document.getElementById('b-pages').value = book.pages || "";
+                document.getElementById('b-series').value = book.series || "";
+                document.getElementById('b-vol').value = book.vol || "";
+                document.getElementById('b-vol-tot').value = book.volTot || "";
+                document.getElementById('b-status').value = book.status || "da_leggere";
+                document.getElementById('b-format').value = book.format || "cartaceo";
+                document.getElementById('b-cover').value = book.cover || "";
+                document.getElementById('b-read-year').value = book.readYear || "";
+                document.getElementById('b-rating').value = book.rating || "0";
+                document.getElementById('b-cover-type').value = book.coverType || "flessibile";
+                document.getElementById('b-tobuy').value = book.toBuy || "no";
+                document.getElementById('b-isbn').value = book.isbn || "";
+                document.getElementById('btn-delete-book').style.display = 'block';
+                document.getElementById('btn-delete-book').onclick = () => deleteBook(book.id);
+            } else {
+                // Reset for new book
+                document.querySelectorAll('#modal-book input').forEach(i => i.value = "");
+                document.getElementById('b-status').value = "da_leggere";
+                document.getElementById('b-format').value = "cartaceo";
+                document.getElementById('b-id').value = "";
+                document.getElementById('btn-delete-book').style.display = 'none';
+            }
+        };
 
-            planner.innerHTML = [...new Set(tasks.map(t => t.stanza))].map(s => `
-                <div class="stanza-section"><h3><i class="fas fa-door-open"></i> ${s}</h3>
-                ${tasks.filter(t => t.stanza === s).map(t => {
-                    const en = calcolaEnergia(t);
-                    return `<div class="card" style="padding:15px; margin-bottom:10px; background:rgba(255,255,255,0.2) !important">
-                    <strong>${t.nome}</strong><br><small>Manca: ${en.rim} gg</small>
-                    <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
-                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button></div>`;
-                }).join('')}</div>`).join('');
+        document.getElementById('btn-save-book').onclick = async () => {
+            const id = document.getElementById('b-id').value;
+            const data = {
+                title: document.getElementById('b-title').value,
+                author: document.getElementById('b-author').value,
+                pages: parseInt(document.getElementById('b-pages').value) || 0,
+                series: document.getElementById('b-series').value,
+                vol: document.getElementById('b-vol').value,
+                volTot: document.getElementById('b-vol-tot').value,
+                status: document.getElementById('b-status').value,
+                format: document.getElementById('b-format').value,
+                cover: document.getElementById('b-cover').value,
+                readYear: document.getElementById('b-read-year').value, // Gestire come array se necessario in futuro
+                rating: document.getElementById('b-rating').value,
+                coverType: document.getElementById('b-cover-type').value,
+                toBuy: document.getElementById('b-tobuy').value,
+                isbn: document.getElementById('b-isbn').value,
+                lastUpdate: new Date().toISOString()
+            };
 
-            list.innerHTML = tasks.map(t => {
-                const en = calcolaEnergia(t);
-                return `<tr><td><strong>${t.nome}</strong></td><td>${t.stanza}</td><td>Ogni ${t.freq} gg</td>
-                <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
-                <td><button onclick="segnaFatto('${t.id}')" style="border:none; color:var(--primary); background:none; cursor:pointer; font-size:1.2rem;"><i class="fas fa-check-circle"></i></button>
-                <button onclick="eliminaTask('${t.id}')" style="border:none; color:#f56565; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button></td></tr>`;
-            }).join('');
+            if(!data.title) return alert("Titolo obbligatorio");
 
-            const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
-            agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="ag-${g}"></div></div>`).join('');
-            tasks.forEach(t => {
-                if(calcolaEnergia(t).rim <= 1) {
-                    const d = (new Date().getDay() + 6) % 7;
-                    const target = document.getElementById(`ag-${giorni[d]}`);
-                    if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
+            if(id) await updateDoc(doc(db, "books", id), data);
+            else await addDoc(collection(db, "books"), data);
+
+            document.getElementById('modal-book').style.display = 'none';
+        };
+
+        async function deleteBook(id) {
+            if(confirm("Eliminare libro definitivamente?")) {
+                await deleteDoc(doc(db, "books", id));
+                document.getElementById('modal-book').style.display = 'none';
+            }
+        }
+
+        // CSV Import (Basic)
+        document.getElementById('csv-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const text = event.target.result;
+                const rows = text.split('\n').slice(1); // Skip header
+                let count = 0;
+                for(let row of rows) {
+                    const cols = row.split(','); // ATTENZIONE: Se i titoli hanno virgole, questo rompe tutto. Serve parser serio.
+                    if(cols.length > 2) {
+                        await addDoc(collection(db, "books"), {
+                            title: cols[0] || "No Title",
+                            author: cols[1] || "Unknown",
+                            status: "da_leggere",
+                            format: "cartaceo",
+                            dateAdded: new Date().toISOString()
+                        });
+                        count++;
+                    }
                 }
-            });
-        }
+                alert(`Importati ${count} libri! (Nota: CSV deve essere semplice Titolo,Autore,...)`);
+            };
+            reader.readAsText(file);
+        });
 
-        setInterval(() => {
-            const ora = new Date();
-            document.getElementById("clock").innerText = ora.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById("date").innerText = ora.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-        }, 1000);
-        document.getElementById("quick-notes").value = localStorage.getItem("cleanNotes") || "";
-        document.getElementById("quick-notes").addEventListener("input", () => localStorage.setItem("cleanNotes", document.getElementById("quick-notes").value));
     </script>
 </body>
 </html>
