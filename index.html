@@ -190,11 +190,165 @@
         <button id="main-fab" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <div id="modal-book" class="modal-overlay">...</div> 
+    <div id="modal-book" class="modal-overlay">
+        </div>
 
     <script type="module">
-        // Logica Firebase e funzioni identiche a prima...
-        // [Nessuna modifica agli script richiesta]
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs", authDomain: "myspace-pwa.firebaseapp.com", projectId: "myspace-pwa", storageBucket: "myspace-pwa.firebasestorage.app", messagingSenderId: "519649568828", appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        const whitelist = ["giampyero95@gmail.com"];
+
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && whitelist.includes(user.email)) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-hub').style.display = 'flex';
+                initBooks();
+            } else if (user) { signOut(auth); }
+        });
+
+        window.openApp = (n) => { document.getElementById('main-hub').style.display = 'none'; document.getElementById('app-'+n).style.display = 'block'; };
+        window.closeApp = () => { document.querySelectorAll('.app-container').forEach(a=>a.style.display='none'); document.getElementById('main-hub').style.display = 'flex'; };
+
+        let books = [];
+        let currentFilter = 'reading';
+        let sortKey = 'title';
+        let sortDir = 1;
+
+        function initBooks() {
+            onSnapshot(collection(db, "books"), (snap) => {
+                books = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                updateStats(); renderBooks(); renderTable(); renderGoalsArchive(); renderAuthors();
+            });
+        }
+
+        window.switchView = (v) => {
+            document.querySelectorAll('.nav-internal').forEach(b => b.classList.remove('active'));
+            document.getElementById('nav-'+v).classList.add('active');
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('view-'+v).classList.add('active');
+            document.getElementById('main-fab').style.display = (v === 'goals' || v === 'authors') ? 'none' : 'flex';
+            if(v === 'authors') closeAuthorDetail();
+        };
+
+        const parseYears = (str) => str ? str.toString().split(/[ ,/-]+/).filter(y => y.length === 4) : [];
+
+        function updateStats() {
+            const read26 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && parseYears(b.readYear).includes("2026"));
+            const target = 24;
+            const perc = Math.min(Math.round((read26.length / target) * 100), 100);
+            document.getElementById('goal-perc-text').innerText = perc + "%";
+            document.getElementById('goal-bar').style.width = perc + "%";
+            document.getElementById('goal-books-text').innerText = `${read26.length} / ${target} Libri`;
+            document.getElementById('goal-pages-text').innerText = `${read26.reduce((s,b)=>s+(parseInt(b.pages)||0),0)} pagine`;
+        }
+
+        function renderBooks() {
+            const grid = document.getElementById('books-grid');
+            const list = document.getElementById('wishlist-list');
+            grid.innerHTML = ""; list.innerHTML = "";
+            grid.style.display = "grid"; list.style.display = "none";
+
+            let filtered = books.filter(b => {
+                if(currentFilter === 'reading') return b.status === 'in_lettura';
+                if(currentFilter === 'library') return b.format !== 'ebook' && b.status !== 'wishlist';
+                if(currentFilter === 'read') return b.status === 'letto' || b.status === 'rilettura';
+                if(currentFilter === 'da_leggere') return b.status === 'da_leggere';
+                if(currentFilter === 'da_comprare') return b.toBuy === 'nuovo' || b.toBuy === 'usato';
+                if(currentFilter === 'wishlist') return b.status === 'wishlist';
+                return true;
+            });
+
+            if (currentFilter === 'wishlist') {
+                grid.style.display = "none";
+                list.style.display = "flex";
+                filtered.forEach(b => {
+                    const item = document.createElement('div');
+                    item.className = 'wishlist-item';
+                    item.onclick = () => openBookModal(b);
+                    item.innerHTML = `<span><b>${b.title}</b> - ${b.author || 'Anonimo'}</span><i class="fas fa-chevron-right"></i>`;
+                    list.appendChild(item);
+                });
+            } else {
+                filtered.forEach(b => {
+                    const card = document.createElement('div');
+                    card.className = 'book-card glass-panel';
+                    card.onclick = () => openBookModal(b);
+                    const seriesInfo = b.series ? `<br><i>Vol. ${b.vol || '?'}: serie ${b.series}</i>` : "";
+                    const readYearInfo = b.readYear ? `<br>${b.readYear}` : "";
+                    card.innerHTML = `<div class="book-cover-grid" style="background-image:url('${b.cover||''}')"></div>
+                    <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small>${seriesInfo}${readYearInfo}</div>`;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        function renderAuthors() {
+            const grid = document.getElementById('authors-grid');
+            grid.innerHTML = "";
+            const authors = [...new Set(books.map(b => b.author).filter(a => a))].sort();
+            authors.forEach(auth => {
+                const card = document.createElement('div');
+                card.className = 'hub-card glass-panel';
+                card.style.height = "auto"; card.style.padding = "20px"; card.style.color = "inherit";
+                card.innerHTML = `<i class="fas fa-user-circle" style="font-size:1.5rem; margin-bottom:10px; color:var(--primary);"></i><h4 style="margin:0">${auth}</h4>`;
+                card.onclick = () => showAuthorBooks(auth);
+                grid.appendChild(card);
+            });
+        }
+
+        window.showAuthorBooks = (authorName) => {
+            document.getElementById('authors-grid').style.display = "none";
+            document.getElementById('author-detail-view').style.display = "block";
+            document.getElementById('selected-author-name').innerText = authorName;
+            const tbody = document.getElementById('author-books-body');
+            tbody.innerHTML = "";
+            const filtered = books.filter(b => b.author === authorName).sort((a,b) => a.title.localeCompare(b.title));
+            filtered.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><b>${b.title}</b></td>
+                    <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span></td>
+                    <td>${b.format||'-'}</td>`;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.closeAuthorDetail = () => {
+            document.getElementById('authors-grid').style.display = "grid";
+            document.getElementById('author-detail-view').style.display = "none";
+        };
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body'); tbody.innerHTML = "";
+            let sorted = [...books].sort((a,b) => (a[sortKey] || "").toString().toLowerCase().localeCompare((b[sortKey] || "").toString().toLowerCase()) * sortDir);
+            sorted.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><div class="mini-cover" style="background-image:url('${b.cover||''}')"></div></td>
+                    <td onclick='openBookModalEdit("${b.id}")' style="cursor:pointer"><b>${b.title}</b></td>
+                    <td>${b.author||'-'}</td><td>${b.genre||'-'}</td><td>${b.series||'-'}</td><td>${b.pages||'0'}</td>
+                    <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span></td>
+                    <td>${b.format||'-'}</td><td>${b.readYear||'-'}</td><td>${"⭐".repeat(b.rating||0)}</td>
+                    <td class="col-act">
+                        <button class="action-btn" onclick='openBookModalEdit("${b.id}")' style="color:#2980b9"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="action-btn" onclick='deleteBook("${b.id}")' style="color:#c0392b"><i class="fas fa-trash"></i></button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.sortTable = (key) => { if(sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; } renderTable(); };
+        function getStatusColor(s) { const colors = { 'letto':'#27ae60', 'in_lettura':'#f39c12', 'da_leggere':'#3498db', 'wishlist':'#9b59b6' }; return colors[s] || '#95a5a6'; }
+
+        // Il resto delle funzioni (openBookModal, etc.) deve rimanere come nel tuo file originale
     </script>
 </body>
 </html>
