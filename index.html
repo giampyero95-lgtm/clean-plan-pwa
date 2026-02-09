@@ -58,6 +58,11 @@
         .table-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: white; display: inline-block; }
         .mini-cover { width: 35px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; }
         .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.7; }
+        /* Permette il blocco della colonna all'interno del contenitore */
+        .data-table-container {overflow-x: auto;position: relative;}
+        /* Rende la colonna Titolo fissa a sinistra */
+        .col-title {position: sticky;left: 0;z-index: background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(5px);width: 250px;}th.col-title {z-index: 3;}
+
 
         /* MODALE RIMODULATA */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
