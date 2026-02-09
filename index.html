@@ -78,6 +78,10 @@
         .btn-cancel { background: #eee; color: #666; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; flex: 1; }
 
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 500; }
+        
+        /* SPECIFIC FOR AUTHORS VIEW */
+        .author-card { background: var(--glass); padding: 20px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); }
+        .author-card:hover { background: var(--glass-strong); transform: translateY(-5px); }
     </style>
 </head>
 <body>
@@ -140,20 +144,30 @@
             <div id="view-authors" class="view-section">
                 <h2 style="margin-bottom:15px;">Autori</h2>
                 <div id="authors-grid" class="books-grid"></div>
-                <div id="author-detail-view" style="display:none; margin-top:10px;">
-                    <button onclick="closeAuthorDetail()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:10px; margin-bottom:15px; cursor:pointer;"><i class="fas fa-arrow-left"></i> Torna agli Autori</button>
-                    <h3 id="selected-author-name"></h3>
-                    <div class="glass-panel data-table-container">
-                        <table class="data-table" style="min-width:auto; width:100%;">
-                            <thead>
-                                <tr>
-                                    <th style="width:60%;">Titolo</th>
-                                    <th style="width:25%;">Stato</th>
-                                    <th style="width:15%;">Formato</th>
-                                </tr>
-                            </thead>
-                            <tbody id="author-books-body"></tbody>
-                        </table>
+                
+                <div id="author-modal" class="modal-overlay">
+                    <div class="modal-box">
+                        <div class="modal-header">
+                            <h3 id="selected-author-name" style="margin:0"></h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="data-table-container">
+                                <table class="data-table" style="min-width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:50px">Cover</th>
+                                            <th>Titolo</th>
+                                            <th>Stato</th>
+                                            <th>Formato</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="author-books-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-cancel" onclick="closeAuthorDetail()" style="flex:1">Chiudi</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -190,8 +204,7 @@
         <button id="main-fab" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <div id="modal-book" class="modal-overlay">
-        </div>
+    <div id="modal-book" class="modal-overlay"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -227,7 +240,7 @@
         function initBooks() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                updateStats(); renderBooks(); renderTable(); renderGoalsArchive(); renderAuthors();
+                updateStats(); renderBooks(); renderTable(); renderAuthors();
             });
         }
 
@@ -292,39 +305,52 @@
             }
         }
 
+        /* --- LOGICA AUTORI AGGIORNATA --- */
         function renderAuthors() {
             const grid = document.getElementById('authors-grid');
             grid.innerHTML = "";
-            const authors = [...new Set(books.map(b => b.author).filter(a => a))].sort();
-            authors.forEach(auth => {
+            // Estrae autori unici e conta i libri per autore
+            const authorCounts = books.reduce((acc, b) => {
+                if(b.author) acc[b.author] = (acc[b.author] || 0) + 1;
+                return acc;
+            }, {});
+
+            Object.keys(authorCounts).sort().forEach(auth => {
                 const card = document.createElement('div');
-                card.className = 'hub-card glass-panel';
-                card.style.height = "auto"; card.style.padding = "20px"; card.style.color = "inherit";
-                card.innerHTML = `<i class="fas fa-user-circle" style="font-size:1.5rem; margin-bottom:10px; color:var(--primary);"></i><h4 style="margin:0">${auth}</h4>`;
+                card.className = 'author-card';
+                card.innerHTML = `
+                    <i class="fas fa-user-pen" style="font-size: 2rem; color: var(--primary); margin-bottom: 10px;"></i>
+                    <div style="font-weight: bold; font-size: 1rem;">${auth}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7;">${authorCounts[auth]} libri</div>
+                `;
                 card.onclick = () => showAuthorBooks(auth);
                 grid.appendChild(card);
             });
         }
 
         window.showAuthorBooks = (authorName) => {
-            document.getElementById('authors-grid').style.display = "none";
-            document.getElementById('author-detail-view').style.display = "block";
+            const modal = document.getElementById('author-modal');
             document.getElementById('selected-author-name').innerText = authorName;
             const tbody = document.getElementById('author-books-body');
             tbody.innerHTML = "";
+            
             const filtered = books.filter(b => b.author === authorName).sort((a,b) => a.title.localeCompare(b.title));
+            
             filtered.forEach(b => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><b>${b.title}</b></td>
+                tr.innerHTML = `
+                    <td><div class="mini-cover" style="background-image:url('${b.cover||''}')"></div></td>
+                    <td style="white-space: normal;"><b>${b.title}</b></td>
                     <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span></td>
-                    <td>${b.format||'-'}</td>`;
+                    <td style="font-size: 0.75rem;">${b.format || '-'}</td>
+                `;
                 tbody.appendChild(tr);
             });
+            modal.style.display = "flex";
         };
 
         window.closeAuthorDetail = () => {
-            document.getElementById('authors-grid').style.display = "grid";
-            document.getElementById('author-detail-view').style.display = "none";
+            document.getElementById('author-modal').style.display = "none";
         };
 
         function renderTable() {
@@ -347,8 +373,6 @@
 
         window.sortTable = (key) => { if(sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; } renderTable(); };
         function getStatusColor(s) { const colors = { 'letto':'#27ae60', 'in_lettura':'#f39c12', 'da_leggere':'#3498db', 'wishlist':'#9b59b6' }; return colors[s] || '#95a5a6'; }
-
-        // Il resto delle funzioni (openBookModal, etc.) deve rimanere come nel tuo file originale
     </script>
 </body>
 </html>
