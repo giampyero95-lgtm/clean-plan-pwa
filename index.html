@@ -30,12 +30,12 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* BOOK TRACKER SPECIFIC */
-        .goal-card { padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px; color: #1a2233; position: relative; }
-        .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
+        /* BOOKS UI */
+        .goal-card { padding: 25px; margin-bottom: 25px; color: #1a2233; position: relative; }
+        .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 1s ease; }
         
-        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
         .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); cursor: pointer; white-space: nowrap; font-size: 0.9rem; font-weight: 600; }
         .filter-tab.active { background: #1a2233; color: white; }
 
@@ -43,153 +43,170 @@
         .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; aspect-ratio: 2/3.5; cursor: pointer; }
         .book-cover { width: 100%; flex: 2; background-size: cover; background-position: center; position: relative; }
         .book-info { padding: 10px; flex: 1; background: rgba(255,255,255,0.4); font-size: 0.85rem; }
-        .book-title { font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
 
-        /* TABELLA E ARCHIVIO */
+        /* TABELLA POTENZIATA */
         .data-table-container { overflow-x: auto; border-radius: 15px; margin-top: 10px; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem; }
-        .data-table th { text-align: left; padding: 12px; background: rgba(0,0,0,0.05); font-weight: 700; border-bottom: 2px solid rgba(0,0,0,0.1); }
-        .data-table td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; transition: 0.2s; }
-        .action-btn:hover { transform: scale(1.2); }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 0.85rem; table-layout: fixed; }
+        .data-table th { text-align: left; padding: 12px; background: rgba(255,255,255,0.5); font-weight: 700; border-bottom: 2px solid rgba(0,0,0,0.1); }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .col-title { width: 200px; }
+        .col-author { width: 150px; }
+        .col-series { width: 150px; }
+        .col-pages { width: 60px; }
+        .col-status { width: 100px; }
+        .col-year { width: 70px; }
+        .col-rating { width: 90px; }
+        .col-isbn { width: 120px; }
+        .col-actions { width: 70px; text-align: right; }
 
+        .table-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: white; display: inline-block; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1rem; opacity: 0.6; }
+        .action-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        /* ARCHIVIO */
         .goals-archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .archive-card { padding: 20px; background: rgba(26, 34, 51, 0.7); color: white; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
-        .archive-year { font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+        .archive-card { padding: 20px; background: rgba(26, 34, 51, 0.7); color: white; border-radius: 16px; }
 
-        /* MODAL */
+        /* MODALE */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-box { width: 90%; max-width: 480px; max-height: 90vh; overflow-y: auto; background: white; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .modal-box { width: 90%; max-width: 480px; max-height: 90vh; overflow-y: auto; background: white; border-radius: 20px; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
         .form-input { padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         .form-row { display: flex; gap: 10px; }
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 500; cursor: <style>
-    /* ... (tutti i tuoi stili precedenti rimangono invariati fino a .data-table) ... */
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 500; }
+    </style>
+</head>
+<body>
 
-    .data-table-container { overflow-x: auto; border-radius: 15px; margin-top: 10px; }
-    .data-table { width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 0.85rem; color: #1a2233; table-layout: fixed; }
-    .data-table th { text-align: left; padding: 12px; background: rgba(255,255,255,0.4); font-weight: 700; border-bottom: 2px solid rgba(0,0,0,0.1); }
-    .data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.1); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
-    /* Classi per gestire le larghezze colonne */
-    .col-title { width: 20%; }
-    .col-author { width: 15%; }
-    .col-series { width: 15%; }
-    .col-pages { width: 70px; }
-    .col-status { width: 110px; }
-    .col-year { width: 80px; }
-    .col-rating { width: 100px; }
-    .col-format { width: 90px; }
-    .col-isbn { width: 120px; }
-    .col-actions { width: 80px; text-align: right; }
-
-    .table-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; color: white; display: inline-block; }
-    
-    .text-clickable { cursor: pointer; }
-    .text-clickable:hover { text-decoration: underline; }
-</style>
-
-<nav class="sidebar">
-    <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
-    <div style="width: 40px; height: 1px; background: rgba(255,255,255,0.2); margin: 10px 0;"></div>
-    <button id="nav-home" class="nav-internal active" onclick="switchView('home')"><i class="fas fa-book-open"></i></button>
-    <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
-    <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
-    <div style="flex:1"></div>
-    <button onclick="exportToCSV()" title="Esporta CSV"><i class="fas fa-file-export"></i></button>
-    <button onclick="document.getElementById('csv-input').click()" title="Importa CSV"><i class="fas fa-file-import"></i></button>
-    <input type="file" id="csv-input" style="display:none" accept=".csv">
-</nav>
-
-<div id="view-table" class="view-section">
-    <h2 style="color: #1a2233; margin-bottom: 20px;">Database Completo</h2>
-    <div class="glass-panel data-table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th class="col-title">Titolo</th>
-                    <th class="col-author">Autore</th>
-                    <th class="col-series">Serie</th>
-                    <th class="col-pages">Pag.</th>
-                    <th class="col-status">Stato</th>
-                    <th class="col-year">Anno</th>
-                    <th class="col-rating">Rating</th>
-                    <th class="col-format">Formato</th>
-                    <th class="col-isbn">ISBN</th>
-                    <th class="col-actions"></th>
-                </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
+    <div id="auth-container">
+        <div class="auth-card">
+            <i class="fas fa-meteor" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h2>MySpace</h2>
+            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer;">Accedi con Google</button>
+            <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
+        </div>
     </div>
-</div>
 
-<script type="module">
-    // ... (Mantieni le tue importazioni e config Firebase iniziali) ...
+    <div id="main-hub">
+        <div class="hub-grid">
+            <div class="hub-card glass-panel" onclick="openApp('clean')"><i class="fas fa-broom"></i><h3>Clean Plan</h3></div>
+            <div class="hub-card glass-panel" onclick="openApp('books')"><i class="fas fa-book"></i><h3>Library</h3></div>
+        </div>
+        <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Esci</button>
+    </div>
 
-    // --- AGGIORNAMENTO RENDER TABLE ---
-    function renderTable() {
-        const tbody = document.getElementById('table-body');
-        tbody.innerHTML = "";
-        const sortedBooks = [...books].sort((a,b) => (a.title || "").localeCompare(b.title));
+    <div id="app-books" class="app-container">
+        <nav class="sidebar">
+            <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
+            <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.2);"></div>
+            <button id="nav-home" class="nav-internal active" onclick="switchView('home')"><i class="fas fa-book-open"></i></button>
+            <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
+            <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
+            <div style="flex:1"></div>
+            <button onclick="exportToCSV()" title="Esporta CSV"><i class="fas fa-file-export"></i></button>
+            <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
+            <input type="file" id="csv-input" style="display:none" accept=".csv">
+        </nav>
 
-        sortedBooks.forEach(b => {
-            const tr = document.createElement('tr');
-            
-            // Stelle per il rating
-            const stars = b.rating > 0 ? "⭐".repeat(b.rating) : "-";
-            
-            tr.innerHTML = `
-                <td class="text-clickable" onclick='openBookModalEdit("${b.id}")' title="${b.title}"><b>${b.title}</b></td>
-                <td title="${b.author || ''}">${b.author || '-'}</td>
-                <td title="${b.series || ''}">${b.series ? b.series + ' #' + b.vol : '-'}</td>
-                <td>${b.pages || '0'}</td>
-                <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_', ' ')}</span></td>
-                <td>${b.readYear || '-'}</td>
-                <td>${stars}</td>
-                <td>${b.format || '-'}</td>
-                <td style="font-family: monospace; font-size: 0.75rem;">${b.isbn || '-'}</td>
-                <td class="col-actions">
-                    <button class="action-btn" style="color:#2980b9" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt"></i></button>
-                    <button class="action-btn" style="color:#c0392b" onclick='deleteBook("${b.id}")'><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
+        <main class="content-area">
+            <div id="view-home" class="view-section active">
+                <div class="glass-panel goal-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="margin:0">Obiettivo 2026</h2>
+                        <span id="goal-perc-text" style="font-weight:bold">0%</span>
+                    </div>
+                    <div class="progress-bar-bg"><div id="goal-bar" class="progress-bar-fill"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; opacity:0.8;">
+                        <span id="goal-books-text">0 / 24 Libri</span>
+                        <span id="goal-pages-text">0 pagine</span>
+                    </div>
+                </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
+                    <button class="filter-tab" data-filter="library">Libreria</button>
+                    <button class="filter-tab" data-filter="toread">Da leggere</button>
+                    <button class="filter-tab" data-filter="read">Letti</button>
+                </div>
+                <div id="books-grid" class="books-grid"></div>
+            </div>
 
-    // --- FUNZIONE ESPORTAZIONE CSV ---
-    window.exportToCSV = () => {
-        if (books.length === 0) return alert("Nessun libro da esportare.");
-        
-        // Intestazioni
-        const headers = ["Titolo", "Autore", "Pagine", "Serie", "Vol", "Stato", "Formato", "Anno Lettura", "Rating", "ISBN"];
-        
-        // Trasforma i libri in righe CSV
-        const csvRows = books.map(b => [
-            `"${(b.title || '').replace(/"/g, '""')}"`,
-            `"${(b.author || '').replace(/"/g, '""')}"`,
-            b.pages || 0,
-            `"${(b.series || '').replace(/"/g, '""')}"`,
-            b.vol || '',
-            b.status,
-            b.format,
-            `"${b.readYear || ''}"`,
-            b.rating || 0,
-            `"${b.isbn || ''}"`
-        ].join(','));
+            <div id="view-table" class="view-section">
+                <h2 style="margin-bottom:15px;">Database Libri</h2>
+                <div class="glass-panel data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="col-title">Titolo</th>
+                                <th class="col-author">Autore</th>
+                                <th class="col-series">Serie</th>
+                                <th class="col-pages">Pag.</th>
+                                <th class="col-status">Stato</th>
+                                <th class="col-year">Anno</th>
+                                <th class="col-rating">Rating</th>
+                                <th class="col-isbn">ISBN</th>
+                                <th class="col-actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
 
-        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...csvRows].join('\n');
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `myspace_library_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+            <div id="view-goals" class="view-section">
+                <h2 style="margin-bottom:20px;">Archivio Storico</h2>
+                <div id="goals-archive-grid" class="goals-archive-grid"></div>
+            </div>
+        </main>
+        <button id="main-fab" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
+    </div>
 
+    <div id="modal-book" class="modal-overlay">
+        <div class="modal-box glass-panel">
+            <h3 style="margin:0; text-align:center;">Dettagli Libro</h3>
+            <input type="hidden" id="b-id">
+            <div class="form-group"><label>Titolo *</label><input type="text" id="b-title" class="form-input"></div>
+            <div class="form-row">
+                <div class="form-group" style="flex:2"><label>Autore</label><input type="text" id="b-author" class="form-input"></div>
+                <div class="form-group" style="flex:1"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:2"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
+                <div class="form-group" style="flex:1"><label>Vol.</label><input type="number" id="b-vol" class="form-input"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1"><label>Stato</label>
+                    <select id="b-status" class="form-input">
+                        <option value="da_leggere">Da Leggere</option>
+                        <option value="in_lettura">Sto Leggendo</option>
+                        <option value="letto">Letto</option>
+                        <option value="rilettura">Rilettura</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1"><label>Formato</label>
+                    <select id="b-format" class="form-input">
+                        <option value="cartaceo">Cartaceo</option>
+                        <option value="ebook">E-Book</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>URL Copertina</label><input type="text" id="b-cover" class="form-input"></div>
+            <div class="form-row">
+                <div class="form-group" style="flex:1"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input" placeholder="2024"></div>
+                <div class="form-group" style="flex:1"><label>Rating</label>
+                    <select id="b-rating" class="form-input">
+                        <option value="0">-</option><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
+            <div class="form-row" style="margin-top:10px;">
+                <button class="btn-save" id="btn-save-book" style="flex:1; background:#1a2233; color:white; padding:12px; border:none; border-radius:10px; cursor:pointer;">Salva</button>
+                <button onclick="document.getElementById('modal-book').style.display='none'" style="background:none; border:none; padding:12px; cursor:pointer;">Annulla</button>
+            </div>
+            <button id="btn-delete-book" style="color:red; background:none; border:none; cursor:pointer; font-size:0.8rem; display:none;">Elimina Definitivamente</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -217,18 +234,14 @@
         window.openApp = (n) => { document.getElementById('main-hub').style.display = 'none'; document.getElementById('app-'+n).style.display = 'block'; };
         window.closeApp = () => { document.querySelectorAll('.app-container').forEach(a=>a.style.display='none'); document.getElementById('main-hub').style.display = 'flex'; };
 
-        // BOOK TRACKER
         let books = [];
         let currentFilter = 'reading';
-        const TARGETS = { "2026": 24, "2025": 24, "2024": 20, "2023": 15, "2008": 3, "2006": 1 };
+        const TARGETS = { "2026": 24, "2025": 24, "2024": 20 };
 
         function initBooks() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                updateStats();
-                renderBooks();
-                renderTable();
-                renderGoalsArchive();
+                updateStats(); renderBooks(); renderTable(); renderGoalsArchive();
             });
         }
 
@@ -241,7 +254,7 @@
         };
 
         function updateStats() {
-            const read26 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear && b.readYear.includes("2026"));
+            const read26 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && b.readYear?.includes("2026"));
             const perc = Math.min(Math.round((read26.length / 24) * 100), 100);
             document.getElementById('goal-perc-text').innerText = perc + "%";
             document.getElementById('goal-bar').style.width = perc + "%";
@@ -256,28 +269,34 @@
                 if(currentFilter === 'library') return b.format === 'cartaceo' && b.status !== 'wishlist';
                 if(currentFilter === 'toread') return b.status === 'da_leggere';
                 if(currentFilter === 'read') return b.status === 'letto' || b.status === 'rilettura';
-                if(currentFilter === 'wishlist') return b.status === 'wishlist';
                 return true;
             });
-            filtered.sort((a,b) => (a.title||"").localeCompare(b.title));
             filtered.forEach(b => {
                 const card = document.createElement('div');
                 card.className = 'book-card glass-panel';
                 card.onclick = () => openBookModal(b);
-                card.innerHTML = `<div class="book-cover" style="background-image:url('${b.cover||''}')">${!b.cover?'<i class="fas fa-book" style="position:absolute;top:40%;left:40%;opacity:0.3;font-size:2rem"></i>':''}</div>
-                <div class="book-info"><div class="book-title">${b.title}</div><span class="badge ${b.format==='ebook'?'badge-ebook':'badge-cartaceo'}">${b.format}</span></div>`;
+                card.innerHTML = `<div class="book-cover" style="background-image:url('${b.cover||''}')"></div>
+                <div class="book-info"><b>${b.title}</b><br><small>${b.author||''}</small></div>`;
                 grid.appendChild(card);
             });
         }
 
         function renderTable() {
             const tbody = document.getElementById('table-body'); tbody.innerHTML = "";
-            [...books].sort((a,b)=>(a.title||"").localeCompare(b.title)).forEach(b => {
+            books.sort((a,b)=>(a.title||"").localeCompare(b.title)).forEach(b => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td><b>${b.title}</b></td><td>${b.author||'-'}</td><td>${b.series||'-'} ${b.vol?`#${b.vol}`:''}</td>
-                <td>${b.pages||'0'}</td><td>${b.status}</td><td>${b.readYear||'-'}</td><td>${'⭐'.repeat(b.rating||0)}</td><td>${b.isbn||'-'}</td>
-                <td style="text-align:right"><button class="action-btn" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt" style="color:#2980b9"></i></button>
-                <button class="action-btn" onclick='deleteBook("${b.id}")'><i class="fas fa-trash" style="color:#c0392b"></i></button></td>`;
+                tr.innerHTML = `
+                    <td title="${b.title}"><b>${b.title}</b></td>
+                    <td title="${b.author||''}">${b.author||'-'}</td>
+                    <td title="${b.series||''}">${b.series||'-'} ${b.vol?`#${b.vol}`:''}</td>
+                    <td>${b.pages||'0'}</td>
+                    <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status.replace('_',' ')}</span></td>
+                    <td>${b.readYear||'-'}</td>
+                    <td>${"⭐".repeat(b.rating||0)}</td>
+                    <td style="font-size:0.7rem">${b.isbn||'-'}</td>
+                    <td class="col-actions">
+                        <button class="action-btn" onclick='openBookModalEdit("${b.id}")'><i class="fas fa-pencil-alt" style="color:#2980b9"></i></button>
+                    </td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -289,23 +308,26 @@
                 if((b.status === 'letto' || b.status === 'rilettura') && b.readYear) {
                     const years = b.readYear.split(',').map(y => y.trim());
                     years.forEach(y => {
+                        if(y === "2026") return;
                         if(!stats[y]) stats[y] = { count: 0, pages: 0 };
                         stats[y].count++; stats[y].pages += (parseInt(b.pages)||0);
                     });
                 }
             });
             Object.keys(stats).sort((a,b)=>b-a).forEach(y => {
-                if(y === "2026") return;
                 const target = TARGETS[y] || 12;
                 const perc = Math.min(Math.round((stats[y].count/target)*100), 100);
-                grid.innerHTML += `<div class="archive-card glass-panel"><div class="archive-year">${y}</div>
-                <div>${stats[y].count} / ${target} Libri</div>
-                <div class="progress-bar-bg" style="margin:10px 0"><div class="progress-bar-fill" style="width:${perc}%"></div></div>
-                <div style="display:flex;justify-content:space-between;font-size:0.8rem"><span>${perc}%</span><span>${stats[y].pages} pag.</span></div></div>`;
+                grid.innerHTML += `<div class="archive-card glass-panel"><h3>${y}</h3>
+                <div>${stats[y].count} / ${target} Libri (${perc}%)</div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${perc}%"></div></div>
+                <small>${stats[y].pages} pagine totali</small></div>`;
             });
         }
 
-        // AZIONI
+        function getStatusColor(s) {
+            return s==='letto'?'#27ae60':s==='in_lettura'?'#f39c12':s==='da_leggere'?'#3498db':'#95a5a6';
+        }
+
         window.openBookModal = (b = null) => {
             document.getElementById('modal-book').style.display = 'flex';
             document.getElementById('b-id').value = b?.id || "";
@@ -335,37 +357,24 @@
                 readYear: document.getElementById('b-read-year').value, rating: document.getElementById('b-rating').value,
                 isbn: document.getElementById('b-isbn').value
             };
-            if(!data.title) return alert("Inserisci il titolo");
             id ? await updateDoc(doc(db, "books", id), data) : await addDoc(collection(db, "books"), data);
             document.getElementById('modal-book').style.display = 'none';
         };
 
-        window.deleteBook = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "books", id)); document.getElementById('modal-book').style.display = 'none'; };
+        window.exportToCSV = () => {
+            const headers = ["Titolo", "Autore", "Pagine", "Serie", "Vol", "Stato", "Formato", "Anno Lettura", "Rating", "ISBN"];
+            const rows = books.map(b => [ `"${b.title||''}"`, `"${b.author||''}"`, b.pages||0, `"${b.series||''}"`, b.vol||'', b.status, b.format, b.readYear||'', b.rating||0, b.isbn||'' ]);
+            const csv = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv));
+            link.setAttribute("download", "libreria_myspace.csv"); document.body.appendChild(link); link.click();
+        };
 
-        // FILTRI
         document.querySelectorAll('.filter-tab').forEach(t => {
             t.onclick = () => {
                 document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active'));
                 t.classList.add('active'); currentFilter = t.dataset.filter; renderBooks();
             };
         });
-
-        // CSV EXPORT
-        window.exportToCSV = () => {
-            if(books.length === 0) return alert("Nessun dato da esportare");
-            const headers = ["Titolo", "Autore", "Pagine", "Serie", "Vol", "Stato", "Formato", "Anno Lettura", "Rating", "ISBN"];
-            const rows = books.map(b => [
-                `"${b.title||''}"`, `"${b.author||''}"`, b.pages||0, `"${b.series||''}"`, b.vol||'', 
-                b.status, b.format, `"${b.readYear||''}"`, b.rating||0, `"${b.isbn||''}"`
-            ]);
-            const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].map(e => e.join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `libreria_myspace_${new Date().getFullYear()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-        };
     </script>
 </body>
 </html>
