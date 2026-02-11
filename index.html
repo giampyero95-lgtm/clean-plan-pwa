@@ -249,14 +249,14 @@
                 <div class="glass-panel data-table-container">
                     <table class="clean-table">
                         <thead>
-                            <tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Stato</th><th>Azioni</th></tr>
+                            <tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Ultima Data</th><th>Stato</th><th>Azioni</th></tr>
                         </thead>
                         <tbody id="list-table-body"></tbody>
                     </table>
                 </div>
             </div>
         </main>
-        <button id="clean-fab" class="fab" onclick="document.getElementById('modal-task').style.display = 'flex'"><i class="fas fa-plus"></i></button>
+        <button id="clean-fab" class="fab" onclick="openTaskModal()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="modal-book" class="modal-overlay">
@@ -311,8 +311,9 @@
 
     <div id="modal-task" class="modal-overlay">
         <div class="modal-box" style="max-width: 350px;">
-            <div class="modal-header"><h3 style="margin:0">Nuova Attività</h3></div>
+            <div class="modal-header"><h3 style="margin:0">Attività</h3></div>
             <div class="modal-body">
+                <input type="hidden" id="t-id">
                 <div class="form-group">
                     <label>Descrizione</label>
                     <input type="text" id="t-nome" class="form-input" placeholder="Es. Pulire vetri">
@@ -625,6 +626,14 @@
             document.getElementById('clean-fab').style.display = (v === 'planner') ? 'none' : 'flex';
         };
 
+        window.openTaskModal = (t = null) => {
+            document.getElementById('modal-task').style.display = 'flex';
+            document.getElementById('t-id').value = t?.id || "";
+            document.getElementById('t-nome').value = t?.nome || "";
+            document.getElementById('t-stanza').value = t?.stanza || "Cucina";
+            document.getElementById('t-frequenza').value = t?.freq || "7";
+        };
+
         window.segnaTaskFatto = async (id) => {
             await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
         };
@@ -652,16 +661,23 @@
                     return `<div class="clean-card">
                     <strong>${t.nome}</strong><small style="opacity:0.7">Manca: ${en.rim} gg</small>
                     <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
-                    <button onclick="segnaTaskFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button></div>`;
+                    <div style="display:flex; gap:10px; width:100%; margin-top:5px;">
+                        <button onclick="segnaTaskFatto('${t.id}')" style="flex:1; border:none; background:none; color:#27ae60; cursor:pointer; font-size:1.5rem;"><i class="fas fa-check-circle"></i></button>
+                        <button onclick='openTaskModal(${JSON.stringify(t)})' style="flex:1; border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-edit"></i></button>
+                    </div></div>`;
                 }).join('')}</div>`).join('');
 
             // Render Tabella Lista
             list.innerHTML = cleanTasks.map(t => {
                 const en = calcolaEnergia(t);
                 return `<tr><td><strong>${t.nome}</strong></td><td>${t.stanza}</td><td>Ogni ${t.freq} gg</td>
+                <td>${t.ultima || '-'}</td>
                 <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
-                <td><button onclick="segnaTaskFatto('${t.id}')" style="border:none; color:var(--primary); background:none; cursor:pointer; font-size:1.2rem;"><i class="fas fa-check-circle"></i></button>
-                <button onclick="eliminaTask('${t.id}')" style="border:none; color:#e74c3c; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button></td></tr>`;
+                <td>
+                    <button onclick="segnaTaskFatto('${t.id}')" style="border:none; color:#27ae60; background:none; cursor:pointer; font-size:1.2rem;"><i class="fas fa-check-circle"></i></button>
+                    <button onclick='openTaskModal(${JSON.stringify(t)})' style="border:none; color:var(--primary); background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-edit"></i></button>
+                    <button onclick="eliminaTask('${t.id}')" style="border:none; color:#e74c3c; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button>
+                </td></tr>`;
             }).join('');
 
             // Render Agenda
@@ -677,14 +693,22 @@
         }
 
         document.getElementById('btn-save-task').onclick = async () => {
+            const id = document.getElementById("t-id").value;
             const n = document.getElementById("t-nome").value;
             const s = document.getElementById("t-stanza").value;
             const f = parseInt(document.getElementById("t-frequenza").value);
             if(!n) return;
-            const d = new Date(); d.setDate(d.getDate() - f);
-            await addDoc(collection(db, "tasks"), { nome: n, stanza: s, freq: f, ultima: d.toISOString().split('T')[0] });
+            
+            const data = { nome: n, stanza: s, freq: f };
+            if(!id) {
+                const d = new Date(); d.setDate(d.getDate() - f);
+                data.ultima = d.toISOString().split('T')[0];
+                await addDoc(collection(db, "tasks"), data);
+            } else {
+                await updateDoc(doc(db, "tasks", id), data);
+            }
+            
             document.getElementById('modal-task').style.display = 'none';
-            document.getElementById("t-nome").value = "";
         };
 
     </script>
