@@ -1,11 +1,3 @@
-Certamente. Ho aggiornato il codice apportando le seguenti modifiche specifiche per il Clean Plan:
- * Tabella: Aggiunta la colonna "Ultima" che mostra la data dell'ultima esecuzione.
- * Azioni: Aggiunto il pulsante Matita (Modifica) accanto al cestino e alla spunta.
- * Modale:
-   * Ora la finestra popup serve sia per creare che per modificare.
-   * Ho aggiunto il campo Data Ultima Esecuzione nel popup, così puoi retrodatare un'attività se ti sei dimenticato di segnarla.
-   * Il tasto "Salva" ora capisce automaticamente se stai aggiornando o creando una nuova task.
-Ecco il codice completo pronto da copiare:
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -14,96 +6,68 @@ Ecco il codice completo pronto da copiare:
     <title>MySpace - Ultimate Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- STILI GENERALI CONDIVISI --- */
+        /* --- STILI BASE --- */
         :root { --primary: #4a90e2; --accent: #f5a623; --glass: rgba(255, 255, 255, 0.25); --glass-strong: rgba(255, 255, 255, 0.4); --text: #2c3e50; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #ff9d6c 0%, #68e1a1 100%); background-attachment: fixed; height: 100vh; overflow: hidden; color: var(--text); }
-        
         .glass-panel { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); }
-        button, select, input, textarea { font-family: inherit; outline: none; }
-
+        
         /* AUTH & HUB */
         #auth-container { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2233 0%, #4a90e2 100%); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .auth-card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; }
         #main-hub { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
         .hub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 90%; max-width: 600px; }
-        .hub-card { padding: 30px; text-align: center; cursor: pointer; transition: 0.2s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; }
+        .hub-card { padding: 30px; text-align: center; cursor: pointer; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1/1; }
         .hub-card i { font-size: 3rem; margin-bottom: 15px; }
 
         /* APP STRUCTURE */
         .app-container { display: none; width: 100%; height: 100%; position: relative; }
         .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 70px; background: rgba(26, 34, 51, 0.95); display: flex; flex-direction: column; align-items: center; padding-top: 50px; gap: 20px; z-index: 100; backdrop-filter: blur(10px); }
         .sidebar button { background: none; border: none; color: #7f8c8d; font-size: 1.4rem; padding: 10px; cursor: pointer; transition: 0.2s; border-radius: 10px; }
-        .sidebar button.active, .sidebar button:hover { color: var(--primary); background: rgba(255,255,255,0.1); }
+        .sidebar button.active { color: var(--primary); background: rgba(255,255,255,0.1); }
         .content-area { margin-left: 70px; padding: 70px 25px 100px 25px; height: 100vh; overflow-y: auto; box-sizing: border-box; }
-
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- STILI LIBRARY --- */
-        .goal-card { padding: 25px; margin-bottom: 25px; color: #1a2233; position: relative; }
+        /* --- LIBRARY UI --- */
+        .goal-card { padding: 25px; margin-bottom: 25px; color: #1a2233; }
         .progress-bar-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 10px 0; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: #27ae60; width: 0%; transition: width 1s ease; }
-        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-        .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); cursor: pointer; white-space: nowrap; font-size: 0.9rem; font-weight: 600; }
+        .filter-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .filter-tab { padding: 8px 16px; border-radius: 20px; border: none; background: var(--glass); cursor: pointer; white-space: nowrap; font-weight: 600; }
         .filter-tab.active { background: #1a2233; color: white; }
         .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .book-card { padding: 0; overflow: hidden; transition: 0.2s; display: flex; flex-direction: column; cursor: pointer; height: auto; }
-        .book-cover-grid { width: 100%; aspect-ratio: 2/3; background-size: cover; background-position: center; position: relative; }
-        .book-info-grid { padding: 10px; background: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.3; flex-grow: 1; }
-        .wishlist-list { display: flex; flex-direction: column; gap: 10px; }
-        .wishlist-item { padding: 15px; border-radius: 12px; background: var(--glass); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .data-table-container { overflow-x: auto; border-radius: 15px; margin-top: 10px; position: relative; }
-        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1600px; font-size: 0.85rem; table-layout: fixed; }
-        .data-table th { text-align: left; padding: 12px; background: rgba(255,255,255,0.7); font-weight: 700; border-bottom: 2px solid rgba(0,0,0,0.1); cursor: pointer; position: sticky; top: 0; z-index: 5; backdrop-filter: blur(5px); }
-        .data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: transparent; }
-        .col-cov { width: 60px; position: sticky; left: 0; z-index: 3; background: #ffffff !important; border-right: 1px solid rgba(0,0,0,0.05); }
+        .book-card { overflow: hidden; cursor: pointer; }
+        .book-cover-grid { width: 100%; aspect-ratio: 2/3; background-size: cover; background-position: center; }
+        .book-info-grid { padding: 10px; background: rgba(255,255,255,0.4); font-size: 0.85rem; }
+        .data-table-container { overflow-x: auto; border-radius: 15px; background: rgba(255,255,255,0.3); }
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1600px; table-layout: fixed; }
+        .data-table th { padding: 12px; background: #eef2f5; position: sticky; top: 0; z-index: 10; }
+        .data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .col-cov { width: 60px; position: sticky; left: 0; z-index: 3; background: #ffffff !important; }
         .col-title { width: 220px; position: sticky; left: 60px; z-index: 3; background: #ffffff !important; border-right: 2px solid rgba(0,0,0,0.1); }
-        th.col-cov, th.col-title { z-index: 10; background: #eef2f5 !important; }
-        .col-auth { width: 160px; } .col-stat { width: 100px; } .col-gen { width: 100px; } .col-ser { width: 120px; }
-        .col-pag { width: 80px; text-align: center; } .col-rat { width: 130px; text-align: center; }
-        .col-yr { width: 90px; text-align: center; } .col-form { width: 100px; text-align: center; } .col-act { width: 90px; text-align: right; }
-        .table-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: white; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .mini-cover { width: 35px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; opacity: 0.7; transition: 0.2s; }
-        .action-btn:hover { opacity: 1; transform: scale(1.2); }
+        .table-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; color: white; }
+        .mini-cover { width: 35px; height: 50px; background-size: cover; background-position: center; border-radius: 4px; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; }
 
-        /* --- STILI CLEAN PLAN --- */
-        #clock { font-size: 4rem; margin: 0; font-weight: 800; color: #2c3e50; line-height: 1; }
-        #date { font-size: 1.2rem; color: #444; margin: 5px 0 25px 0; text-transform: capitalize; }
-        .agenda-grid { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; }
-        .day-column { flex: 1; min-width: 120px; padding: 15px; min-height: 140px; background: rgba(255,255,255,0.3); border-radius: 15px; border: 1px solid rgba(255,255,255,0.4); }
-        .day-column h4 { margin: 0 0 10px 0; font-size: 0.8rem; color: #222; text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .agenda-item { font-size: 0.8rem; background: rgba(255,255,255,0.6); padding: 6px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--primary); color: #333; }
-        .notes-container textarea { width: 100%; height: 120px; padding: 15px; outline: none; font-size: 1rem; color: #333; box-sizing: border-box; background: rgba(255,255,255,0.3); border-radius: 15px; border: 1px solid rgba(255,255,255,0.4); }
-        
+        /* --- CLEAN PLAN UI --- */
+        #clock { font-size: 4rem; margin: 0; font-weight: 800; }
+        .agenda-grid { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; }
+        .day-column { flex: 1; min-width: 120px; padding: 15px; background: rgba(255,255,255,0.3); border-radius: 15px; }
         #planner-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .stanza-section { padding: 20px; display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.25); border-radius: 20px; border: 1px solid rgba(255,255,255,0.4); }
-        .stanza-section h3 { align-self: flex-start; margin-bottom: 15px; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
-        .card { width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 10px; padding: 15px; background: rgba(255,255,255,0.3); border-radius: 15px; }
-        .energy-container-wrap { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 8px 0; overflow: hidden; }
+        .card { background: rgba(255,255,255,0.3); padding: 15px; border-radius: 15px; margin-bottom: 10px; }
+        .energy-bar { height: 8px; background: rgba(0,0,0,0.1); border-radius: 5px; margin: 8px 0; overflow: hidden; }
 
-        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0; background: rgba(255,255,255,0.3); border-radius: 15px; }
-        .clean-table th { text-align: left; padding: 15px; font-weight: 700; color: #444; border-bottom: 2px solid rgba(0,0,0,0.1); }
-        .clean-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #333; }
-
-        /* MODALI */
+        /* MODALE */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-box { width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: #f8f9fa; border-radius: 25px; padding: 0; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-        .modal-header { padding: 20px; background: #1a2233; color: white; text-align: center; border-radius: 25px 25px 0 0; }
-        .modal-body { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
-        .modal-section { display: flex; flex-direction: column; gap: 12px; }
-        .modal-section-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 5px; }
-        .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-        .form-group label { font-size: 0.7rem; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
-        .form-input { padding: 10px; border-radius: 10px; border: 1px solid #dcdde1; background: white; font-size: 0.9rem; transition: 0.2s; }
-        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1); }
+        .modal-box { width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: #f8f9fa; border-radius: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .modal-header { padding: 20px; background: #1a2233; color: white; border-radius: 25px 25px 0 0; }
+        .modal-body { padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-input { padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
         .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
-        .modal-footer { padding: 20px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: space-between; align-items: center; border-radius: 0 0 25px 25px; }
-        .btn-save { background: #1a2233; color: white; padding: 12px 25px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 2; }
-        .btn-cancel { background: #eee; color: #666; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; flex: 1; }
-
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 500; }
+        .btn-save { background: #1a2233; color: white; padding: 12px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; cursor: pointer; z-index: 500; }
     </style>
 </head>
 <body>
@@ -112,10 +76,7 @@ Ecco il codice completo pronto da copiare:
         <div class="auth-card">
             <i class="fas fa-meteor" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
             <h2>MySpace</h2>
-            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Accedi con Google
-            </button>
-            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:15px;"></p>
+            <button id="login-btn" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold;">Accedi con Google</button>
         </div>
     </div>
 
@@ -124,206 +85,114 @@ Ecco il codice completo pronto da copiare:
             <div class="hub-card glass-panel" onclick="openApp('clean')"><i class="fas fa-broom"></i><h3>Clean Plan</h3></div>
             <div class="hub-card glass-panel" onclick="openApp('books')"><i class="fas fa-book"></i><h3>Library</h3></div>
         </div>
-        <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Esci</button>
+        <button onclick="logout()" style="margin-top:20px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Esci</button>
     </div>
 
     <div id="app-books" class="app-container">
         <nav class="sidebar">
             <button onclick="closeApp()"><i class="fas fa-th-large" style="color: var(--accent);"></i></button>
-            <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.2);"></div>
-            <button id="nav-book-home" class="nav-internal active" onclick="switchBookView('book-home')"><i class="fas fa-book-open"></i></button>
-            <button id="nav-book-authors" class="nav-internal" onclick="switchBookView('book-authors')"><i class="fas fa-users"></i></button>
-            <button id="nav-book-table" class="nav-internal" onclick="switchBookView('book-table')"><i class="fas fa-list"></i></button>
-            <button id="nav-book-goals" class="nav-internal" onclick="switchBookView('book-goals')"><i class="fas fa-trophy"></i></button>
-            <div style="flex:1"></div>
-            <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
-            <input type="file" id="csv-input" style="display:none" accept=".csv">
+            <button id="nav-book-home" class="nav-book active" onclick="switchBookView('book-home')"><i class="fas fa-book-open"></i></button>
+            <button id="nav-book-authors" class="nav-book" onclick="switchBookView('book-authors')"><i class="fas fa-users"></i></button>
+            <button id="nav-book-table" class="nav-book" onclick="switchBookView('book-table')"><i class="fas fa-list"></i></button>
+            <button id="nav-book-goals" class="nav-book" onclick="switchBookView('book-goals')"><i class="fas fa-trophy"></i></button>
         </nav>
-
         <main class="content-area">
             <div id="view-book-home" class="view-section active">
                 <div class="glass-panel goal-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h2 style="margin:0">Obiettivo 2026</h2>
-                        <span id="goal-perc-text" style="font-weight:bold">0%</span>
-                    </div>
+                    <div style="display:flex; justify-content:space-between;"><h2>Obiettivo 2026</h2><span id="goal-perc-text">0%</span></div>
                     <div class="progress-bar-bg"><div id="goal-bar" class="progress-bar-fill"></div></div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; opacity:0.8;">
-                        <span id="goal-books-text">0 / 24 Libri</span>
-                        <span id="goal-pages-text">0 pagine</span>
-                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span id="goal-books-text">0 / 24 Libri</span><span id="goal-pages-text">0 pagine</span></div>
                 </div>
                 <div class="filter-tabs">
                     <button class="filter-tab active" data-filter="reading">Sto leggendo</button>
                     <button class="filter-tab" data-filter="library">In libreria</button>
                     <button class="filter-tab" data-filter="read">Letto</button>
                     <button class="filter-tab" data-filter="da_leggere">Da leggere</button>
-                    <button class="filter-tab" data-filter="da_comprare">Da comprare</button>
                     <button class="filter-tab" data-filter="wishlist">Wish list</button>
                 </div>
                 <div id="books-grid" class="books-grid"></div>
-                <div id="wishlist-list" class="wishlist-list" style="display:none;"></div>
             </div>
-
             <div id="view-book-authors" class="view-section">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                    <button onclick="closeAuthorDetail()" class="filter-tab" style="padding: 8px 12px;"><i class="fas fa-chevron-left"></i></button>
-                    <h2 style="margin: 0;">Autori</h2>
-                </div>
+                <button onclick="closeAuthorDetail()" style="margin-bottom:10px; border:none; background:none; cursor:pointer;"><i class="fas fa-arrow-left"></i> Torna agli autori</button>
                 <div id="authors-grid" class="books-grid"></div>
-                <div id="author-detail-view" style="display:none; margin-top:10px;">
+                <div id="author-detail-view" style="display:none;">
                     <h3 id="selected-author-name"></h3>
-                    <div class="glass-panel data-table-container">
-                        <table class="data-table" style="min-width:auto; width:100%;">
-                            <thead><tr><th style="width:60%;">Titolo</th><th style="width:25%;">Stato</th><th style="width:15%;">Formato</th></tr></thead>
-                            <tbody id="author-books-body"></tbody>
-                        </table>
-                    </div>
+                    <div class="data-table-container"><table class="data-table" style="min-width:100%"><tbody id="author-books-body"></tbody></table></div>
                 </div>
             </div>
-
             <div id="view-book-table" class="view-section">
-                <h2 style="margin-bottom:15px;">Database Completo</h2>
-                <div class="glass-panel data-table-container">
+                <div class="data-table-container">
                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th class="col-cov">Cov.</th>
-                                <th class="col-title" onclick="sortTable('title')">Titolo <i class="fas fa-sort"></i></th>
-                                <th class="col-auth" onclick="sortTable('author')">Autore</th>
-                                <th class="col-gen" onclick="sortTable('genre')">Genere</th>
-                                <th class="col-ser" onclick="sortTable('series')">Serie</th>
-                                <th class="col-pag" onclick="sortTable('pages')">Pag.</th>
-                                <th class="col-stat" onclick="sortTable('status')">Stato</th>
-                                <th class="col-form" onclick="sortTable('format')">Formato</th>
-                                <th class="col-yr" onclick="sortTable('readYear')">Anno</th>
-                                <th class="col-rat" onclick="sortTable('rating')">Rat.</th>
-                                <th class="col-act"></th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th class="col-cov">Cov.</th><th class="col-title">Titolo</th><th>Autore</th><th>Genere</th><th>Pag.</th><th>Stato</th><th>Formato</th><th>Anno</th><th>Voto</th><th></th></tr></thead>
                         <tbody id="table-body"></tbody>
                     </table>
                 </div>
             </div>
-
             <div id="view-book-goals" class="view-section">
-                <h2 style="margin-bottom:20px;">Archivio Storico</h2>
-                <div id="goals-archive-grid" class="goals-archive-grid"></div>
+                <h2>Archivio Storico</h2>
+                <div id="goals-archive-grid"></div>
             </div>
         </main>
-        <button id="fab-book" class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
+        <button class="fab" onclick="openBookModal()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="app-clean" class="app-container">
         <nav class="sidebar">
-            <button onclick="closeApp()"><i class="fas fa-th-large" style="color:var(--primary)"></i></button>
-            <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.2);"></div>
-            <button id="nav-clean-home" class="nav-clean active" onclick="switchCleanView('clean-home')"><i class="fas fa-house"></i></button>
-            <button id="nav-clean-planner" class="nav-clean" onclick="switchCleanView('clean-planner')"><i class="fas fa-layer-group"></i></button>
-            <button id="nav-clean-list" class="nav-clean" onclick="switchCleanView('clean-list')"><i class="fas fa-table-list"></i></button>
+            <button onclick="closeApp()"><i class="fas fa-th-large"></i></button>
+            <button id="nav-clean-home" class="nav-clean active" onclick="switchCleanView('clean-home')"><i class="fas fa-home"></i></button>
+            <button id="nav-clean-planner" class="nav-clean" onclick="switchCleanView('clean-planner')"><i class="fas fa-tasks"></i></button>
+            <button id="nav-clean-list" class="nav-clean" onclick="switchCleanView('clean-list')"><i class="fas fa-list-ul"></i></button>
         </nav>
-
         <main class="content-area">
             <div id="view-clean-home" class="view-section active">
                 <h1 id="clock">00:00</h1>
-                <p id="date">...</p>
                 <div id="agenda-settimanale" class="agenda-grid"></div>
-                <div class="notes-container">
-                    <h3><i class="fas fa-pen"></i> Note Rapide</h3>
-                    <textarea id="quick-notes" placeholder="Cose da ricordare..."></textarea>
-                </div>
             </div>
-
-            <div id="view-clean-planner" class="view-section">
-                <h2 style="margin-bottom:20px;">Stato Stanze</h2>
-                <div id="planner-container"></div>
-            </div>
-
+            <div id="view-clean-planner" class="view-section"><div id="planner-container"></div></div>
             <div id="view-clean-list" class="view-section">
-                <h2 style="margin-bottom:20px;">Tutte le Attività</h2>
-                <div class="glass-panel data-table-container">
-                    <table class="clean-table" style="width:100%">
-                        <thead><tr><th>Attività</th><th>Stanza</th><th>Frequenza</th><th>Ultima</th><th>Stato</th><th>Azioni</th></tr></thead>
-                        <tbody id="list-table-body"></tbody>
+                <div class="data-table-container">
+                    <table class="data-table" style="min-width:100%">
+                        <thead><tr><th>Attività</th><th>Stanza</th><th>Freq</th><th>Ultima</th><th>Stato</th><th>Azioni</th></tr></thead>
+                        <tbody id="clean-table-body"></tbody>
                     </table>
                 </div>
             </div>
         </main>
-        <button id="fab-clean" class="fab" onclick="openTaskModal()"><i class="fas fa-plus"></i></button>
+        <button class="fab" onclick="openTaskModal()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="modal-book" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-header"><h3 style="margin:0" id="modal-title-text">Dettagli Libro</h3></div>
+            <div class="modal-header"><h3>Dettagli Libro</h3></div>
             <div class="modal-body">
                 <input type="hidden" id="b-id">
-                <div class="modal-section">
-                    <div class="modal-section-title">Info</div>
-                    <div class="form-group"><label>Titolo *</label><input type="text" id="b-title" class="form-input"></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Autore</label><input type="text" id="b-author" class="form-input"></div>
-                        <div class="form-group"><label>Genere</label><input type="text" id="b-genre" class="form-input"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Anno</label><input type="text" id="b-pub-year" class="form-input"></div>
-                        <div class="form-group"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
-                        <div class="form-group"><label>Vol.</label><input type="number" id="b-vol" class="form-input"></div>
-                    </div>
+                <div class="form-group"><label>Titolo</label><input type="text" id="b-title" class="form-input"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Autore</label><input type="text" id="b-author" class="form-input"></div>
+                    <div class="form-group"><label>Stato</label><select id="b-status" class="form-input"><option value="da_leggere">Da Leggere</option><option value="in_lettura">In Lettura</option><option value="letto">Letto</option><option value="wishlist">Wishlist</option></select></div>
                 </div>
-                <div class="modal-section">
-                    <div class="modal-section-title">Stato</div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Stato</label><select id="b-status" class="form-input"><option value="da_leggere">Da Leggere</option><option value="in_lettura">In Lettura</option><option value="letto">Letto</option><option value="rilettura">Rilettura</option><option value="wishlist">Wishlist</option></select></div>
-                        <div class="form-group"><label>Formato</label><select id="b-format" class="form-input"><option value="cartaceo">Cartaceo</option><option value="ebook">E-Book</option><option value="wishlist">Wishlist</option></select></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Rating</label><select id="b-rating" class="form-input"><option value="0">-</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option></select></div>
-                        <div class="form-group"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Acquisto</label><select id="b-to-buy" class="form-input"><option value="no">Posseduto</option><option value="nuovo">Nuovo</option><option value="usato">Usato</option></select></div>
-                        <div class="form-group"><label>Tipo Copertina</label><select id="b-cover-type" class="form-input"><option value="flessibile">Flessibile</option><option value="rigida">Rigida</option></select></div>
-                    </div>
-                    <div class="form-group"><label>Cover URL</label><input type="text" id="b-cover" class="form-input"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
+                    <div class="form-group"><label>Anno Lettura</label><input type="text" id="b-read-year" class="form-input"></div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button id="btn-delete-book" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold; display:none;">Elimina</button>
-                <div style="display:flex; gap:10px; flex:1; justify-content: flex-end;">
-                    <button onclick="document.getElementById('modal-book').style.display='none'" class="btn-cancel">Chiudi</button>
-                    <button id="btn-save-book" class="btn-save">Salva</button>
-                </div>
+                <div class="form-group"><label>Copertina URL</label><input type="text" id="b-cover" class="form-input"></div>
+                <button id="btn-save-book" class="btn-save">Salva</button>
+                <button onclick="document.getElementById('modal-book').style.display='none'" style="background:none; border:none; cursor:pointer;">Annulla</button>
             </div>
         </div>
     </div>
 
     <div id="modal-task" class="modal-overlay">
-        <div class="modal-box" style="max-width:340px;">
-            <div class="modal-header"><h3>Attività</h3></div>
+        <div class="modal-box" style="max-width:350px;">
+            <div class="modal-header"><h3>Attività Pulizia</h3></div>
             <div class="modal-body">
                 <input type="hidden" id="t-id">
-                
-                <div class="form-group"><label>Descrizione</label><input type="text" id="t-nome" class="form-input" placeholder="Cosa fare?"></div>
-                <div class="form-group">
-                    <label>Stanza</label>
-                    <select id="t-stanza" class="form-input"><option>Cucina</option><option>Bagno</option><option>Camera</option><option>Soggiorno</option><option>Balcone</option></select>
-                </div>
-                <div class="form-group">
-                    <label>Frequenza</label>
-                    <select id="t-frequenza" class="form-input">
-                        <option value="3">Ogni 3 giorni</option><option value="7">Settimanale</option><option value="14">2 settimane</option>
-                        <option value="30">Mensile</option><option value="60">Bimestrale</option><option value="90">Trimestrale</option>
-                        <option value="180">Semestrale</option><option value="365">Annuale</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Data Ultima Esecuzione</label><input type="date" id="t-ultima" class="form-input"></div>
-            </div>
-            <div class="modal-footer">
-                <button onclick="document.getElementById('modal-task').style.display='none'" class="btn-cancel">Annulla</button>
+                <div class="form-group"><label>Nome</label><input type="text" id="t-nome" class="form-input"></div>
+                <div class="form-group"><label>Stanza</label><input type="text" id="t-stanza" class="form-input"></div>
+                <div class="form-group"><label>Frequenza (gg)</label><input type="number" id="t-freq" class="form-input"></div>
+                <div class="form-group"><label>Ultima Esecuzione</label><input type="date" id="t-ultima" class="form-input"></div>
                 <button id="btn-save-task" class="btn-save">Salva</button>
+                <button onclick="document.getElementById('modal-task').style.display='none'" style="background:none; border:none; cursor:pointer;">Annulla</button>
             </div>
         </div>
     </div>
@@ -338,296 +207,216 @@ Ecco il codice completo pronto da copiare:
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
-        const whitelist = ["giampyero95@gmail.com"];
 
-        // --- AUTH ---
-        document.getElementById('login-btn').onclick = () => {
-            signInWithPopup(auth, provider).catch(error => {
-                document.getElementById('auth-error').innerText = error.message;
-            });
-        };
+        // AUTH
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth).then(() => location.reload());
-
         onAuthStateChanged(auth, (user) => {
-            if (user && whitelist.includes(user.email)) {
+            if (user && user.email === "giampyero95@gmail.com") {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-hub').style.display = 'flex';
-                initBooks();
-                initClean();
-            } else if (user) { signOut(auth); }
+                initBooks(); initClean();
+            }
         });
 
-        // --- NAVIGAZIONE GENERALE ---
-        window.openApp = (appId) => {
-            document.getElementById('main-hub').style.display = 'none';
-            document.querySelectorAll('.app-container').forEach(a => a.style.display = 'none');
-            document.getElementById('app-' + appId).style.display = 'block';
-        };
-        window.closeApp = () => {
-            document.querySelectorAll('.app-container').forEach(a => a.style.display = 'none');
-            document.getElementById('main-hub').style.display = 'flex';
-        };
-
+        // NAVIGATION
+        window.openApp = (id) => { document.getElementById('main-hub').style.display = 'none'; document.getElementById('app-'+id).style.display = 'block'; };
+        window.closeApp = () => { document.querySelectorAll('.app-container').forEach(a=>a.style.display='none'); document.getElementById('main-hub').style.display = 'flex'; };
+        
         // --- LOGICA LIBRI ---
         let books = [];
-        let currentFilter = 'reading';
-        let sortKey = 'title'; let sortDir = 1;
+        let currentBookFilter = 'reading';
 
         function initBooks() {
             onSnapshot(collection(db, "books"), (snap) => {
                 books = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                renderBooks(); renderTable(); renderAuthors();
+                renderAllBooks();
             });
         }
 
         window.switchBookView = (v) => {
-            document.querySelectorAll('.app-container .nav-internal').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-book').forEach(b => b.classList.remove('active'));
             document.getElementById('nav-'+v).classList.add('active');
             document.querySelectorAll('#app-books .view-section').forEach(s => s.classList.remove('active'));
             document.getElementById('view-'+v).classList.add('active');
-            document.getElementById('fab-book').style.display = (v === 'book-goals' || v === 'book-authors') ? 'none' : 'flex';
+            if(v === 'book-authors') closeAuthorDetail();
         };
 
-        function renderBooks() {
+        function renderAllBooks() {
+            updateBookStats();
+            renderBookGrid();
+            renderBookTable();
+            renderAuthors();
+            renderGoalsArchive();
+        }
+
+        function updateBookStats() {
+            const read26 = books.filter(b => (b.status === 'letto' || b.status === 'rilettura') && (b.readYear||"").toString().includes("2026"));
+            const perc = Math.min(Math.round((read26.length / 24) * 100), 100);
+            document.getElementById('goal-perc-text').innerText = perc + "%";
+            document.getElementById('goal-bar').style.width = perc + "%";
+            document.getElementById('goal-books-text').innerText = `${read26.length} / 24 Libri`;
+            document.getElementById('goal-pages-text').innerText = `${read26.reduce((s,b)=>s+(parseInt(b.pages)||0),0)} pagine`;
+        }
+
+        function renderBookGrid() {
             const grid = document.getElementById('books-grid');
-            const list = document.getElementById('wishlist-list');
-            grid.innerHTML = ""; list.innerHTML = "";
-            
+            grid.innerHTML = "";
             let filtered = books.filter(b => {
-                if(currentFilter === 'reading') return b.status === 'in_lettura';
-                if(currentFilter === 'library') return b.format !== 'ebook' && b.status !== 'wishlist';
-                if(currentFilter === 'read') return b.status === 'letto' || b.status === 'rilettura';
-                if(currentFilter === 'da_leggere') return b.status === 'da_leggere';
-                if(currentFilter === 'da_comprare') return b.toBuy === 'nuovo' || b.toBuy === 'usato';
-                if(currentFilter === 'wishlist') return b.status === 'wishlist';
+                if(currentBookFilter === 'reading') return b.status === 'in_lettura';
+                if(currentBookFilter === 'read') return b.status === 'letto';
+                if(currentBookFilter === 'da_leggere') return b.status === 'da_leggere';
+                if(currentBookFilter === 'wishlist') return b.status === 'wishlist';
                 return true;
             });
-            
-            const read26 = books.filter(b => (b.status==='letto'||b.status==='rilettura') && (b.readYear||"").includes("2026"));
-            document.getElementById('goal-perc-text').innerText = Math.round((read26.length/24)*100) + "%";
-            document.getElementById('goal-bar').style.width = Math.round((read26.length/24)*100) + "%";
-            document.getElementById('goal-books-text').innerText = `${read26.length} / 24 Libri`;
-
-            if (currentFilter === 'wishlist') {
-                grid.style.display = "none"; list.style.display = "flex";
-                filtered.forEach(b => {
-                    list.innerHTML += `<div class="wishlist-item" onclick='openBookModalEdit("${b.id}")'><span><b>${b.title}</b> - ${b.author}</span><i class="fas fa-chevron-right"></i></div>`;
-                });
-            } else {
-                grid.style.display = "grid"; list.style.display = "none";
-                filtered.forEach(b => {
-                    grid.innerHTML += `<div class="book-card glass-panel" onclick='openBookModalEdit("${b.id}")'>
+            filtered.forEach(b => {
+                grid.innerHTML += `<div class="book-card glass-panel" onclick='openBookModalEdit("${b.id}")'>
                     <div class="book-cover-grid" style="background-image:url('${b.cover||''}')"></div>
-                    <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small></div></div>`;
-                });
-            }
-        }
-        
-        function renderTable() {
-            const tbody = document.getElementById('table-body'); tbody.innerHTML = "";
-            let sorted = [...books].sort((a,b) => (a[sortKey] || "").toString().toLowerCase().localeCompare((b[sortKey] || "").toString().toLowerCase()) * sortDir);
-            sorted.forEach(b => {
-                tbody.innerHTML += `<tr><td class="col-cov"><div class="mini-cover" style="background-image:url('${b.cover||''}')"></div></td>
-                <td class="col-title" onclick='openBookModalEdit("${b.id}")'><b>${b.title}</b></td>
-                <td>${b.author||'-'}</td><td>${b.genre||'-'}</td><td>${b.series||'-'}</td><td class="col-pag">${b.pages||0}</td>
-                <td><span class="table-badge" style="background:${getStatusColor(b.status)}">${b.status}</span></td>
-                <td class="col-form"><span class="table-badge" style="background:${getFormatColor(b.format)}">${b.format}</span></td>
-                <td class="col-yr">${b.readYear||'-'}</td><td class="col-rat">${"⭐".repeat(b.rating||0)}</td>
-                <td class="col-act"><button class="action-btn" onclick='deleteBook("${b.id}")' style="color:red"><i class="fas fa-trash"></i></button></td></tr>`;
-            });
-        }
-        
-        function renderAuthors() {
-            const grid = document.getElementById('authors-grid'); grid.innerHTML = "";
-            const authors = [...new Set(books.map(b => b.author).filter(a => a))].sort();
-            authors.forEach(a => {
-                const count = books.filter(b => b.author === a).length;
-                grid.innerHTML += `<div class="glass-panel" style="padding:15px; text-align:center; cursor:pointer;" onclick='openAuthorDetail("${a}")'>
-                <b>${a}</b><br><small>${count} libri</small></div>`;
+                    <div class="book-info-grid"><b>${b.title}</b><br><small>${b.author||''}</small></div>
+                </div>`;
             });
         }
 
-        window.openAuthorDetail = (author) => {
-            document.getElementById('authors-grid').style.display='none';
-            document.getElementById('author-detail-view').style.display='block';
+        function renderBookTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = books.map(b => `<tr>
+                <td class="col-cov"><div class="mini-cover" style="background-image:url('${b.cover}')"></div></td>
+                <td class="col-title" onclick='openBookModalEdit("${b.id}")'><b>${b.title}</b></td>
+                <td>${b.author}</td><td>${b.genre||'-'}</td><td>${b.pages}</td>
+                <td><span class="table-badge" style="background:#27ae60">${b.status}</span></td>
+                <td>${b.format||'Cartaceo'}</td><td>${b.readYear||'-'}</td><td>${"⭐".repeat(b.rating||0)}</td>
+                <td><button class="action-btn" onclick='deleteBook("${b.id}")' style="color:red"><i class="fas fa-trash"></i></button></td>
+            </tr>`).join('');
+        }
+
+        function renderAuthors() {
+            const grid = document.getElementById('authors-grid');
+            const authors = [...new Set(books.map(b => b.author).filter(a => a))].sort();
+            grid.innerHTML = authors.map(a => `<div class="hub-card glass-panel" style="color:inherit" onclick="showAuthorBooks('${a}')">
+                <i class="fas fa-user"></i><h4>${a}</h4></div>`).join('');
+        }
+
+        window.showAuthorBooks = (author) => {
+            document.getElementById('authors-grid').style.display = 'none';
+            document.getElementById('author-detail-view').style.display = 'block';
             document.getElementById('selected-author-name').innerText = author;
-            const tbody = document.getElementById('author-books-body'); tbody.innerHTML = "";
-            books.filter(b => b.author === author).forEach(b => {
-                tbody.innerHTML += `<tr><td><b>${b.title}</b></td><td>${b.status}</td><td>${b.format}</td></tr>`;
-            });
-            window.closeAuthorDetail = () => { document.getElementById('authors-grid').style.display='grid'; document.getElementById('author-detail-view').style.display='none'; };
+            document.getElementById('author-books-body').innerHTML = books.filter(b => b.author === author).map(b => `
+                <tr><td><b>${b.title}</b></td><td>${b.status}</td></tr>`).join('');
+        };
+        window.closeAuthorDetail = () => {
+            document.getElementById('authors-grid').style.display = 'grid';
+            document.getElementById('author-detail-view').style.display = 'none';
         };
 
-        window.openBookModal = () => { document.getElementById('modal-book').style.display='flex'; document.getElementById('b-id').value = ""; document.getElementById('btn-delete-book').style.display='none'; }
-        window.openBookModalEdit = (id) => { 
-            const b = books.find(x=>x.id===id); 
-            window.openBookModal(); 
-            document.getElementById('b-id').value = id; 
-            document.getElementById('b-title').value = b.title; 
-            document.getElementById('b-status').value = b.status; 
+        function renderGoalsArchive() {
+            const arc = document.getElementById('goals-archive-grid');
+            const years = ["2025", "2024", "2023"];
+            arc.innerHTML = years.map(y => {
+                const count = books.filter(b => (b.readYear||"").toString().includes(y)).length;
+                return `<div class="card"><h3>${y}</h3><p>${count} libri letti</p></div>`;
+            }).join('');
+        }
+
+        window.openBookModalEdit = (id) => {
+            const b = books.find(x=>x.id===id);
+            document.getElementById('modal-book').style.display='flex';
+            document.getElementById('b-id').value = b.id;
+            document.getElementById('b-title').value = b.title;
             document.getElementById('b-author').value = b.author;
-            document.getElementById('b-genre').value = b.genre;
-            document.getElementById('b-pub-year').value = b.pubYear;
+            document.getElementById('b-status').value = b.status;
             document.getElementById('b-pages').value = b.pages;
-            document.getElementById('b-format').value = b.format;
-            document.getElementById('b-rating').value = b.rating;
-            document.getElementById('b-read-year').value = b.readYear;
-            document.getElementById('b-cover').value = b.cover;
-            document.getElementById('b-to-buy').value = b.toBuy;
-            document.getElementById('b-cover-type').value = b.coverType;
-            document.getElementById('b-series').value = b.series;
-            document.getElementById('b-vol').value = b.vol;
-            document.getElementById('btn-delete-book').style.display='block';
+            document.getElementById('b-read-year').value = b.readYear || "";
+            document.getElementById('b-cover').value = b.cover || "";
+        };
+
+        window.openBookModal = () => {
+            document.getElementById('modal-book').style.display='flex';
+            document.getElementById('b-id').value = "";
         };
 
         document.getElementById('btn-save-book').onclick = async () => {
             const id = document.getElementById('b-id').value;
             const data = {
-                title: document.getElementById('b-title').value, author: document.getElementById('b-author').value,
-                genre: document.getElementById('b-genre').value, pubYear: document.getElementById('b-pub-year').value,
-                pages: parseInt(document.getElementById('b-pages').value)||0, status: document.getElementById('b-status').value,
-                format: document.getElementById('b-format').value, rating: document.getElementById('b-rating').value,
-                readYear: document.getElementById('b-read-year').value, cover: document.getElementById('b-cover').value,
-                toBuy: document.getElementById('b-to-buy').value, coverType: document.getElementById('b-cover-type').value,
-                series: document.getElementById('b-series').value, vol: document.getElementById('b-vol').value
+                title: document.getElementById('b-title').value,
+                author: document.getElementById('b-author').value,
+                status: document.getElementById('b-status').value,
+                pages: document.getElementById('b-pages').value,
+                readYear: document.getElementById('b-read-year').value,
+                cover: document.getElementById('b-cover').value
             };
-            if(!data.title) return;
             id ? await updateDoc(doc(db, "books", id), data) : await addDoc(collection(db, "books"), data);
             document.getElementById('modal-book').style.display='none';
         };
-        
-        window.deleteBook = async(id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db,"books",id)); };
-        document.querySelectorAll('.filter-tab').forEach(t => t.onclick = () => { document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); currentFilter = t.dataset.filter; renderBooks(); });
-        window.sortTable = (key) => { if(sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; } renderTable(); };
-        function getStatusColor(s) { const c={'letto':'#27ae60','in_lettura':'#f39c12','da_leggere':'#3498db'}; return c[s]||'#95a5a6'; }
-        function getFormatColor(f) { const c={'cartaceo':'#e67e22','ebook':'#8e44ad'}; return c[f]||'#95a5a6'; }
 
-        // --- LOGICA CLEAN PLAN ---
+        // --- LOGICA CLEAN ---
         let tasks = [];
-
         function initClean() {
             onSnapshot(collection(db, "tasks"), (snap) => {
-                tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderClean();
             });
             setInterval(() => {
-                const now = new Date();
-                document.getElementById("clock").innerText = now.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
-                document.getElementById("date").innerText = now.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+                document.getElementById("clock").innerText = new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
             }, 1000);
-            document.getElementById("quick-notes").value = localStorage.getItem("cleanNotes") || "";
-            document.getElementById("quick-notes").addEventListener("input", (e) => localStorage.setItem("cleanNotes", e.target.value));
         }
 
         window.switchCleanView = (v) => {
-            document.querySelectorAll('#app-clean .nav-clean').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-clean').forEach(b => b.classList.remove('active'));
             document.getElementById('nav-'+v).classList.add('active');
             document.querySelectorAll('#app-clean .view-section').forEach(s => s.classList.remove('active'));
             document.getElementById('view-'+v).classList.add('active');
-            document.getElementById('fab-clean').style.display = (v === 'clean-list' || v === 'clean-home') ? 'flex' : 'none';
         };
-
-        // APERTURA MODALE PER NUOVA TASK
-        window.openTaskModal = () => {
-            document.getElementById('modal-task').style.display = 'flex';
-            document.getElementById("t-id").value = "";
-            document.getElementById("t-nome").value = "";
-            // Default data a oggi
-            document.getElementById("t-ultima").value = new Date().toISOString().split('T')[0];
-        };
-
-        // APERTURA MODALE PER MODIFICA (Matita)
-        window.openTaskModalEdit = (id) => {
-            const t = tasks.find(x => x.id === id);
-            document.getElementById('modal-task').style.display = 'flex';
-            document.getElementById("t-id").value = id;
-            document.getElementById("t-nome").value = t.nome;
-            document.getElementById("t-stanza").value = t.stanza;
-            document.getElementById("t-frequenza").value = t.freq;
-            document.getElementById("t-ultima").value = t.ultima;
-        };
-
-        document.getElementById('btn-save-task').onclick = async () => {
-            const id = document.getElementById("t-id").value;
-            const n = document.getElementById("t-nome").value;
-            const s = document.getElementById("t-stanza").value;
-            const f = parseInt(document.getElementById("t-frequenza").value);
-            const u = document.getElementById("t-ultima").value;
-            
-            if(!n) return;
-            
-            const data = { nome: n, stanza: s, freq: f, ultima: u };
-
-            if(id) {
-                // MODIFICA
-                await updateDoc(doc(db, "tasks", id), data);
-            } else {
-                // NUOVO (Se data non inserita, calcola retroattivo)
-                if(!u) {
-                    const d = new Date(); d.setDate(d.getDate() - f);
-                    data.ultima = d.toISOString().split('T')[0];
-                }
-                await addDoc(collection(db, "tasks"), data);
-            }
-            document.getElementById('modal-task').style.display = 'none';
-        };
-
-        window.segnaFatto = async (id) => await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
-        window.eliminaTask = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "tasks", id)); };
-
-        function calcolaEnergia(t) {
-            const trascorsi = Math.floor((new Date() - new Date(t.ultima)) / 86400000);
-            const perc = Math.min((trascorsi / t.freq) * 100, 100);
-            const col = perc > 90 ? '#e74c3c' : (perc > 60 ? '#f39c12' : '#27ae60');
-            return { perc, rim: Math.max(0, t.freq - trascorsi), col };
-        }
 
         function renderClean() {
             const planner = document.getElementById("planner-container");
-            const list = document.getElementById("list-table-body");
-            const agenda = document.getElementById("agenda-settimanale");
+            const table = document.getElementById("clean-table-body");
             
-            // Render Planner
             planner.innerHTML = [...new Set(tasks.map(t => t.stanza))].map(s => `
-                <div class="stanza-section"><h3><i class="fas fa-door-open"></i> ${s}</h3>
-                ${tasks.filter(t => t.stanza === s).map(t => {
-                    const en = calcolaEnergia(t);
-                    return `<div class="card"><strong>${t.nome}</strong><small>Manca: ${en.rim} gg</small>
-                    <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
-                    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:5px; border-radius:8px; cursor:pointer;">Fatto</button></div>`;
-                }).join('')}</div>`).join('');
+                <div class="card"><h3>${s}</h3>
+                ${tasks.filter(t => t.stanza === s).map(t => `<div style="margin-bottom:10px">
+                    <b>${t.nome}</b><br><button onclick="segnaFatto('${t.id}')" style="font-size:0.7rem">Fatto</button>
+                </div>`).join('')}</div>`).join('');
 
-            // Render List (Tabella Aggiornata)
-            list.innerHTML = tasks.map(t => {
-                const en = calcolaEnergia(t);
-                // Ho formattato la data per renderla più leggibile (dd/mm/yyyy)
+            table.innerHTML = tasks.map(t => {
                 const dataFmt = t.ultima ? t.ultima.split('-').reverse().join('/') : '-';
-                
-                return `<tr>
-                <td><strong>${t.nome}</strong></td>
-                <td>${t.stanza}</td>
-                <td>Ogni ${t.freq} gg</td>
-                <td>${dataFmt}</td>
-                <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
-                <td>
-                    <button onclick="openTaskModalEdit('${t.id}')" class="action-btn" style="color:var(--primary); margin-right:5px;"><i class="fas fa-pencil-alt"></i></button>
-                    <button onclick="segnaFatto('${t.id}')" class="action-btn" style="color:#27ae60; margin-right:5px;"><i class="fas fa-check"></i></button>
-                    <button onclick="eliminaTask('${t.id}')" class="action-btn" style="color:#e74c3c"><i class="fas fa-trash"></i></button>
+                return `<tr><td>${t.nome}</td><td>${t.stanza}</td><td>${t.freq} gg</td><td>${dataFmt}</td>
+                <td>Pronto</td><td>
+                    <button class="action-btn" onclick="openTaskModalEdit('${t.id}')"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="action-btn" onclick="segnaFatto('${t.id}')" style="color:green"><i class="fas fa-check"></i></button>
                 </td></tr>`;
             }).join('');
-
-            // Render Agenda
-            const giorni = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
-            agenda.innerHTML = giorni.map(g => `<div class="day-column"><h4>${g}</h4><div id="ag-${g}"></div></div>`).join('');
-            tasks.forEach(t => {
-                if(calcolaEnergia(t).rim <= 1) {
-                    const d = (new Date().getDay() + 6) % 7; 
-                    const target = document.getElementById(`ag-${giorni[d]}`);
-                    if(target) target.innerHTML += `<div class="agenda-item">${t.nome}</div>`;
-                }
-            });
         }
+
+        window.openTaskModal = () => { document.getElementById('modal-task').style.display='flex'; document.getElementById('t-id').value=""; };
+        window.openTaskModalEdit = (id) => {
+            const t = tasks.find(x=>x.id===id);
+            document.getElementById('modal-task').style.display='flex';
+            document.getElementById('t-id').value = t.id;
+            document.getElementById('t-nome').value = t.nome;
+            document.getElementById('t-stanza').value = t.stanza;
+            document.getElementById('t-freq').value = t.freq;
+            document.getElementById('t-ultima').value = t.ultima || "";
+        };
+
+        document.getElementById('btn-save-task').onclick = async () => {
+            const id = document.getElementById('t-id').value;
+            const data = {
+                nome: document.getElementById('t-nome').value,
+                stanza: document.getElementById('t-stanza').value,
+                freq: document.getElementById('t-freq').value,
+                ultima: document.getElementById('t-ultima').value
+            };
+            id ? await updateDoc(doc(db, "tasks", id), data) : await addDoc(collection(db, "tasks"), data);
+            document.getElementById('modal-task').style.display='none';
+        };
+
+        window.segnaFatto = async (id) => await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
+        window.deleteBook = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "books", id)); };
+
+        document.querySelectorAll('.filter-tab').forEach(t => t.onclick = () => {
+            document.querySelectorAll('.filter-tab').forEach(x=>x.classList.remove('active'));
+            t.classList.add('active'); currentBookFilter = t.dataset.filter; renderBookGrid();
+        });
     </script>
 </body>
 </html>
-
