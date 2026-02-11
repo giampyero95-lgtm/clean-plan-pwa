@@ -663,7 +663,7 @@
                     <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
                     <div style="display:flex; gap:10px; width:100%; margin-top:5px;">
    <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button>
-                        <button onclick='openTaskModal(${JSON.stringify(t)})' style="flex:1; border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-edit"></i></button>
+                        <button onclick='openTaskModal(${JSON.stringify(t)})' style="flex:1; border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-pencil"></i></button>
                     </div></div>`;
                 }).join('')}</div>`).join('');
 
@@ -674,7 +674,7 @@
                 <td>${t.ultima || '-'}</td>
                 <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
                 <td>
-                    <button onclick="segnaTaskFatto('${t.id}')" style="border:none; background:none;class="clean-action-btn"><i class="fa-check" style="color: #27ae60;"></i></button>
+                    <button onclick="segnaTaskFatto('${t.id}')" style="border:none; background:none;class="clean-action-btn"><i class="fas fa-check-circle" style="color: #27ae60;"></i></button>
                     <button onclick='openTaskModal(${JSON.stringify(t)})' style="border:none; color:var(--primary); background:none; cursor:pointer;"><i class="fas fa-pen"></i></button>
                     <button onclick="eliminaTask('${t.id}')" style="border:none; color:#e74c3c; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
                 </td></tr>`;
