@@ -674,9 +674,9 @@
                 <td>${t.ultima || '-'}</td>
                 <td><div class="energy-container-wrap" style="width:80px; margin:0"><div style="height:100%; width:${100-en.perc}%; background:${en.col}"></div></div></td>
                 <td>
-                    <button onclick="segnaTaskFatto('${t.id}')" class="clean-action-btn"><i class="fa-solid fa-circle-check" style="color: #27ae60;"></i></button>
-                    <button onclick='openTaskModal(${JSON.stringify(t)})' style="border:none; color:var(--primary); background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-pen"></i></button>
-                    <button onclick="eliminaTask('${t.id}')" style="border:none; color:#e74c3c; background:none; cursor:pointer; margin-left:10px;"><i class="fas fa-trash"></i></button>
+                    <button onclick="segnaTaskFatto('${t.id}')" style="border:none; background:none;class="clean-action-btn"><i class="fa-check" style="color: #27ae60;"></i></button>
+                    <button onclick='openTaskModal(${JSON.stringify(t)})' style="border:none; color:var(--primary); background:none; cursor:pointer;"><i class="fas fa-pen"></i></button>
+                    <button onclick="eliminaTask('${t.id}')" style="border:none; color:#e74c3c; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
                 </td></tr>`;
             }).join('');
 
