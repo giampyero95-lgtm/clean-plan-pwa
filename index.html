@@ -709,7 +709,7 @@
             const u = document.getElementById("t-ultima").value;
             if(!n) return;
             
-            const data = { nome: n, stanza: s, freq: f, utima: u};
+            const data = { nome: n, stanza: s, freq: f, ultima: u};
             if(!id) {
                 const d = new Date(); d.setDate(d.getDate() - f);
                 data.ultima = d.toISOString().split('T')[0];
