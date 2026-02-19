@@ -637,6 +637,71 @@
                 }
             };
         });
+        
+        // --- LOGICA IMPORTAZIONE MASSIVA ---
+document.getElementById('csv-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (jsonData.length === 0) {
+                alert("Il file sembra vuoto!");
+                return;
+            }
+
+            if (confirm(`Rilevati ${jsonData.length} libri. Procedo con l'importazione?`)) {
+                let importati = 0;
+
+                for (const row of jsonData) {
+                    // Mappatura precisa delle tue colonne
+                    const newBook = {
+                        title: row['TITOLO'] || 'Senza Titolo',
+                        author: row['AUTORE'] || '',
+                        genre: row['GENERE'] || '',
+                        pages: parseInt(row['PAGINE']) || 0,
+                        series: row['SERIE'] || '',
+                        vol: row['Volume'] || '',
+                        isbn: row['ISBN'] || '',
+                        cover: row['COPERTINA'] || '',
+                        pubYear: row['ANNO'] || '', // Anno di pubblicazione
+                        readYear: row['Anno lettura'] || '', // Quando l'hai letto
+                        
+                        // Normalizzazione Formato (es: "E-Book" -> "ebook")
+                        format: (row['FORMATO'] || 'cartaceo').toLowerCase().trim(),
+                        
+                        // Normalizzazione Stato (es: "In Lettura" -> "in_lettura")
+                        status: (row['STATO'] || 'da_leggere')
+                                .toLowerCase()
+                                .trim()
+                                .replace(/\s+/g, '_'),
+                        
+                        // Gestione Valutazione (estrae il numero se scrivi "5" o "5 stelle")
+                        rating: parseInt(row['VALUTAZIONE']) || 0,
+                        
+                        lastUpdate: new Date().toISOString()
+                    };
+
+                    await addDoc(collection(db, "books"), newBook);
+                    importati++;
+                }
+                alert(`Successo! ${importati} libri aggiunti al database.`);
+                e.target.value = ''; // Reset dell'input
+            }
+        } catch (err) {
+            console.error("Errore durante l'importazione:", err);
+            alert("Errore tecnico durante la lettura del file. Controlla la console.");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+});
+
 
         // ==========================================
         // === LOGICA CLEAN PLAN ===
