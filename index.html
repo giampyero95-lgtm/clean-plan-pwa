@@ -346,8 +346,9 @@
     </div>
 
     <script type="module">
+        // SOSTITUITO signInWithPopup CON signInWithRedirect
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs", authDomain: "myspace-pwa.firebaseapp.com", projectId: "myspace-pwa", storageBucket: "myspace-pwa.firebasestorage.app", messagingSenderId: "519649568828", appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39" };
@@ -357,9 +358,10 @@
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 
-        // --- AUTH LOGIC (Mobile Friendly Popup) ---
+        // --- AUTH LOGIC (Mobile Friendly) ---
+        // SOSTITUITO signInWithPopup CON signInWithRedirect
         document.getElementById('login-google-btn').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch((error) => {
+            signInWithRedirect(auth, provider).catch((error) => {
                 alert("Errore Login: " + error.message);
             });
         });
@@ -671,7 +673,7 @@
                     <strong>${t.nome}</strong><small style="opacity:0.7">Manca: ${en.rim} gg</small>
                     <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
                     <div style="display:flex; gap:10px; width:100%; margin-top:5px;">
-   <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button>
+   <button onclick="segnaTaskFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button>
                         <button onclick='openTaskModal(${JSON.stringify(t)})' style="flex:1; border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-pencil"></i></button>
                     </div></div>`;
                 }).join('')}</div>`).join('');
