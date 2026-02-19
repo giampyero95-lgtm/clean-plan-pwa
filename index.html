@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -344,10 +345,10 @@
             </div>
         </div>
     </div>
-    
-        <script type="module">
+
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs", authDomain: "myspace-pwa.firebaseapp.com", projectId: "myspace-pwa", storageBucket: "myspace-pwa.firebasestorage.app", messagingSenderId: "519649568828", appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39" };
@@ -355,65 +356,27 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
-        
-        // Mettiamo in minuscolo per sicurezza
-        const whitelist = ["giampyero95@gmail.com"]; 
-        const loginBtn = document.getElementById('login-google-btn');
-        const authError = document.getElementById('auth-error');
+        const whitelist = ["giampyero95@gmail.com"];
 
-        // 1. STATO INIZIALE: Disabilita il bottone mentre Firebase controlla lo stato (previene i flash)
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento...';
-        loginBtn.style.pointerEvents = 'none';
-
-        // 2. INTERCETTA IL RISULTATO DEL REDIRECT
-        getRedirectResult(auth).then((result) => {
-            if (result) {
-                console.log("Login redirect completato!");
-            }
-        }).catch((error) => {
-            authError.innerText = "Errore di accesso: " + error.message;
-            resetLoginButton();
-        });
-
-        // 3. ASCOLTA I CAMBIAMENTI DI STATO
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Controllo email ignorando maiuscole/minuscole
-                const userEmail = user.email.toLowerCase();
-                if (whitelist.includes(userEmail)) {
-                    document.getElementById('auth-container').style.display = 'none';
-                    document.getElementById('main-hub').style.display = 'flex';
-                    initBooks();      
-                    initCleanPlan();  
-                } else { 
-                    authError.innerText = "Email non autorizzata: " + user.email;
-                    signOut(auth); 
-                    resetLoginButton();
-                }
-            } else {
-                // Nessun utente, mostra il bottone ripristinato
-                document.getElementById('auth-container').style.display = 'flex';
-                document.getElementById('main-hub').style.display = 'none';
-                resetLoginButton();
-            }
-        });
-
-        function resetLoginButton() {
-            loginBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Accedi con Google';
-            loginBtn.style.pointerEvents = 'auto';
-        }
-
-        // --- AUTH LOGIC (Mobile Friendly) ---
-        loginBtn.addEventListener('click', () => {
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindirizzamento...';
-            loginBtn.style.pointerEvents = 'none';
-            signInWithRedirect(auth, provider).catch((error) => {
-                authError.innerText = "Errore: " + error.message;
-                resetLoginButton();
+        // --- AUTH LOGIC (Mobile Friendly Popup) ---
+        document.getElementById('login-google-btn').addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("Errore Login: " + error.message);
             });
         });
-        
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && whitelist.includes(user.email)) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-hub').style.display = 'flex';
+                initBooks();      // Avvia Libri
+                initCleanPlan();  // Avvia Clean Plan
+            } else if (user) { 
+                document.getElementById('auth-error').innerText = "Email non autorizzata.";
+                signOut(auth); 
+            }
+        });
 
         // --- GENERAL NAVIGATION ---
         window.openApp = (n) => { 
@@ -679,6 +642,8 @@
         };
         
 
+
+
         window.segnaTaskFatto = async (id) => {
             await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
         };
@@ -707,7 +672,7 @@
                     <strong>${t.nome}</strong><small style="opacity:0.7">Manca: ${en.rim} gg</small>
                     <div class="energy-container-wrap"><div style="height:100%; width:${100-en.perc}%; background:${en.col}; transition:0.5s"></div></div>
                     <div style="display:flex; gap:10px; width:100%; margin-top:5px;">
-   <button onclick="segnaTaskFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button>
+   <button onclick="segnaFatto('${t.id}')" style="width:100%; border:none; background:var(--primary); color:white; padding:8px; border-radius:8px; cursor:pointer;">Fatto</button>
                         <button onclick='openTaskModal(${JSON.stringify(t)})' style="flex:1; border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-pencil"></i></button>
                     </div></div>`;
                 }).join('')}</div>`).join('');
@@ -756,7 +721,7 @@
             
             document.getElementById('modal-task').style.display = 'none';
         };
+
     </script>
 </body>
 </html>
-
