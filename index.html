@@ -345,10 +345,9 @@
         </div>
     </div>
 
-    <script type="module">
-        // SOSTITUITO signInWithPopup CON signInWithRedirect
+       <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDkPW_FmKqOxnRxYyr84dReU_6DWSZ8iEs", authDomain: "myspace-pwa.firebaseapp.com", projectId: "myspace-pwa", storageBucket: "myspace-pwa.firebasestorage.app", messagingSenderId: "519649568828", appId: "1:519649568828:web:bcf7dbe76e94d80f33bb39" };
@@ -356,28 +355,65 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
-        const whitelist = ["giampyero95@gmail.com"];
+        
+        // Mettiamo in minuscolo per sicurezza
+        const whitelist = ["giampyero95@gmail.com"]; 
+        const loginBtn = document.getElementById('login-google-btn');
+        const authError = document.getElementById('auth-error');
 
-        // --- AUTH LOGIC (Mobile Friendly) ---
-        // SOSTITUITO signInWithPopup CON signInWithRedirect
-        document.getElementById('login-google-btn').addEventListener('click', () => {
-            signInWithRedirect(auth, provider).catch((error) => {
-                alert("Errore Login: " + error.message);
-            });
+        // 1. STATO INIZIALE: Disabilita il bottone mentre Firebase controlla lo stato (previene i flash)
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento...';
+        loginBtn.style.pointerEvents = 'none';
+
+        // 2. INTERCETTA IL RISULTATO DEL REDIRECT
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                console.log("Login redirect completato!");
+            }
+        }).catch((error) => {
+            authError.innerText = "Errore di accesso: " + error.message;
+            resetLoginButton();
         });
-        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
+        // 3. ASCOLTA I CAMBIAMENTI DI STATO
         onAuthStateChanged(auth, (user) => {
-            if (user && whitelist.includes(user.email)) {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('main-hub').style.display = 'flex';
-                initBooks();      // Avvia Libri
-                initCleanPlan();  // Avvia Clean Plan
-            } else if (user) { 
-                document.getElementById('auth-error').innerText = "Email non autorizzata.";
-                signOut(auth); 
+            if (user) {
+                // Controllo email ignorando maiuscole/minuscole
+                const userEmail = user.email.toLowerCase();
+                if (whitelist.includes(userEmail)) {
+                    document.getElementById('auth-container').style.display = 'none';
+                    document.getElementById('main-hub').style.display = 'flex';
+                    initBooks();      
+                    initCleanPlan();  
+                } else { 
+                    authError.innerText = "Email non autorizzata: " + user.email;
+                    signOut(auth); 
+                    resetLoginButton();
+                }
+            } else {
+                // Nessun utente, mostra il bottone ripristinato
+                document.getElementById('auth-container').style.display = 'flex';
+                document.getElementById('main-hub').style.display = 'none';
+                resetLoginButton();
             }
         });
+
+        function resetLoginButton() {
+            loginBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Accedi con Google';
+            loginBtn.style.pointerEvents = 'auto';
+        }
+
+        // --- AUTH LOGIC (Mobile Friendly) ---
+        loginBtn.addEventListener('click', () => {
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindirizzamento...';
+            loginBtn.style.pointerEvents = 'none';
+            signInWithRedirect(auth, provider).catch((error) => {
+                authError.innerText = "Errore: " + error.message;
+                resetLoginButton();
+            });
+        });
+        
+        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
         // --- GENERAL NAVIGATION ---
         window.openApp = (n) => { 
@@ -643,8 +679,6 @@
         };
         
 
-
-
         window.segnaTaskFatto = async (id) => {
             await updateDoc(doc(db, "tasks", id), { ultima: new Date().toISOString().split('T')[0] });
         };
@@ -722,7 +756,6 @@
             
             document.getElementById('modal-task').style.display = 'none';
         };
-
     </script>
 </body>
 </html>
