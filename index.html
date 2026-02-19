@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MySpace - Ultimate Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         /* --- STILI GLOBALI --- */
         :root { --primary: #4a90e2; --accent: #f5a623; --glass: rgba(255, 255, 255, 0.25); --glass-strong: rgba(255, 255, 255, 0.4); --text: #2c3e50; }
@@ -142,7 +143,8 @@
             <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
             <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
             <div style="flex:1"></div>
-            <button onclick="exportToCSV()" title="Esporta CSV"><i class="fas fa-file-export"></i></button>
+            
+            <button id="export-excel-btn" class="action-btn"><i class="fas fa-file-export"></i></button>
             <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
             <input type="file" id="csv-input" style="display:none" accept=".csv">
         </nav>
@@ -520,6 +522,44 @@
                 tbody.appendChild(tr);
             });
         }
+        
+                // --- FUNZIONE ESPORTA EXCEL ---
+        window.exportBooksToExcel = () => {
+            if (books.length === 0) {
+                alert("Nessun dato da esportare!");
+                return;
+            }
+
+            // Prepariamo i dati: scegliamo solo le colonne che ci interessano e diamo nomi puliti
+            const dataToExport = books.map(b => ({
+                'Titolo': b.title || '',
+                'Autore': b.author || '',
+                'Genere': b.genre || '',
+                'Pagine': b.pages || 0,
+                'Stato': (b.status || '').replace('_', ' '),
+                'Formato': b.format || '',
+                'Voto': '⭐'.repeat(b.rating || 0),
+                'Anno Lettura': b.readYear || '',
+                'Serie': b.series || '',
+                'Volume': b.vol || '',
+                'ISBN': b.isbn || ''
+            }));
+
+            // Creiamo il foglio di lavoro (Worksheet)
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            
+            // Creiamo la cartella di lavoro (Workbook)
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Libri");
+
+            // Generiamo il file e avviamo il download
+            XLSX.writeFile(workbook, `MySpace_Books_${new Date().toISOString().split('T')[0]}.xlsx`);
+        };
+
+        // Colleghiamo il tasto alla funzione
+        document.getElementById('export-excel-btn').onclick = window.exportBooksToExcel;
+
+        
 
         window.sortTable = (key) => { if(sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; } renderTable(); };
         function getStatusColor(s) { const colors = { 'letto':'#27ae60', 'in_lettura':'#f39c12', 'da_leggere':'#3498db', 'wishlist':'#9b59b6' }; return colors[s] || '#95a5a6'; }
