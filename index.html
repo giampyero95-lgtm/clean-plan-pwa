@@ -344,8 +344,8 @@
             </div>
         </div>
     </div>
-
-       <script type="module">
+    
+        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -403,23 +403,15 @@
             loginBtn.style.pointerEvents = 'auto';
         }
 
-                // --- AUTH LOGIC (Ottimizzata per PWA iOS) ---
-        loginBtn.addEventListener('click', async () => {
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Accesso in corso...';
+        // --- AUTH LOGIC (Mobile Friendly) ---
+        loginBtn.addEventListener('click', () => {
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindirizzamento...';
             loginBtn.style.pointerEvents = 'none';
-
-            try {
-                // Cambiamo da signInWithRedirect a signInWithPopup
-                import { signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-                await signInWithPopup(auth, provider);
-                // Se il popup ha successo, onAuthStateChanged si attiverà da solo
-            } catch (error) {
-                console.error(error);
-                // Se il popup fallisce (es. bloccato), proviamo il redirect come fallback
-                signInWithRedirect(auth, provider);
-            }
+            signInWithRedirect(auth, provider).catch((error) => {
+                authError.innerText = "Errore: " + error.message;
+                resetLoginButton();
+            });
         });
-
         
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
@@ -767,3 +759,4 @@
     </script>
 </body>
 </html>
+
