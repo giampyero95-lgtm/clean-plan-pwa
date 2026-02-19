@@ -143,9 +143,11 @@
             <button id="nav-table" class="nav-internal" onclick="switchView('table')"><i class="fas fa-list"></i></button>
             <button id="nav-goals" class="nav-internal" onclick="switchView('goals')"><i class="fas fa-trophy"></i></button>
             <div style="flex:1"></div>
-            <button id="export-excel-btn" class="action-btn" style="display:none"><i class="fas fa-file-export"></button>
-            <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
-            <input type="file" id="csv-input" style="display:none" accept=".csv">
+            
+            <div style="flex:1"></div> <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; padding-bottom: 10px;">
+             <button id="export-excel-btn" class="action-btn" style="display:none"><i class="fas fa-file-export"></button>
+             <button onclick="document.getElementById('csv-input').click()"><i class="fas fa-file-import"></i></button>
+             <input type="file" id="csv-input" style="display:none" accept=".csv">
         </nav>
 
         <main class="content-area">
