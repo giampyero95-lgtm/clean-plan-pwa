@@ -402,41 +402,54 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
+
 window.cercaCopertina = async () => {
     const isbn = document.getElementById('b-isbn').value.trim();
     if (!isbn) return alert("Inserisci un codice ISBN");
+
+    // Troviamo il bottone per fargli fare un'animazione di caricamento
+    const btn = document.querySelector('button[onclick="cercaCopertina()"]');
+    const oldIcon = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; // Rotellina che gira
 
     try {
         const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         const data = await response.json();
 
-        if (data.totalItems > 0) {
+        // Controllo rinforzato sull'esistenza reale dei dati
+        if (data.totalItems > 0 && data.items && data.items.length > 0) {
             const info = data.items[0].volumeInfo;
             
-            // 1. Inserisce la copertina (usa la versione ad alta risoluzione se disponibile)
+            // 1. Inserisce la copertina (solo se c'è un'immagine)
             if (info.imageLinks && info.imageLinks.thumbnail) {
-                // Sostituiamo http con https per evitare blocchi di sicurezza
                 const coverUrl = info.imageLinks.thumbnail.replace('http:', 'https:');
                 document.getElementById('b-cover').value = coverUrl;
             }
 
-            // 2. Opzionale: Riempi altri campi se sono vuoti
-            if (!document.getElementById('b-title').value) 
-                document.getElementById('b-title').value = info.title || "";
-            if (!document.getElementById('b-author').value) 
-                document.getElementById('b-author').value = info.authors ? info.authors.join(', ') : "";
-            if (!document.getElementById('b-pages').value) 
-                document.getElementById('b-pages').value = info.pageCount || "";
+            // 2. Riempi altri campi solo se esistono e se sono vuoti nell'app
+            if (!document.getElementById('b-title').value && info.title) 
+                document.getElementById('b-title').value = info.title;
             
-            alert("Dati recuperati con successo!");
+            if (!document.getElementById('b-author').value && info.authors) 
+                document.getElementById('b-author').value = info.authors.join(', ');
+            
+            if (!document.getElementById('b-pages').value && info.pageCount) 
+                document.getElementById('b-pages').value = info.pageCount;
+            
+            // alert("Dati recuperati con successo!"); // Puoi scommentare questo se vuoi una conferma testuale
         } else {
             alert("Nessun libro trovato per questo ISBN.");
         }
     } catch (error) {
         console.error("Errore nel recupero dati:", error);
-        alert("Errore durante la ricerca online.");
+        alert("Errore di connessione o durante la ricerca online. Controlla la console.");
+    } finally {
+        // A ricerca finita (o se va in errore), rimetti la bacchetta magica
+        btn.innerHTML = oldIcon;
     }
 };
+
+
         // --- AUTH LOGIC (Mobile Friendly Popup) ---
         document.getElementById('login-google-btn').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((error) => {
