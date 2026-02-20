@@ -320,7 +320,8 @@
                     <div class="form-row">
                         <div class="form-group"><label>Anno</label><input type="text" id="b-pub-year" class="form-input"></div>
                         <div class="form-group"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
-                        <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
+                        <div class="form-group"><label>ISBN</label><div style="display: flex; gap: 5px;"><input type="text" id="b-isbn" class="form-input" placeholder="978..."><button type="button" onclick="cercaCopertina()" class="filter-tab" style="padding: 0 15px; background: var(--primary); color: white;"><i class="fas fa-magic"></i></button></div>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex:2"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
@@ -401,7 +402,41 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
+window.cercaCopertina = async () => {
+    const isbn = document.getElementById('b-isbn').value.trim();
+    if (!isbn) return alert("Inserisci un codice ISBN");
 
+    try {
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        const data = await response.json();
+
+        if (data.totalItems > 0) {
+            const info = data.items[0].volumeInfo;
+            
+            // 1. Inserisce la copertina (usa la versione ad alta risoluzione se disponibile)
+            if (info.imageLinks && info.imageLinks.thumbnail) {
+                // Sostituiamo http con https per evitare blocchi di sicurezza
+                const coverUrl = info.imageLinks.thumbnail.replace('http:', 'https:');
+                document.getElementById('b-cover').value = coverUrl;
+            }
+
+            // 2. Opzionale: Riempi altri campi se sono vuoti
+            if (!document.getElementById('b-title').value) 
+                document.getElementById('b-title').value = info.title || "";
+            if (!document.getElementById('b-author').value) 
+                document.getElementById('b-author').value = info.authors ? info.authors.join(', ') : "";
+            if (!document.getElementById('b-pages').value) 
+                document.getElementById('b-pages').value = info.pageCount || "";
+            
+            alert("Dati recuperati con successo!");
+        } else {
+            alert("Nessun libro trovato per questo ISBN.");
+        }
+    } catch (error) {
+        console.error("Errore nel recupero dati:", error);
+        alert("Errore durante la ricerca online.");
+    }
+};
         // --- AUTH LOGIC (Mobile Friendly Popup) ---
         document.getElementById('login-google-btn').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((error) => {
