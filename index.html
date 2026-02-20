@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySpace</title>
+    <title>MySpace - Ultimate Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -110,43 +110,6 @@
         .btn-cancel { background: #eee; color: #666; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; flex: 1; }
 
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 500; }
-        .header-database-container {
-    display: flex;
-    justify-content: space-between; /* Spinge il titolo a sx e la barra a dx */
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.search-pill {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.4); /* Semitrasparente */
-    backdrop-filter: blur(8px); /* Effetto vetro */
-    border-radius: 50px; /* Stile pillola */
-    padding: 8px 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Leggera ombra */
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.search-pill i {
-    color: #4a4a4a;
-    margin-right: 10px;
-}
-
-.search-pill input {
-    border: none;
-    background: transparent;
-    outline: none;
-    color: #333;
-    font-size: 15px;
-    width: 220px; /* Larghezza della barra, regolala come preferisci */
-}
-
-.search-pill input::placeholder {
-    color: #666;
-}
-   
-    
     </style>
 </head>
 <body>
@@ -229,11 +192,7 @@
             </div>
 
             <div id="view-table" class="view-section">
-               
-                <div class="header-database-container"><h2>Database Completo</h2>
-                 <div class="search-pill"><i class="fas fa-search"></i> <input type="text" id="cercaLibro" placeholder="Cerca per titolo o serie..." onkeyup="filtraTabella()">
-                  </div>
-                </div>
+                <h2 style="margin-bottom:15px;">Database Completo</h2>
                 <div class="glass-panel data-table-container">
                     <table class="data-table">
                         <thead>
@@ -319,7 +278,8 @@
                     <div class="form-row">
                         <div class="form-group"><label>Anno</label><input type="text" id="b-pub-year" class="form-input"></div>
                         <div class="form-group"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
-                        <div class="form-group"><label>ISBN</label><input type="text" id="b-isbn" class="form-input"></div>
+                      <div class="form-group"><label>ISBN</label><div style="display: flex; gap: 5px;"><input type="text" id="b-isbn" class="form-input" placeholder="978..."><button type="button" onclick="cercaCopertina()" class="filter-tab" style="padding: 0 15px; background: var(--primary); color: white;"><i class="fas fa-magic"></i></button></div>
+                      </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex:2"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
@@ -445,29 +405,6 @@
                 updateStats(); renderBooks(); renderTable(); renderGoalsArchive(); renderAuthors();
             });
         }
-
-        window.filtraTabella = () => {
-    // Prende il testo inserito e lo trasforma in minuscolo
-    let input = document.getElementById("cercaLibro").value.toLowerCase();
-    
-    // Seleziona tutte le righe del corpo della tua tabella
-    // Assicurati che il selettore 'tbody tr' corrisponda alla tua struttura
-    let righe = document.querySelectorAll("tbody tr");
-
-    righe.forEach(riga => {
-        // Le celle (td) partono da 0. 
-        // Titolo è l'indice 1, Serie è l'indice 4 (basandomi sul tuo screenshot)
-        let titolo = riga.cells[1] ? riga.cells[1].textContent.toLowerCase() : "";
-        let serie = riga.cells[4] ? riga.cells[4].textContent.toLowerCase() : "";
-
-        // Se il testo cercato è nel titolo O nella serie, mostra la riga, altrimenti nascondila
-        if (titolo.includes(input) || serie.includes(input)) {
-            riga.style.display = "";
-        } else {
-            riga.style.display = "none";
-        }
-    });
-};
 
         window.switchView = (v) => {
             document.querySelectorAll('.nav-internal').forEach(b => b.classList.remove('active'));
@@ -670,6 +607,44 @@
             id ? await updateDoc(doc(db, "books", id), data) : await addDoc(collection(db, "books"), data);
             document.getElementById('modal-book').style.display = 'none';
         };
+       
+        window.cercaCopertina = async () => {
+    const isbn = document.getElementById('b-isbn').value.trim();
+    if (!isbn) return alert("Inserisci un codice ISBN");
+
+    try {
+        const response = await fetch(https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg);
+        const data = await response.json();
+
+        if (data.totalItems > 0) {
+            const info = data.items[0].volumeInfo;
+            
+            // 1. Inserisce la copertina (usa la versione ad alta risoluzione se disponibile)
+            if (info.imageLinks && info.imageLinks.thumbnail) {
+                // Sostituiamo http con https per evitare blocchi di sicurezza
+                const coverUrl = info.imageLinks.thumbnail.replace('http:', 'https:');
+                document.getElementById('b-cover').value = coverUrl;
+            }
+
+            // 2. Opzionale: Riempi altri campi se sono vuoti
+            if (!document.getElementById('b-title').value) 
+                document.getElementById('b-title').value = info.title  "";
+            if (!document.getElementById('b-author').value) 
+                document.getElementById('b-author').value = info.authors ? info.authors.join(', ') : "";
+            if (!document.getElementById('b-pages').value) 
+                document.getElementById('b-pages').value = info.pageCount  "";
+            
+            alert("Dati recuperati con successo!");
+        } else {
+            alert("Nessun libro trovato per questo ISBN.");
+        }
+    } catch (error) {
+        console.error("Errore nel recupero dati:", error);
+        alert("Errore durante la ricerca online.");
+    }
+};
+
+
 
         window.deleteBook = async (id) => { if(confirm("Eliminare?")) await deleteDoc(doc(db, "books", id)); };
 
