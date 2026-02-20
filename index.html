@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySpace - Ultimate Hub</title>
+    <title>MySpace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -110,6 +110,43 @@
         .btn-cancel { background: #eee; color: #666; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; flex: 1; }
 
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #1a2233; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); cursor: pointer; z-index: 500; }
+        .header-database-container {
+    display: flex;
+    justify-content: space-between; /* Spinge il titolo a sx e la barra a dx */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-pill {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.4); /* Semitrasparente */
+    backdrop-filter: blur(8px); /* Effetto vetro */
+    border-radius: 50px; /* Stile pillola */
+    padding: 8px 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Leggera ombra */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.search-pill i {
+    color: #4a4a4a;
+    margin-right: 10px;
+}
+
+.search-pill input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: #333;
+    font-size: 15px;
+    width: 220px; /* Larghezza della barra, regolala come preferisci */
+}
+
+.search-pill input::placeholder {
+    color: #666;
+}
+   
+    
     </style>
 </head>
 <body>
@@ -192,7 +229,11 @@
             </div>
 
             <div id="view-table" class="view-section">
-                <h2 style="margin-bottom:15px;">Database Completo</h2>
+               
+                <div class="header-database-container"><h2>Database Completo</h2>
+                 <div class="search-pill"><i class="fas fa-search"></i> <input type="text" id="cercaLibro" placeholder="Cerca per titolo o serie..." onkeyup="filtraTabella()">
+                  </div>
+                </div>
                 <div class="glass-panel data-table-container">
                     <table class="data-table">
                         <thead>
@@ -404,6 +445,29 @@
                 updateStats(); renderBooks(); renderTable(); renderGoalsArchive(); renderAuthors();
             });
         }
+
+        window.filtraTabella = () => {
+    // Prende il testo inserito e lo trasforma in minuscolo
+    let input = document.getElementById("cercaLibro").value.toLowerCase();
+    
+    // Seleziona tutte le righe del corpo della tua tabella
+    // Assicurati che il selettore 'tbody tr' corrisponda alla tua struttura
+    let righe = document.querySelectorAll("tbody tr");
+
+    righe.forEach(riga => {
+        // Le celle (td) partono da 0. 
+        // Titolo è l'indice 1, Serie è l'indice 4 (basandomi sul tuo screenshot)
+        let titolo = riga.cells[1] ? riga.cells[1].textContent.toLowerCase() : "";
+        let serie = riga.cells[4] ? riga.cells[4].textContent.toLowerCase() : "";
+
+        // Se il testo cercato è nel titolo O nella serie, mostra la riga, altrimenti nascondila
+        if (titolo.includes(input) || serie.includes(input)) {
+            riga.style.display = "";
+        } else {
+            riga.style.display = "none";
+        }
+    });
+};
 
         window.switchView = (v) => {
             document.querySelectorAll('.nav-internal').forEach(b => b.classList.remove('active'));
