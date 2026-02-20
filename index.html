@@ -404,53 +404,48 @@
         const whitelist = ["giampyero95@gmail.com"];
 
 window.cercaCopertina = async () => {
-    const isbnInput = document.getElementById('b-isbn');
-    const isbn = isbnInput.value.replace(/[-\s]/g, ''); // Rimuove trattini e spazi
+    console.log("Funzione avviata!"); // Questo apparirà nella console (F12)
     
-    if (!isbn) return alert("Inserisci un codice ISBN");
+    const inputField = document.getElementById('b-isbn');
+    if (!inputField) return alert("Errore: Non trovo il campo b-isbn nel codice HTML!");
+    
+    const isbn = inputField.value.trim().replace(/-/g, "");
+    if (!isbn) return alert("Inserisci un codice ISBN prima di cliccare!");
 
-    // Troviamo il bottone in modo più sicuro (cerca l'icona della bacchetta magica)
-    const icon = document.querySelector('.fa-magic');
-    const btn = icon ? icon.parentElement : null;
-    const oldIcon = btn ? btn.innerHTML : '';
-
+    // Proviamo a cercare il bottone in modo semplice per l'animazione
+    const btn = document.querySelector('button[onclick*="cercaCopertina"]');
     if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
     try {
+        console.log("Cerco su Google Books l'ISBN:", isbn);
         const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         const data = await response.json();
 
-        if (data.totalItems > 0 && data.items) {
+        if (data.totalItems > 0) {
             const info = data.items[0].volumeInfo;
-            
-            // Riempie la copertina
+            console.log("Dati ricevuti:", info);
+
+            // Inseriamo i dati nei campi
             if (info.imageLinks) {
-                const coverUrl = (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail).replace('http:', 'https:');
-                document.getElementById('b-cover').value = coverUrl;
+                const cover = (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail).replace("http:", "https:");
+                document.getElementById('b-cover').value = cover;
             }
-
-            // Riempie i dati mancanti
-            const t = document.getElementById('b-title');
-            const a = document.getElementById('b-author');
-            const p = document.getElementById('b-pages');
-
-            if (!t.value) t.value = info.title || "";
-            if (!a.value) a.value = info.authors ? info.authors.join(', ') : "";
-            if (!p.value) p.value = info.pageCount || "";
             
-            alert("Dati trovati e inseriti!");
+            document.getElementById('b-title').value = info.title || "";
+            document.getElementById('b-author').value = info.authors ? info.authors.join(", ") : "";
+            document.getElementById('b-pages').value = info.pageCount || "";
+            
+            alert("Libro trovato: " + info.title);
         } else {
-            alert("Google Books non ha dati per questo ISBN (" + isbn + "). Prova con un altro libro o inserisci i dati a mano.");
+            alert("Google Books non ha questo libro. Prova con l'ISBN di Harry Potter: 9788869183157 per testare il tasto.");
         }
     } catch (error) {
-        console.error("Errore:", error);
-        alert("Errore di connessione.");
+        console.error("Errore durante la fetch:", error);
+        alert("Errore di connessione: " + error.message);
     } finally {
-        if (btn) btn.innerHTML = oldIcon;
+        if (btn) btn.innerHTML = '<i class="fas fa-magic"></i>';
     }
 };
-
-
 
 
         // --- AUTH LOGIC (Mobile Friendly Popup) ---
