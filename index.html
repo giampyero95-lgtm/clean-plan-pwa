@@ -320,8 +320,16 @@
                     <div class="form-row">
                         <div class="form-group"><label>Anno</label><input type="text" id="b-pub-year" class="form-input"></div>
                         <div class="form-group"><label>Pagine</label><input type="number" id="b-pages" class="form-input"></div>
-                        <div class="form-group"><label>ISBN</label><div style="display: flex; gap: 5px;"><input type="text" id="b-isbn" class="form-input" placeholder="978..."><button type="button" onclick="cercaCopertina()" class="filter-tab" style="padding: 0 15px; background: var(--primary); color: white;"><i class="fas fa-magic"></i></button></div>
-                        </div>
+                        <div class="form-group">
+    <label>ISBN</label>
+    <div style="display: flex; gap: 5px;">
+        <input type="text" id="b-isbn" class="form-input" placeholder="978...">
+        <button type="button" id="btn-magic-isbn" onclick="cercaCopertina()" class="filter-tab" style="padding: 0 15px; background: var(--primary); color: white;">
+            <i class="fas fa-magic"></i>
+        </button>
+    </div>
+</div>
+
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex:2"><label>Serie</label><input type="text" id="b-series" class="form-input"></div>
@@ -403,60 +411,70 @@
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 window.cercaCopertina = async () => {
-    // 1. Prendi l'ISBN e puliscilo da eventuali spazi o trattini
-    const isbnRaw = document.getElementById('b-isbn').value;
-    const isbn = isbnRaw.replace(/[- ]/g, "");
+    const isbnInput = document.getElementById('b-isbn');
+    const isbn = isbnInput.value.replace(/[- ]/g, "");
 
-    // 2. Controllo validità: gli ISBN validi hanno 10 o 13 cifre
     if (!isbn || (isbn.length !== 10 && isbn.length !== 13)) {
-        return alert("Inserisci un codice ISBN valido (da 10 o 13 cifre).");
+        alert("Inserisci un codice ISBN valido (10 o 13 cifre).");
+        return;
     }
 
-    // 3. Feedback visivo: facciamo girare l'icona
-    const icon = document.querySelector('button[onclick="cercaCopertina()"] i');
+    // Feedback visivo
+    const btn = document.getElementById('btn-magic-isbn');
+    const icon = btn ? btn.querySelector('i') : null;
     if (icon) icon.className = "fas fa-spinner fa-spin";
 
     try {
-        // 4. Interroga il database di Google Books
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-        const data = await response.json();
+        let bookData = { title: "", authors: "", pages: "", coverUrl: "" };
+        let found = false;
 
-        if (data.totalItems > 0) {
-            const info = data.items[0].volumeInfo;
-            
-            // Seleziona i campi del tuo modulo
-            const titleField = document.getElementById('b-title');
-            const authorField = document.getElementById('b-author');
-            const pagesField = document.getElementById('b-pages');
-            const coverField = document.getElementById('b-cover');
+        // TENTATIVO 1: Google Books
+        const googleRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        const googleJson = await googleRes.json();
 
-            // 5. Compila i campi SOLO se sono attualmente vuoti
-            if (!titleField.value && info.title) {
-                titleField.value = info.title;
+        if (googleJson.totalItems > 0) {
+            const info = googleJson.items[0].volumeInfo;
+            bookData.title = info.title || "";
+            bookData.authors = info.authors ? info.authors.join(', ') : "";
+            bookData.pages = info.pageCount || "";
+            if (info.imageLinks && info.imageLinks.thumbnail) {
+                bookData.coverUrl = info.imageLinks.thumbnail.replace('http:', 'https:');
             }
-            if (!authorField.value && info.authors) {
-                authorField.value = info.authors.join(', ');
-            }
-            if (!pagesField.value && info.pageCount) {
-                pagesField.value = info.pageCount;
-            }
-            if (!coverField.value && info.imageLinks && info.imageLinks.thumbnail) {
-                // Mette 'https' per evitare problemi di sicurezza nel browser
-                coverField.value = info.imageLinks.thumbnail.replace('http:', 'https:');
-            }
-            
-            alert("Dati recuperati e inseriti con successo!");
-        } else {
-            alert("Nessun libro trovato per questo ISBN nel database.");
+            found = true;
         }
-    } catch (error) {
-        console.error("Errore nel recupero dati:", error);
-        alert("Errore di connessione al database online.");
+
+        // TENTATIVO 2: Open Library (se manca la copertina)
+        if (!bookData.coverUrl) {
+            const olRes = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`);
+            const olJson = await olRes.json();
+            const olKey = `ISBN:${isbn}`;
+            if (olJson[olKey]) {
+                const info = olJson[olKey];
+                if (!bookData.title) bookData.title = info.title || "";
+                if (!bookData.authors && info.authors) bookData.authors = info.authors.map(a => a.name).join(', ');
+                if (!bookData.pages) bookData.pages = info.number_of_pages || "";
+                if (info.cover) bookData.coverUrl = info.cover.large || info.cover.medium || "";
+                found = true;
+            }
+        }
+
+        if (found) {
+            if (!document.getElementById('b-title').value) document.getElementById('b-title').value = bookData.title;
+            if (!document.getElementById('b-author').value) document.getElementById('b-author').value = bookData.authors;
+            if (!document.getElementById('b-pages').value) document.getElementById('b-pages').value = bookData.pages;
+            if (!document.getElementById('b-cover').value) document.getElementById('b-cover').value = bookData.coverUrl;
+            alert("Dati trovati!");
+        } else {
+            alert("Libro non trovato nei database online.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Errore durante la ricerca.");
     } finally {
-        // 6. Ferma l'icona di caricamento
-        if (icon) icon.className = "fas fa-magic"; 
+        if (icon) icon.className = "fas fa-magic";
     }
 };
+
 
         // --- AUTH LOGIC (Mobile Friendly Popup) ---
         document.getElementById('login-google-btn').addEventListener('click', () => {
