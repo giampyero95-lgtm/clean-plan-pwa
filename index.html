@@ -479,6 +479,8 @@ window.cercaCopertina = async function() {
     const isbnInput = document.getElementById('b-isbn');
     if (!isbnInput) return alert("Errore: Campo ISBN non trovato.");
     
+
+    
     const isbn = isbnInput.value.replace(/[-\s]/g, ''); 
     if (!isbn) return alert("Inserisci un codice ISBN");
 
