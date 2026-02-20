@@ -403,40 +403,61 @@
         const provider = new GoogleAuthProvider();
         const whitelist = ["giampyero95@gmail.com"];
 window.cercaCopertina = async () => {
-    const isbn = document.getElementById('b-isbn').value.trim();
-    if (!isbn) return alert("Inserisci un codice ISBN");
+    // 1. Prendi l'ISBN e puliscilo da eventuali spazi o trattini
+    const isbnRaw = document.getElementById('b-isbn').value;
+    const isbn = isbnRaw.replace(/[- ]/g, "");
+
+    // 2. Controllo validità: gli ISBN validi hanno 10 o 13 cifre
+    if (!isbn || (isbn.length !== 10 && isbn.length !== 13)) {
+        return alert("Inserisci un codice ISBN valido (da 10 o 13 cifre).");
+    }
+
+    // 3. Feedback visivo: facciamo girare l'icona
+    const icon = document.querySelector('button[onclick="cercaCopertina()"] i');
+    if (icon) icon.className = "fas fa-spinner fa-spin";
 
     try {
+        // 4. Interroga il database di Google Books
         const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         const data = await response.json();
 
         if (data.totalItems > 0) {
             const info = data.items[0].volumeInfo;
             
-            // 1. Inserisce la copertina (usa la versione ad alta risoluzione se disponibile)
-            if (info.imageLinks && info.imageLinks.thumbnail) {
-                // Sostituiamo http con https per evitare blocchi di sicurezza
-                const coverUrl = info.imageLinks.thumbnail.replace('http:', 'https:');
-                document.getElementById('b-cover').value = coverUrl;
-            }
+            // Seleziona i campi del tuo modulo
+            const titleField = document.getElementById('b-title');
+            const authorField = document.getElementById('b-author');
+            const pagesField = document.getElementById('b-pages');
+            const coverField = document.getElementById('b-cover');
 
-            // 2. Opzionale: Riempi altri campi se sono vuoti
-            if (!document.getElementById('b-title').value) 
-                document.getElementById('b-title').value = info.title || "";
-            if (!document.getElementById('b-author').value) 
-                document.getElementById('b-author').value = info.authors ? info.authors.join(', ') : "";
-            if (!document.getElementById('b-pages').value) 
-                document.getElementById('b-pages').value = info.pageCount || "";
+            // 5. Compila i campi SOLO se sono attualmente vuoti
+            if (!titleField.value && info.title) {
+                titleField.value = info.title;
+            }
+            if (!authorField.value && info.authors) {
+                authorField.value = info.authors.join(', ');
+            }
+            if (!pagesField.value && info.pageCount) {
+                pagesField.value = info.pageCount;
+            }
+            if (!coverField.value && info.imageLinks && info.imageLinks.thumbnail) {
+                // Mette 'https' per evitare problemi di sicurezza nel browser
+                coverField.value = info.imageLinks.thumbnail.replace('http:', 'https:');
+            }
             
-            alert("Dati recuperati con successo!");
+            alert("Dati recuperati e inseriti con successo!");
         } else {
-            alert("Nessun libro trovato per questo ISBN.");
+            alert("Nessun libro trovato per questo ISBN nel database.");
         }
     } catch (error) {
         console.error("Errore nel recupero dati:", error);
-        alert("Errore durante la ricerca online.");
+        alert("Errore di connessione al database online.");
+    } finally {
+        // 6. Ferma l'icona di caricamento
+        if (icon) icon.className = "fas fa-magic"; 
     }
 };
+
         // --- AUTH LOGIC (Mobile Friendly Popup) ---
         document.getElementById('login-google-btn').addEventListener('click', () => {
             signInWithPopup(auth, provider).catch((error) => {
