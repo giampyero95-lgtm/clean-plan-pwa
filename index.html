@@ -994,35 +994,34 @@ document.getElementById('csv-input').addEventListener('change', async (e) => {
             let imported = 0;
 
             for (const row of rows) {
-                // MAPPIAMO E "PULIAMO" I DATI DAL CSV A FIREBASE
-                const newBook = {
-                    title: row.titolo ? String(row.titolo) : "Senza Titolo",
-                    author: row.autore ? String(row.autore) : "",
-                    genre: row.genere ? String(row.genere) : "",
-                    pubYear: row.anno_pubblicazione ? String(row.anno_pubblicazione) : "",
-                    pages: row.pagine ? Number(row.pagine) : "",
-                    isbn: row.isbn ? String(row.isbn) : "",
-                    series: row.serie ? String(row.serie) : "",
-                    vol: row.volume ? Number(row.volume) : "",
-                    
-                    // --- I 3 CAMPI INCRIMINATI CORRETTI ---
-                    // 1. Volume totale: forzato a Numero
-                    volTot: row.volume_totale ? Number(row.volume_totale) : "",
-                    
-                    // 2. Anno lettura: forzato a Stringa testuale
-                    readYear: row.anno_lettura ? String(row.anno_lettura) : "",
-                    
-                    // 3. Voto: forzato a Stringa e arrotondato (così se Excel passa 5.0 diventa "5")
-                    rating: row.voto ? String(Math.round(Number(row.voto))) : "0", 
+                // FILTRO DI SICUREZZA: Se manca il titolo, salta la riga
+                // (Evita di creare libri vuoti nati da righe fantasma di Excel)
+                if (!row.titolo || String(row.titolo).trim() === "") {
+                    continue; 
+                }
 
-                    status: row.stato ? String(row.stato).toLowerCase() : "da_leggere",
-                    format: row.formato ? String(row.formato).toLowerCase() : "cartaceo",
-                    coverType: row.tipo_copertina ? String(row.tipo_copertina).toLowerCase() : "flessibile",
-                    toBuy: row.acquisto ? String(row.acquisto).toLowerCase() : "no",
-                    coverUrl: row.url_copertina ? String(row.url_copertina) : "",
+                const newBook = {
+                    title: String(row.titolo).trim(),
+                    author: row.autore ? String(row.autore).trim() : "",
+                    genre: row.genere || "",
+                    pubYear: String(row.anno_pubblicazione || ""),
+                    pages: row.pagine || "",
+                    isbn: row.isbn || "",
+                    series: row.serie || "",
+                    vol: row.volume || "",
+                    volTot: row.volume_totale || "",
+                    readYear: String(row.anno_lettura || ""),
+                    rating: String(row.voto || "0"),
+                    status: row.stato || "da_leggere",
+                    format: row.formato || "cartaceo",
+                    coverType: row.tipo_copertina || "flessibile",
+                    toBuy: row.acquisto || "no",
+                    coverUrl: row.url_copertina || "",
                     timestamp: Date.now()
                 };
 
+                await addDoc(collection(db, "books"), newBook);
+            
                 // Salviamo su Firebase (assicurati che "books" sia il nome corretto della tua collection)
                 await addDoc(collection(db, "books"), newBook);
                 imported++;
