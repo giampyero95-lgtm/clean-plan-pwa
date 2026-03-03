@@ -925,7 +925,74 @@ document.getElementById('csv-input').addEventListener('change', function(e) {
 
             document.getElementById('modal-task').style.display = 'none';
         };
+// --- FUNZIONE DI IMPORTAZIONE CSV ---
+document.getElementById('csv-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        // Avvia il caricamento visivo (opzionale)
+        document.body.style.cursor = 'wait';
+        
+        try {
+            const data = new Uint8Array(event.target.result);
+            // SheetJS legge il file
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            // Converte il foglio in un array di oggetti JS
+            const rows = XLSX.utils.sheet_to_json(worksheet);
+            let imported = 0;
+
+            for (const row of rows) {
+                // MAPPIAMO E "PULIAMO" I DATI DAL CSV A FIREBASE
+                const newBook = {
+                    title: row.titolo ? String(row.titolo) : "Senza Titolo",
+                    author: row.autore ? String(row.autore) : "",
+                    genre: row.genere ? String(row.genere) : "",
+                    pubYear: row.anno_pubblicazione ? String(row.anno_pubblicazione) : "",
+                    pages: row.pagine ? Number(row.pagine) : "",
+                    isbn: row.isbn ? String(row.isbn) : "",
+                    series: row.serie ? String(row.serie) : "",
+                    vol: row.volume ? Number(row.volume) : "",
+                    
+                    // --- I 3 CAMPI INCRIMINATI CORRETTI ---
+                    // 1. Volume totale: forzato a Numero
+                    volTot: row.volume_totale ? Number(row.volume_totale) : "",
+                    
+                    // 2. Anno lettura: forzato a Stringa testuale
+                    readYear: row.anno_lettura ? String(row.anno_lettura) : "",
+                    
+                    // 3. Voto: forzato a Stringa e arrotondato (così se Excel passa 5.0 diventa "5")
+                    rating: row.voto ? String(Math.round(Number(row.voto))) : "0", 
+
+                    status: row.stato ? String(row.stato).toLowerCase() : "da_leggere",
+                    format: row.formato ? String(row.formato).toLowerCase() : "cartaceo",
+                    coverType: row.tipo_copertina ? String(row.tipo_copertina).toLowerCase() : "flessibile",
+                    toBuy: row.acquisto ? String(row.acquisto).toLowerCase() : "no",
+                    coverUrl: row.url_copertina ? String(row.url_copertina) : "",
+                    timestamp: Date.now()
+                };
+
+                // Salviamo su Firebase (assicurati che "books" sia il nome corretto della tua collection)
+                await addDoc(collection(db, "books"), newBook);
+                imported++;
+            }
+
+            alert(`Importazione completata con successo! Inseriti ${imported} libri.`);
+        } catch (error) {
+            console.error("Errore durante l'importazione:", error);
+            alert("Si è verificato un errore durante la lettura del CSV.");
+        } finally {
+            document.body.style.cursor = 'default';
+            // Resetta l'input file così puoi ricaricare lo stesso file se serve
+            e.target.value = ''; 
+        }
+    };
+    reader.readAsArrayBuffer(file);
+});
     </script>
 </body>
 </html>
